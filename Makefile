@@ -2,6 +2,13 @@
 
 # Build the application
 all: build test
+
+templ:
+    templ generate --watch --proxy="http://localhost:8090" --open-browser=false
+
+# Watch Tailwind CSS changes
+tailwind: tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --watch
+
 templ-install:
 	@if ! command -v templ > /dev/null; then \
 		read -p "Go's 'templ' is not installed on your machine. Do you want to install it? [Y/n] " choice; \

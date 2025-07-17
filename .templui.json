@@ -1,0 +1,7 @@
+{
+  "componentsDir": "web/ui",
+  "utilsDir": "web/utils",
+  "moduleName": "go-htmx-sqlite",
+  "jsDir": "web/assets/js",
+  "jsPublicPath": "/web/assets/js"
+}
