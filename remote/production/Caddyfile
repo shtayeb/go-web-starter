@@ -1,0 +1,10 @@
+# Email address that shoube be contacted if there is a problem with TLS certificate
+{
+	email greenlight@example.com
+}
+
+
+greenlight.test.com {
+	respond /debug/* "Not Permitted" 403
+	reverse_proxy localhost:4000
+}

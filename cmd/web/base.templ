@@ -16,16 +16,18 @@ templ Base() {
 			<script src="assets/js/htmx.min.js"></script>
 			@drawer.Script()
 		</head>
-		<body class="">
-		<div class="flex-1 border-b">
-			<div class="container flex-1 items-start md:grid md:grid-cols-[180px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-10 mx-auto px-4 md:px-16">
-				@components.Sidebar()
-				<main class="py-8">
-					@components.Navbar()
-					{ children... }
-				</main>
+		<body class="h-full">
+			<div class="device-content">
+				<div class="flex h-screen">
+					@components.Sidebar()
+					<main class="w-full">
+						@components.Navbar()
+						<section class="px-6">
+							{ children... }
+						</section>
+					</main>
+				</div>
 			</div>
-		</div>
 		</body>
 	</html>
 }

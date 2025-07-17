@@ -8,6 +8,11 @@ These instructions will get you a copy of the project up and running on your loc
 
 ## MakeFile
 
+Apply migrations to the database
+```bash
+goose up
+```
+
 Run build make command with tests
 ```bash
 make all
@@ -24,6 +29,7 @@ make run
 ```
 
 Live reload the application:
+
 ```bash
 make watch
 ```
