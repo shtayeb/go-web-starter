@@ -10,6 +10,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"go-htmx-sqlite/internal/database"
+	"go-htmx-sqlite/internal/jsonlog"
 	"go-htmx-sqlite/internal/mailer"
 )
 
@@ -17,6 +18,7 @@ type Server struct {
 	port   int
 	db     database.Service
 	mailer mailer.Mailer
+	logger *jsonlog.Logger
 }
 
 func NewServer() *http.Server {
@@ -39,6 +41,7 @@ func NewServer() *http.Server {
 	NewServer := &Server{
 		port:   port,
 		db:     database.New(),
+		logger: jsonlog.New(os.Stdout, jsonlog.LevelInfo),
 		mailer: mailer.New(smtp.host, smtp.port, smtp.username, smtp.password, smtp.sender),
 	}
 
