@@ -1,7 +1,13 @@
 package config
 
 type Database struct {
-	DBUrl string
+	DBUrl    string
+	Database string
+	Password string
+	Username string
+	Port     string
+	Host     string
+	Schema   string
 }
 
 type SMTP struct {
@@ -30,11 +36,24 @@ func LoadConfigFromEnv() Config {
 	smtpPassword := GetEnv("SMTP_PASSWORD", "test")
 	smtpSender := GetEnv("SMTP_SENDER", "test@example.com")
 
+	database := GetEnv("BLUEPRINT_DB_DATABASE", "blueprint")
+	password := GetEnv("BLUEPRINT_DB_PASSWORD", "password1234")
+	username := GetEnv("BLUEPRINT_DB_USERNAME", "shtb")
+	dbPort := GetEnv("BLUEPRINT_DB_PORT", "5432")
+	host := GetEnv("BLUEPRINT_DB_HOST", "psql_bp")
+	schema := GetEnv("BLUEPRINT_DB_SCHEMA", "public")
+
 	return Config{
 		Port:   port,
 		AppEnv: appEnv,
 		Database: Database{
-			DBUrl: dbUrl,
+			DBUrl:    dbUrl,
+			Database: database,
+			Password: password,
+			Username: username,
+			Port:     dbPort,
+			Host:     host,
+			Schema:   schema,
 		},
 		Mailer: SMTP{
 			Host:     smtpHost,

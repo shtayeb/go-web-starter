@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -38,13 +39,15 @@ func New(dbConfig config.Database) Service {
 		return dbInstance
 	}
 
-	db, err := sql.Open("sqlite3", dbConfig.DBUrl)
-	if err != nil {
-		// This will not be a connection error, but a DSN parse error or
-		// another initialization error.
-		log.Fatal(err)
+	connStr := dbConfig.DBUrl
+	if connStr == "" {
+		connStr = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", dbConfig.Username, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.Database, dbConfig.Schema)
 	}
 
+	db, err := sql.Open("pgx", connStr)
+	if err != nil {
+		log.Fatal(err)
+	}
 	dbInstance = &service{
 		db: db,
 	}
