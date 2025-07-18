@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"go-htmx-sqlite/cmd/web"
-	"go-htmx-sqlite/cmd/web/http/handlers"
 	"go-htmx-sqlite/cmd/web/views"
+	"go-htmx-sqlite/internal/handlers"
 
 	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
@@ -25,7 +25,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		MaxAge:           300,
 	}))
 
-	appHandlers := handlers.NewHandlers(s)
+	appHandlers := handlers.NewHandlers(s.Db, s.Logger, s.Mailer)
 
 	r.Get("/", appHandlers.HelloWorldHandler)
 

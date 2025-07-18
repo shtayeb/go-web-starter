@@ -1,7 +1,7 @@
 package server
 
 import (
-	"go-htmx-sqlite/cmd/web/handlers"
+	"go-htmx-sqlite/internal/handlers"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -9,8 +9,8 @@ import (
 )
 
 func TestHandler(t *testing.T) {
-	// s := &Server{}
-	server := httptest.NewServer(http.HandlerFunc(handlers.HelloWorldHandler))
+	h := &handlers.Handlers{}
+	server := httptest.NewServer(http.HandlerFunc(h.HelloWorldHandler))
 	defer server.Close()
 
 	resp, err := http.Get(server.URL)
