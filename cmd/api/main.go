@@ -13,15 +13,15 @@ import (
 )
 
 func main() {
-	server := server.NewServer()
+	app := server.NewApp()
 
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)
 
 	// Run graceful shutdown in a separate goroutine
-	go gracefulShutdown(server, done)
+	go gracefulShutdown(app, done)
 
-	err := server.ListenAndServe()
+	err := app.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		panic(fmt.Sprintf("http server error: %s", err))
 	}

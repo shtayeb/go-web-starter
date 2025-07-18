@@ -1,0 +1,36 @@
+package layouts
+
+import (
+"go-htmx-sqlite/cmd/web/components"
+"go-htmx-sqlite/cmd/web/components/ui/drawer"
+)
+
+templ DashboardLayout() {
+<!DOCTYPE html>
+<html lang="en" class="h-screen">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Go Blueprint Hello</title>
+	<link href="assets/css/output.css" rel="stylesheet" />
+	<script src="assets/js/htmx.min.js"></script>
+	@drawer.Script()
+</head>
+
+<body class="h-full">
+	<div class="device-content">
+		<div class="flex h-screen">
+			@components.Sidebar()
+			<main class="w-full">
+				@components.Navbar()
+				<section class="px-6">
+					{ children... }
+				</section>
+			</main>
+		</div>
+	</div>
+</body>
+
+</html>
+}

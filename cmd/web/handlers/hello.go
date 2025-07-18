@@ -1,6 +1,7 @@
-package web
+package handlers
 
 import (
+	"go-htmx-sqlite/cmd/web/views"
 	"log"
 	"net/http"
 )
@@ -12,7 +13,7 @@ func HelloWebHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	name := r.FormValue("name")
-	component := HelloPost(name)
+	component := views.HelloPost(name)
 
 	err = component.Render(r.Context(), w)
 	if err != nil {
