@@ -14,14 +14,14 @@ import (
 	"go-htmx-sqlite/internal/mailer"
 )
 
-type application struct {
-	port   int
-	db     database.Service
-	mailer mailer.Mailer
-	logger *jsonlog.Logger
+type Server struct {
+	Port   int
+	Db     database.Service
+	Mailer mailer.Mailer
+	Logger *jsonlog.Logger
 }
 
-func NewApp() *http.Server {
+func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 
 	smtp := struct {
@@ -38,17 +38,17 @@ func NewApp() *http.Server {
 		sender:   os.Getenv("SMTP_SENDER"),
 	}
 
-	app := &application{
-		port:   port,
-		db:     database.New(),
-		logger: jsonlog.New(os.Stdout, jsonlog.LevelInfo),
-		mailer: mailer.New(smtp.host, smtp.port, smtp.username, smtp.password, smtp.sender),
+	s := &Server{
+		Port:   port,
+		Db:     database.New(),
+		Logger: jsonlog.New(os.Stdout, jsonlog.LevelInfo),
+		Mailer: mailer.New(smtp.host, smtp.port, smtp.username, smtp.password, smtp.sender),
 	}
 
 	// Declare Server config
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", app.port),
-		Handler:      app.RegisterRoutes(),
+		Addr:         fmt.Sprintf(":%d", s.Port),
+		Handler:      s.RegisterRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,

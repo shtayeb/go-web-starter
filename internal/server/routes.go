@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"go-htmx-sqlite/cmd/web"
-	"go-htmx-sqlite/cmd/web/handlers"
+	"go-htmx-sqlite/cmd/web/http/handlers"
 	"go-htmx-sqlite/cmd/web/views"
 
 	"github.com/a-h/templ"
@@ -13,7 +13,7 @@ import (
 	"github.com/go-chi/cors"
 )
 
-func (app *application) RegisterRoutes() http.Handler {
+func (s *Server) RegisterRoutes() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
@@ -25,9 +25,11 @@ func (app *application) RegisterRoutes() http.Handler {
 		MaxAge:           300,
 	}))
 
-	r.Get("/", handlers.HelloWorldHandler)
+	appHandlers := handlers.NewHandlers(s)
 
-	r.Get("/health", handlers.HealthHandler)
+	r.Get("/", appHandlers.HelloWorldHandler)
+
+	r.Get("/health", appHandlers.HealthHandler)
 
 	fileServer := http.FileServer(http.FS(web.Files))
 	r.Handle("/assets/*", fileServer)

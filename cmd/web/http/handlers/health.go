@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
 	resp := make(map[string]string)
 	resp["message"] = "Hello World"
 
@@ -18,7 +18,8 @@ func HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(jsonResp)
 }
 
-func HealthHandler(w http.ResponseWriter, r *http.Request) {
-	jsonResp, _ := json.Marshal(s.db.Health())
+func (h *Handlers) HealthHandler(w http.ResponseWriter, r *http.Request) {
+	jsonResp, _ := json.Marshal(h.App.Db.Health())
+
 	_, _ = w.Write(jsonResp)
 }
