@@ -26,7 +26,7 @@ func NewServer() *http.Server {
 
 	s := &Server{
 		Port:   config.Port,
-		Db:     database.New(),
+		Db:     database.New(config.Database),
 		Logger: jsonlog.New(os.Stdout, jsonlog.LevelInfo),
 		Mailer: mailer.New(config.Mailer),
 	}

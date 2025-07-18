@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"go-htmx-sqlite/internal/config"
 	"log"
-	"os"
 	"strconv"
 	"time"
 
@@ -21,7 +21,7 @@ type Service interface {
 
 	// Close terminates the database connection.
 	// It returns an error if the connection cannot be closed.
-	Close() error
+	Close(config.Database) error
 }
 
 type service struct {
@@ -29,17 +29,16 @@ type service struct {
 }
 
 var (
-	dburl      = os.Getenv("BLUEPRINT_DB_URL")
 	dbInstance *service
 )
 
-func New() Service {
+func New(dbConfig config.Database) Service {
 	// Reuse Connection
 	if dbInstance != nil {
 		return dbInstance
 	}
 
-	db, err := sql.Open("sqlite3", dburl)
+	db, err := sql.Open("sqlite3", dbConfig.DBUrl)
 	if err != nil {
 		// This will not be a connection error, but a DSN parse error or
 		// another initialization error.
@@ -107,7 +106,7 @@ func (s *service) Health() map[string]string {
 // It logs a message indicating the disconnection from the specific database.
 // If the connection is successfully closed, it returns nil.
 // If an error occurs while closing the connection, it returns the error.
-func (s *service) Close() error {
-	log.Printf("Disconnected from database: %s", dburl)
+func (s *service) Close(dbConfig config.Database) error {
+	log.Printf("Disconnected from database: %s", dbConfig.DBUrl)
 	return s.db.Close()
 }
