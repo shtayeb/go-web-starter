@@ -3,9 +3,11 @@ package mailer
 import (
 	"bytes"
 	"embed"
-	"github.com/go-mail/mail/v2"
+	"go-htmx-sqlite/internal/config"
 	"html/template"
 	"time"
+
+	"github.com/go-mail/mail/v2"
 )
 
 //go:embed "templates"
@@ -16,13 +18,13 @@ type Mailer struct {
 	sender string
 }
 
-func New(host string, port int, username, password, sender string) Mailer {
-	dialer := mail.NewDialer(host, port, username, password)
+func New(smtp config.SMTP) Mailer {
+	dialer := mail.NewDialer(smtp.Host, smtp.Port, smtp.Username, smtp.Password)
 	dialer.Timeout = 5 * time.Second
 
 	return Mailer{
 		dialer: dialer,
-		sender: sender,
+		sender: smtp.Sender,
 	}
 
 }
