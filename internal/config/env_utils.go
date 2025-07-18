@@ -1,6 +1,8 @@
 package config
 
 import (
+	"log"
+	"net/url"
 	"os"
 	"strconv"
 )
@@ -31,4 +33,24 @@ func GetEnvAsBool(key string, defaultVal bool) bool {
 	}
 
 	return defaultVal
+}
+
+func GetEnvAsURL(key string, defaultVal string) *url.URL {
+	strVal := GetEnv(key, "")
+
+	if len(strVal) == 0 {
+		u, err := url.Parse(defaultVal)
+		if err != nil {
+			log.Panicf("Failed to parse default value %s for env variable %s as URL: %v", defaultVal, key, err)
+		}
+
+		return u
+	}
+
+	u, err := url.Parse(strVal)
+	if err != nil {
+		log.Panicf("Failed to parse env variable %s with value %s as URL: %v", key, strVal, err)
+	}
+
+	return u
 }
