@@ -1,0 +1,123 @@
+package components
+
+import "go-htmx-sqlite/cmd/web/components/ui/icon"
+import "go-htmx-sqlite/cmd/web/components/ui/dropdown"
+import "go-htmx-sqlite/cmd/web/components/ui/avatar"
+import "go-htmx-sqlite/cmd/web/components/ui/button"
+
+templ AvatarFallback(name string) {
+	@avatar.Avatar(avatar.Props{
+		Size: avatar.SizeMd,
+	}) {
+		@avatar.Image(avatar.ImageProps{
+			// simulate a broken image
+			Src: "broken-image.jpg",
+		})
+		@avatar.Fallback() {
+			{ avatar.Initials(name) }
+		}
+	}
+}
+
+templ UserDropdown(isLoggedIn bool) {
+	// display login button when user is not logged in
+	if !isLoggedIn {
+		<a href="/login">
+			@button.Button(button.Props{
+				Class:   "flex gap-2 items-center",
+				Variant: button.VariantSecondary,
+			}) {
+				// Default icon size in @button is 16x16
+				// Use Class: "size-6" for larger icons
+				@icon.LogIn()
+				Login 
+			}
+		</a>
+	} else {
+		// When user is logged in
+		@dropdown.Dropdown() {
+			@dropdown.Trigger() {
+				@AvatarFallback("John Doe")
+			}
+			@dropdown.Content(dropdown.ContentProps{
+				Width: "w-56",
+			}) {
+				@dropdown.Label() {
+					My Account
+				}
+				@dropdown.Separator()
+				@dropdown.Group() {
+					@dropdown.Item() {
+						Team
+					}
+					@dropdown.Sub() {
+						@dropdown.SubTrigger() {
+							<span class="flex items-center">
+								@icon.Users(icon.Props{Size: 16, Class: "mr-2"})
+								Invite users
+							</span>
+						}
+						@dropdown.SubContent() {
+							@dropdown.Item() {
+								<span class="flex items-center">
+									@icon.Mail(icon.Props{Size: 16, Class: "mr-2"})
+									Email
+								</span>
+							}
+							@dropdown.Item() {
+								<span class="flex items-center">
+									@icon.MessageSquare(icon.Props{Size: 16, Class: "mr-2"})
+									Message
+								</span>
+							}
+							@dropdown.Separator()
+							@dropdown.Item() {
+								More...
+							}
+						}
+					}
+					@dropdown.Item() {
+						New Team
+						@dropdown.Shortcut() {
+							⌘+T
+						}
+					}
+				}
+				@dropdown.Separator()
+				@dropdown.Item(dropdown.ItemProps{
+					Href:   "https://github.com",
+					Target: "_blank",
+				}) {
+					<span class="flex items-center">
+						@icon.Github(icon.Props{Size: 16, Class: "mr-2"})
+						GitHub
+					</span>
+				}
+				@dropdown.Item() {
+					<span class="flex items-center">
+						@icon.LifeBuoy(icon.Props{Size: 16, Class: "mr-2"})
+						Support
+					</span>
+				}
+				@dropdown.Item(dropdown.ItemProps{
+					Disabled: true,
+				}) {
+					<span class="flex items-center">
+						@icon.Code(icon.Props{Size: 16, Class: "mr-2"})
+						API
+					</span>
+				}
+				@dropdown.Separator()
+				@dropdown.Item() {
+					<span class="flex items-center">
+						@icon.LogOut(icon.Props{Size: 16, Class: "mr-2"})
+						Log out
+					</span>
+					@dropdown.Shortcut() {
+						⇧⌘Q
+					}
+				}
+			}
+		}
+	}
+}

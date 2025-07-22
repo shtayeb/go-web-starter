@@ -27,7 +27,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	appHandlers := handlers.NewHandlers(s.Db, s.Logger, s.Mailer)
 
-	r.Get("/", appHandlers.HelloWorldHandler)
+	r.Get("/", appHandlers.LandingViewHandler)
 
 	r.Get("/health", appHandlers.HealthHandler)
 
@@ -35,8 +35,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Handle("/assets/*", fileServer)
 
 	// Auth
-	r.Get("/login", appHandlers.LoginHandler)
-	r.Get("/sign-up", appHandlers.SignUpHandler)
+	r.Get("/login", appHandlers.LoginViewHandler)
+	r.Get("/sign-up", appHandlers.SignUpViewHandler)
 
 	r.Get("/web", templ.Handler(views.HelloForm()).ServeHTTP)
 	r.Post("/hello", appHandlers.HelloWebHandler)

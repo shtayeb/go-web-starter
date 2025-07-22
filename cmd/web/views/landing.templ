@@ -1,0 +1,17 @@
+package views
+
+import "go-htmx-sqlite/cmd/web/layouts"
+import "go-htmx-sqlite/cmd/web/components"
+
+templ LandingView() {
+	@layouts.BaseLayout() {
+		<main>
+			@components.Navbar()
+			<section class="container mx-auto px-4">
+				<div class="bg-green-100 p-4 shadow-md rounded-lg mt-6">
+					<h1>This is landing page</h1>
+				</div>
+			</section>
+		</main>
+	}
+}

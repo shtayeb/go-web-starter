@@ -6,6 +6,10 @@ import (
 	"net/http"
 )
 
+func (h *Handlers) LandingViewHandler(w http.ResponseWriter, r *http.Request) {
+	views.LandingView().Render(r.Context(), w)
+}
+
 func (h *Handlers) HelloWebHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {

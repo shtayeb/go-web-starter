@@ -1,0 +1,26 @@
+package layouts
+
+templ AuthLayout() {
+<!DOCTYPE html>
+<html lang="en" class="h-screen">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Go Blueprint Hello</title>
+	<link href="assets/css/output.css" rel="stylesheet" />
+	<script src="assets/js/htmx.min.js"></script>
+</head>
+
+<body class="h-full">
+	<div class="device-content h-screen flex items-center justify-center">
+		<main class="w-full max-w-md">
+			<section class="container mx-auto px-6">
+				{ children... }
+			</section>
+		</main>
+	</div>
+</body>
+
+</html>
+}
