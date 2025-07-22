@@ -22,7 +22,7 @@ templ SignUpView() {
 					@card.Content() {
 						<div class="flex flex-col gap-4">
 							<div class="w-full max-w-sm grid gap-2">
-							@form.Item() {
+								@form.Item() {
 									@form.Label(form.LabelProps{
 										For: "name",
 									}) {
@@ -36,7 +36,6 @@ templ SignUpView() {
 										HasError:    false,
 									})
 								}
-
 								@form.Item() {
 									@form.Label(form.LabelProps{
 										For: "email-form",
@@ -59,12 +58,11 @@ templ SignUpView() {
 										Please enter a valid email address
 									}
 								}
-
-	                            @form.Item() {
+								@form.Item() {
 									@form.Label(form.LabelProps{
 										For: "password",
 									}) {
-                                        Password
+										Password
 									}
 									@input.Input(input.Props{
 										Name:        "password",
@@ -74,21 +72,36 @@ templ SignUpView() {
 										HasError:    false,
 									})
 								}
+								@form.Item() {
+									@form.Label(form.LabelProps{
+										For: "password-confirmation",
+									}) {
+										Confirm Password
+									}
+									@input.Input(input.Props{
+										Name:        "password-confirmation",
+										ID:          "password-confirmation",
+										Type:        input.TypePassword,
+										Placeholder: "********",
+										HasError:    false,
+									})
+								}
 							</div>
 						</div>
 					}
-						@card.Footer(card.FooterProps{
+					@card.Footer(card.FooterProps{
 						Class: "flex-col gap-8",
 					}) {
 						@button.Button(button.Props{
-							Type: button.TypeSubmit,
+							Type:  button.TypeSubmit,
 							Class: "w-full",
 						}) {
-						Create	
+							Create	
 						}
-                        <p class="text-sm"> Already have an account? 
-                         <a href="/login" class="text-blue-500 hover:underline">login here</a>
-                        </p>
+						<p class="text-sm">
+							Already have an account? 
+							<a href="/login" class="text-blue-500 hover:underline">login here</a>
+						</p>
 					}
 				</form>
 			}
