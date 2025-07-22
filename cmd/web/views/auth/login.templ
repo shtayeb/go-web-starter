@@ -1,0 +1,74 @@
+package auth
+
+import "go-htmx-sqlite/cmd/web/components/ui/card"
+import "go-htmx-sqlite/cmd/web/components/ui/form"
+import "go-htmx-sqlite/cmd/web/components/ui/input"
+import "go-htmx-sqlite/cmd/web/components/ui/button"
+import "go-htmx-sqlite/cmd/web/layouts"
+
+templ LoginView() {
+	@layouts.BaseLayout() {
+		<div class="w-full max-w-sm">
+			@card.Card() {
+				@card.Header() {
+					@card.Title() {
+						Login
+					}
+					@card.Description() {
+						Login to start using the application
+					}
+				}
+				<form>
+					@card.Content() {
+						<div class="flex flex-col gap-4">
+							<div class="w-full max-w-sm grid gap-2">
+								@form.Item() {
+									@form.Label(form.LabelProps{
+										For: "email-form",
+									}) {
+										Email
+									}
+									@input.Input(input.Props{
+										Name:        "email",
+										ID:          "email-form",
+										Type:        input.TypeEmail,
+										Placeholder: "m@example.com",
+										HasError:    false,
+									})
+								}
+
+	                            @form.Item() {
+									@form.Label(form.LabelProps{
+										For: "password",
+									}) {
+                                        Password
+									}
+									@input.Input(input.Props{
+										Name:        "password",
+										ID:          "password",
+										Type:        input.TypePassword,
+										Placeholder: "********",
+										HasError:    false,
+									})
+								}
+							</div>
+						</div>
+					}
+					@card.Footer(card.FooterProps{
+						Class: "flex flex-col gap-8",
+					}) {
+                            @button.Button(button.Props{
+                                Type: button.TypeSubmit,
+                                Class: "w-full",
+                            }) {
+                                Login 
+                            }
+                        <p class="text-sm"> Don't have an account? 
+                            <a href="/sign-up" class="text-blue-500 hover:underline">Sign-up here</a>
+                        </p>
+					}
+				</form>
+			}
+		</div>
+	}
+}

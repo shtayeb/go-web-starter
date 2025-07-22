@@ -34,8 +34,12 @@ func (s *Server) RegisterRoutes() http.Handler {
 	fileServer := http.FileServer(http.FS(web.Files))
 	r.Handle("/assets/*", fileServer)
 
+	// Auth
+	r.Get("/login", appHandlers.LoginHandler)
+	r.Get("/sign-up", appHandlers.SignUpHandler)
+
 	r.Get("/web", templ.Handler(views.HelloForm()).ServeHTTP)
-	r.Post("/hello", handlers.HelloWebHandler)
+	r.Post("/hello", appHandlers.HelloWebHandler)
 
 	return r
 }

@@ -1,0 +1,97 @@
+package auth
+
+import "go-htmx-sqlite/cmd/web/components/ui/card"
+import "go-htmx-sqlite/cmd/web/components/ui/form"
+import "go-htmx-sqlite/cmd/web/components/ui/input"
+import "go-htmx-sqlite/cmd/web/components/ui/button"
+import "go-htmx-sqlite/cmd/web/layouts"
+
+templ SignUpView() {
+	@layouts.BaseLayout() {
+		<div class="w-full max-w-sm">
+			@card.Card() {
+				@card.Header() {
+					@card.Title() {
+						Create Account	
+					}
+					@card.Description() {
+						Create your account
+					}
+				}
+				<form>
+					@card.Content() {
+						<div class="flex flex-col gap-4">
+							<div class="w-full max-w-sm grid gap-2">
+							@form.Item() {
+									@form.Label(form.LabelProps{
+										For: "name",
+									}) {
+										Name	
+									}
+									@input.Input(input.Props{
+										Name:        "name",
+										ID:          "name",
+										Type:        input.TypeText,
+										Placeholder: "John Doe",
+										HasError:    false,
+									})
+								}
+
+								@form.Item() {
+									@form.Label(form.LabelProps{
+										For: "email-form",
+									}) {
+										Email
+									}
+									@input.Input(input.Props{
+										Name:        "email",
+										ID:          "email-form",
+										Type:        input.TypeEmail,
+										Placeholder: "m@example.com",
+										HasError:    false,
+									})
+									@form.Description() {
+										Enter your email address to login.
+									}
+									@form.Message(form.MessageProps{
+										Variant: form.MessageVariantError,
+									}) {
+										Please enter a valid email address
+									}
+								}
+
+	                            @form.Item() {
+									@form.Label(form.LabelProps{
+										For: "password",
+									}) {
+                                        Password
+									}
+									@input.Input(input.Props{
+										Name:        "password",
+										ID:          "password",
+										Type:        input.TypePassword,
+										Placeholder: "********",
+										HasError:    false,
+									})
+								}
+							</div>
+						</div>
+					}
+						@card.Footer(card.FooterProps{
+						Class: "flex-col gap-8",
+					}) {
+						@button.Button(button.Props{
+							Type: button.TypeSubmit,
+							Class: "w-full",
+						}) {
+						Create	
+						}
+                        <p class="text-sm"> Already have an account? 
+                         <a href="/login" class="text-blue-500 hover:underline">login here</a>
+                        </p>
+					}
+				</form>
+			}
+		</div>
+	}
+}
