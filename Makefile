@@ -61,6 +61,10 @@ sqlc-install:
 		fi; \
 	fi
 
+.PHONY: sqlc-generate
+sqlc-generate:
+	sqlc generate
+
 goose-install:
 	@if ! command -v goose> /dev/null; then \
 		read -p "Go's 'goose' is not installed on your machine. Do you want to install it? [Y/n] " choice; \

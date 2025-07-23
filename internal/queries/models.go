@@ -6,10 +6,48 @@ package queries
 
 import (
 	"database/sql"
+	"time"
 )
+
+type Account struct {
+	ID                    int64
+	AccountID             string
+	ProviderID            sql.NullString
+	UserID                int64
+	AccessToken           sql.NullString
+	RefreshToken          sql.NullString
+	IDToken               sql.NullString
+	AccessTokenExpiresAt  sql.NullTime
+	RefreshTokenExpiresAt sql.NullTime
+	Scope                 sql.NullString
+	Password              sql.NullString
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
 
 type Author struct {
 	ID   int64
 	Name string
 	Bio  sql.NullString
+}
+
+type Session struct {
+	ID        int64
+	ExpiresAt time.Time
+	Token     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	IpAddress sql.NullString
+	UserAgent sql.NullString
+	UserID    int64
+}
+
+type User struct {
+	ID            int64
+	Name          string
+	Email         string
+	EmailVerified bool
+	Image         sql.NullString
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
