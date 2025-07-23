@@ -1,2 +1,2 @@
 -- name: GetSessionByToken :one
-SELECT * FROM session WHERE token = ?;
+SELECT * FROM sessions WHERE token = $1;

@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS authors (
-  id   INTEGER PRIMARY KEY,
+  id  SERIAL PRIMARY KEY,
   name text    NOT NULL,
   bio  text
 );

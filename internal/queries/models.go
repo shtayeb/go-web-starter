@@ -10,40 +10,40 @@ import (
 )
 
 type Account struct {
-	ID                    int64
+	ID                    int32
 	AccountID             string
 	ProviderID            sql.NullString
-	UserID                int64
+	UserID                int32
 	AccessToken           sql.NullString
 	RefreshToken          sql.NullString
 	IDToken               sql.NullString
 	AccessTokenExpiresAt  sql.NullTime
 	RefreshTokenExpiresAt sql.NullTime
 	Scope                 sql.NullString
-	Password              sql.NullString
+	Password              string
 	CreatedAt             time.Time
 	UpdatedAt             time.Time
 }
 
 type Author struct {
-	ID   int64
+	ID   int32
 	Name string
 	Bio  sql.NullString
 }
 
 type Session struct {
-	ID        int64
+	ID        int32
 	ExpiresAt time.Time
 	Token     string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	IpAddress sql.NullString
 	UserAgent sql.NullString
-	UserID    int64
+	UserID    int32
 }
 
 type User struct {
-	ID            int64
+	ID            int32
 	Name          string
 	Email         string
 	EmailVerified bool

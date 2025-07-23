@@ -2,7 +2,7 @@ version: "2"
 sql:
 - schema: "./internal/sql/migrations"
   queries: "./internal/sql/queries"
-  engine: "sqlite"
+  engine: "postgresql"
   gen:
     go: 
       out: "internal/queries"

@@ -6,7 +6,7 @@ import (
 )
 
 func (h *Handlers) HealthHandler(w http.ResponseWriter, r *http.Request) {
-	jsonResp, _ := json.Marshal(h.DB.Health())
+	jsonResp, _ := json.Marshal(h.DbService.Health())
 
 	h.Logger.PrintInfo("health route accessed", nil)
 

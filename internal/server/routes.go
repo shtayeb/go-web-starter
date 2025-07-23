@@ -25,7 +25,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 		MaxAge:           300,
 	}))
 
-	appHandlers := handlers.NewHandlers(s.Db, s.Logger, s.Mailer)
+	// s.Db is useless without the queries
+	appHandlers := handlers.NewHandlers(s.Queries, s.Db, s.Logger, s.Mailer)
 
 	r.Get("/", appHandlers.LandingViewHandler)
 
@@ -37,6 +38,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// Auth
 	r.Get("/login", appHandlers.LoginViewHandler)
 	r.Get("/sign-up", appHandlers.SignUpViewHandler)
+	r.Post("/sign-up", appHandlers.SignUpPostHandler)
+
 	r.Get("/forgot-password", appHandlers.ForgotPasswordView)
 	r.Get("/reset-password", appHandlers.ResetPasswordView)
 

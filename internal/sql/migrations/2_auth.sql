@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE IF NOT EXISTS "user" (
-  id INT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
   email_verified BOOLEAN NOT NULL DEFAULT FALSE,
@@ -10,29 +10,29 @@ CREATE TABLE IF NOT EXISTS "user" (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS session (
-  id INT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS sessions (
+  id SERIAL PRIMARY KEY,
   expires_at TIMESTAMP NOT NULL,
   token TEXT NOT NULL UNIQUE,
   created_at TIMESTAMP NOT NULL,
   updated_at TIMESTAMP NOT NULL,
   ip_address TEXT,
   user_agent TEXT,
-  user_id INT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE
+  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS account (
-  id INT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS accounts (
+  id SERIAL PRIMARY KEY,
   account_id TEXT NOT NULL,
   provider_id TEXT,
-  user_id INT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   access_token TEXT,
   refresh_token TEXT,
   id_token TEXT,
   access_token_expires_at TIMESTAMP,
   refresh_token_expires_at TIMESTAMP,
   scope TEXT,
-  password TEXT,
+  password TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL,
   updated_at TIMESTAMP NOT NULL
 );

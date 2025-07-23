@@ -7,17 +7,16 @@ package queries
 
 import (
 	"context"
-	"database/sql"
 	"time"
 )
 
 const changeAccountPassword = `-- name: ChangeAccountPassword :exec
-UPDATE account SET password = ? WHERE id = ?
+UPDATE accounts SET password = $1 WHERE id = $2
 `
 
 type ChangeAccountPasswordParams struct {
-	Password sql.NullString
-	ID       int64
+	Password string
+	ID       int32
 }
 
 func (q *Queries) ChangeAccountPassword(ctx context.Context, arg ChangeAccountPasswordParams) error {
@@ -26,15 +25,15 @@ func (q *Queries) ChangeAccountPassword(ctx context.Context, arg ChangeAccountPa
 }
 
 const createAccount = `-- name: CreateAccount :one
-INSERT INTO account (account_id,user_id,password,created_at,updated_at)
-VALUES ( ?, ?, ?, ?, ?)
+INSERT INTO accounts (account_id,user_id,password,created_at,updated_at)
+VALUES ( $1, $2, $3, $4, $5)
 RETURNING id, account_id, provider_id, user_id, access_token, refresh_token, id_token, access_token_expires_at, refresh_token_expires_at, scope, password, created_at, updated_at
 `
 
 type CreateAccountParams struct {
 	AccountID string
-	UserID    int64
-	Password  sql.NullString
+	UserID    int32
+	Password  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -67,10 +66,10 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 }
 
 const getAccountById = `-- name: GetAccountById :one
-SELECT id, account_id, provider_id, user_id, access_token, refresh_token, id_token, access_token_expires_at, refresh_token_expires_at, scope, password, created_at, updated_at FROM account WHERE id = ?
+SELECT id, account_id, provider_id, user_id, access_token, refresh_token, id_token, access_token_expires_at, refresh_token_expires_at, scope, password, created_at, updated_at FROM accounts WHERE id = $1
 `
 
-func (q *Queries) GetAccountById(ctx context.Context, id int64) (Account, error) {
+func (q *Queries) GetAccountById(ctx context.Context, id int32) (Account, error) {
 	row := q.db.QueryRowContext(ctx, getAccountById, id)
 	var i Account
 	err := row.Scan(
@@ -92,10 +91,10 @@ func (q *Queries) GetAccountById(ctx context.Context, id int64) (Account, error)
 }
 
 const getAccountByUserId = `-- name: GetAccountByUserId :one
-SELECT id, account_id, provider_id, user_id, access_token, refresh_token, id_token, access_token_expires_at, refresh_token_expires_at, scope, password, created_at, updated_at FROM account WHERE user_id=?
+SELECT id, account_id, provider_id, user_id, access_token, refresh_token, id_token, access_token_expires_at, refresh_token_expires_at, scope, password, created_at, updated_at FROM accounts WHERE user_id = $1
 `
 
-func (q *Queries) GetAccountByUserId(ctx context.Context, userID int64) (Account, error) {
+func (q *Queries) GetAccountByUserId(ctx context.Context, userID int32) (Account, error) {
 	row := q.db.QueryRowContext(ctx, getAccountByUserId, userID)
 	var i Account
 	err := row.Scan(

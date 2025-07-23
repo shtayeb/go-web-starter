@@ -23,6 +23,9 @@ type Service interface {
 	// Close terminates the database connection.
 	// It returns an error if the connection cannot be closed.
 	Close(config.Database) error
+
+	// GetDB returns the underlying database connection
+	GetDB() *sql.DB
 }
 
 type service struct {
@@ -112,4 +115,9 @@ func (s *service) Health() map[string]string {
 func (s *service) Close(dbConfig config.Database) error {
 	log.Printf("Disconnected from database: %s", dbConfig.DBUrl)
 	return s.db.Close()
+}
+
+// GetDB returns the underlying database connection
+func (s *service) GetDB() *sql.DB {
+	return s.db
 }

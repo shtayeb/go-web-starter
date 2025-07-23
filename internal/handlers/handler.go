@@ -4,18 +4,21 @@ import (
 	"go-htmx-sqlite/internal/database"
 	"go-htmx-sqlite/internal/jsonlog"
 	"go-htmx-sqlite/internal/mailer"
+	"go-htmx-sqlite/internal/queries"
 )
 
 type Handlers struct {
-	DB     database.Service
-	Logger *jsonlog.Logger
-	Mailer mailer.Mailer
+	DB        queries.Queries
+	DbService database.Service
+	Logger    *jsonlog.Logger
+	Mailer    mailer.Mailer
 }
 
-func NewHandlers(db database.Service, logger *jsonlog.Logger, mailer mailer.Mailer) *Handlers {
+func NewHandlers(q queries.Queries, dbService database.Service, logger *jsonlog.Logger, mailer mailer.Mailer) *Handlers {
 	return &Handlers{
-		DB:     db,
-		Logger: logger,
-		Mailer: mailer,
+		DB:        q,
+		DbService: dbService,
+		Logger:    logger,
+		Mailer:    mailer,
 	}
 }

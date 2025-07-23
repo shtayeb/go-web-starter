@@ -6,6 +6,11 @@ import "go-htmx-sqlite/cmd/web/components/ui/input"
 import "go-htmx-sqlite/cmd/web/components/ui/button"
 import "go-htmx-sqlite/cmd/web/layouts"
 
+templ CSRFInput(csrfToken string) {
+	<!-- Include the CSRF token -->
+	<input type="hidden" name="csrf_token" value={csrfToken}/>
+}
+
 templ SignUpView() {
 	@layouts.AuthLayout() {
 		<div class="w-full max-w-sm">
@@ -19,6 +24,8 @@ templ SignUpView() {
 					}
 				}
 				<form action="/sign-up" method="post">
+					// TODO: csrf
+					@CSRFInput("test")
 					@card.Content() {
 						<div class="flex flex-col gap-4">
 							<div class="w-full max-w-sm grid gap-2">
@@ -49,9 +56,6 @@ templ SignUpView() {
 										Placeholder: "m@example.com",
 										HasError:    false,
 									})
-									@form.Description() {
-										Enter your email address to login.
-									}
 									@form.Message(form.MessageProps{
 										Variant: form.MessageVariantError,
 									}) {
@@ -65,10 +69,10 @@ templ SignUpView() {
 										Password
 									}
 									@input.Input(input.Props{
-										Name:        "password",
-										ID:          "password",
-										Type:        input.TypePassword,
-										HasError:    false,
+										Name:     "password",
+										ID:       "password",
+										Type:     input.TypePassword,
+										HasError: false,
 									})
 								}
 								@form.Item() {
@@ -78,10 +82,10 @@ templ SignUpView() {
 										Confirm Password
 									}
 									@input.Input(input.Props{
-										Name:        "password-confirmation",
-										ID:          "password-confirmation",
-										Type:        input.TypePassword,
-										HasError:    false,
+										Name:     "password-confirmation",
+										ID:       "password-confirmation",
+										Type:     input.TypePassword,
+										HasError: false,
 									})
 								}
 							</div>

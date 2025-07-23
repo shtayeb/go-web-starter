@@ -14,7 +14,7 @@ const createAuthor = `-- name: CreateAuthor :one
 INSERT INTO authors (
   name, bio
 ) VALUES (
-  ?, ?
+  $1, $2
 )
 RETURNING id, name, bio
 `
@@ -33,20 +33,20 @@ func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (Aut
 
 const deleteAuthor = `-- name: DeleteAuthor :exec
 DELETE FROM authors
-WHERE id = ?
+WHERE id = $1
 `
 
-func (q *Queries) DeleteAuthor(ctx context.Context, id int64) error {
+func (q *Queries) DeleteAuthor(ctx context.Context, id int32) error {
 	_, err := q.db.ExecContext(ctx, deleteAuthor, id)
 	return err
 }
 
 const getAuthor = `-- name: GetAuthor :one
 SELECT id, name, bio FROM authors
-WHERE id = ? LIMIT 1
+WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetAuthor(ctx context.Context, id int64) (Author, error) {
+func (q *Queries) GetAuthor(ctx context.Context, id int32) (Author, error) {
 	row := q.db.QueryRowContext(ctx, getAuthor, id)
 	var i Author
 	err := row.Scan(&i.ID, &i.Name, &i.Bio)
@@ -81,23 +81,20 @@ func (q *Queries) ListAuthors(ctx context.Context) ([]Author, error) {
 	return items, nil
 }
 
-const updateAuthor = `-- name: UpdateAuthor :one
+const updateAuthor = `-- name: UpdateAuthor :exec
 UPDATE authors
-set name = ?,
-bio = ?
-WHERE id = ?
-RETURNING id, name, bio
+  set name = $2,
+  bio = $3
+WHERE id = $1
 `
 
 type UpdateAuthorParams struct {
+	ID   int32
 	Name string
 	Bio  sql.NullString
-	ID   int64
 }
 
-func (q *Queries) UpdateAuthor(ctx context.Context, arg UpdateAuthorParams) (Author, error) {
-	row := q.db.QueryRowContext(ctx, updateAuthor, arg.Name, arg.Bio, arg.ID)
-	var i Author
-	err := row.Scan(&i.ID, &i.Name, &i.Bio)
-	return i, err
+func (q *Queries) UpdateAuthor(ctx context.Context, arg UpdateAuthorParams) error {
+	_, err := q.db.ExecContext(ctx, updateAuthor, arg.ID, arg.Name, arg.Bio)
+	return err
 }

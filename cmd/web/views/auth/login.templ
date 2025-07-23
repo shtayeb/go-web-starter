@@ -18,7 +18,8 @@ templ LoginView() {
 						Login to start using the application
 					}
 				}
-				<form>
+				<form method="post" action="/login">
+					@CSRFInput("test")
 					@card.Content() {
 						<div class="flex flex-col gap-4">
 							<div class="w-full max-w-sm grid gap-2">

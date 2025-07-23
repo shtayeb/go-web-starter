@@ -10,7 +10,7 @@ import (
 )
 
 const getSessionByToken = `-- name: GetSessionByToken :one
-SELECT id, expires_at, token, created_at, updated_at, ip_address, user_agent, user_id FROM session WHERE token = ?
+SELECT id, expires_at, token, created_at, updated_at, ip_address, user_agent, user_id FROM sessions WHERE token = $1
 `
 
 func (q *Queries) GetSessionByToken(ctx context.Context, token string) (Session, error) {
