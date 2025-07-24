@@ -19,7 +19,12 @@ templ AvatarFallback(name string) {
 	}
 }
 
-templ UserDropdown(isLoggedIn bool) {
+templ CSRFInput(csrfToken string) {
+	<!-- Include the CSRF token -->
+	<input type="hidden" name="csrf_token" value={csrfToken}/>
+}
+
+templ UserDropdown(isLoggedIn bool,csrfToken string) {
 	// display login button when user is not logged in
 	if !isLoggedIn {
 		<a href="/login">
@@ -33,6 +38,17 @@ templ UserDropdown(isLoggedIn bool) {
 				Login 
 			}
 		</a>
+		<form method="post" action="/logout">
+			// @CSRFInput(csrfToken)
+			@button.Button(button.Props{
+				Class:   "flex gap-2 items-center",
+				Variant: button.VariantSecondary,
+				Type: button.TypeSubmit,
+			}) {
+				@icon.LogOut()
+				Logout
+			}
+		</form>
 	} else {
 		// When user is logged in
 		@dropdown.Dropdown() {

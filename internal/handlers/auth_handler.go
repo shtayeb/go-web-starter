@@ -22,6 +22,7 @@ func (h *Handlers) LogoutPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.SessionManager.Remove(r.Context(), "authenticatedUserID")
+	h.SessionManager.Remove(r.Context(), "user")
 
 	h.SessionManager.Put(r.Context(), "flash", "You've been logged out successfully!")
 

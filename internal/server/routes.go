@@ -15,11 +15,14 @@ import (
 
 func (s *Server) RegisterRoutes() http.Handler {
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	// r.Use(secureHeaders)
-	r.Use(noSurf)
-	r.Use(s.SessionManager.LoadAndSave)
 
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	// removes trailing slashed from the url
+	r.Use(middleware.CleanPath)
+	//  r.Use(s.secureHeaders)
+	// r.Use(s.noSurf)
+	r.Use(s.SessionManager.LoadAndSave)
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
@@ -31,6 +34,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// s.Db is useless without the queries
 	appHandlers := handlers.NewHandlers(s.Queries, s.Db, s.Logger, s.Mailer, s.SessionManager)
 
+	// static file server
 	fileServer := http.FileServer(http.FS(web.Files))
 	r.Handle("/assets/*", fileServer)
 
@@ -47,9 +51,15 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Get("/reset-password", appHandlers.ResetPasswordView)
 
 	r.Get("/", appHandlers.LandingViewHandler)
-	r.Get("/dashboard", templ.Handler(views.HelloForm()).ServeHTTP)
-	r.Post("/hello", appHandlers.HelloWebHandler)
 	r.Get("/health", appHandlers.HealthHandler)
+
+	// Protected routes
+	r.Group(func(r chi.Router) {
+		r.Use(s.authenticate)
+
+		r.Get("/dashboard", templ.Handler(views.HelloForm()).ServeHTTP)
+		r.Post("/hello", appHandlers.HelloWebHandler)
+	})
 
 	return r
 }
