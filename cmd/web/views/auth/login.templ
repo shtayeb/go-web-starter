@@ -6,7 +6,7 @@ import "go-htmx-sqlite/cmd/web/components/ui/input"
 import "go-htmx-sqlite/cmd/web/components/ui/button"
 import "go-htmx-sqlite/cmd/web/layouts"
 
-templ LoginView() {
+templ LoginView(csrfToken string) {
 	@layouts.AuthLayout() {
 		<div class="w-full max-w-sm">
 			@card.Card() {
@@ -19,7 +19,7 @@ templ LoginView() {
 					}
 				}
 				<form method="post" action="/login">
-					@CSRFInput("test")
+					@CSRFInput(csrfToken)
 					@card.Content() {
 						<div class="flex flex-col gap-4">
 							<div class="w-full max-w-sm grid gap-2">

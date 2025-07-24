@@ -11,7 +11,7 @@ templ CSRFInput(csrfToken string) {
 	<input type="hidden" name="csrf_token" value={csrfToken}/>
 }
 
-templ SignUpView() {
+templ SignUpView(csrfToken string) {
 	@layouts.AuthLayout() {
 		<div class="w-full max-w-sm">
 			@card.Card() {
@@ -25,7 +25,7 @@ templ SignUpView() {
 				}
 				<form action="/sign-up" method="post">
 					// TODO: csrf
-					@CSRFInput("test")
+					@CSRFInput(csrfToken)
 					@card.Content() {
 						<div class="flex flex-col gap-4">
 							<div class="w-full max-w-sm grid gap-2">

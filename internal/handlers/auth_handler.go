@@ -6,11 +6,27 @@ import (
 	"go-htmx-sqlite/internal/queries"
 	"log"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/go-playground/form/v4"
+	"github.com/justinas/nosurf"
 	"golang.org/x/crypto/bcrypt"
 )
+
+func (h *Handlers) LogoutPostHandler(w http.ResponseWriter, r *http.Request) {
+	err := h.SessionManager.RenewToken(r.Context())
+	if err != nil {
+		// app.serverError(w, err)
+		return
+	}
+
+	h.SessionManager.Remove(r.Context(), "authenticatedUserID")
+
+	h.SessionManager.Put(r.Context(), "flash", "You've been logged out successfully!")
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
 
 func (h *Handlers) ResetPasswordView(w http.ResponseWriter, r *http.Request) {
 	// check user shouldnt be logged in
@@ -26,7 +42,9 @@ func (h *Handlers) ForgotPasswordView(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handlers) LoginViewHandler(w http.ResponseWriter, r *http.Request) {
 	// check user shouldnt be logged in
-	auth.LoginView().Render(r.Context(), w)
+	csrfToken := nosurf.Token(r)
+
+	auth.LoginView(csrfToken).Render(r.Context(), w)
 }
 
 type userLoginForm struct {
@@ -74,8 +92,7 @@ func (h *Handlers) LoginPostHandler(w http.ResponseWriter, r *http.Request) {
 		log.Panic(err)
 	}
 
-	fmt.Printf("\n %#v \n %#v", loginForm.Password, account.Password)
-
+	// fmt.Printf("\n %#v \n %#v", loginForm.Password, account.Password)
 	if !checkPasswordHash(account.Password, loginForm.Password) {
 		// invalid password - handle errors in login page
 		w.Write([]byte("not match"))
@@ -83,12 +100,19 @@ func (h *Handlers) LoginPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// session manager
+	err = h.SessionManager.RenewToken(r.Context())
+	if err != nil {
+		return
+	}
+
+	h.SessionManager.Put(r.Context(), "authenticatedUserID", user.ID)
 
 	// get the next=? query string if exists. 1 - redirect to it. 2 -  or redirect to home after login
 	redirectURL := "/dashboard"
-	if next := r.URL.Query().Get("next"); next != "" {
-		// validate the redirect URL to prevent open redirect vulnerabilities
-		redirectURL = next
+	refererUrl, _ := url.Parse(r.Referer())
+	path := refererUrl.Query().Get("next")
+	if path != "" {
+		redirectURL = path
 	}
 
 	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
@@ -96,7 +120,9 @@ func (h *Handlers) LoginPostHandler(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handlers) SignUpViewHandler(w http.ResponseWriter, r *http.Request) {
 	// check user shouldnt be logged in
-	auth.SignUpView().Render(r.Context(), w)
+	csrfToken := nosurf.Token(r)
+
+	auth.SignUpView(csrfToken).Render(r.Context(), w)
 }
 
 type userSignupForm struct {

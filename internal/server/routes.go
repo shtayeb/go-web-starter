@@ -16,6 +16,9 @@ import (
 func (s *Server) RegisterRoutes() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
+	// r.Use(secureHeaders)
+	r.Use(noSurf)
+	r.Use(s.SessionManager.LoadAndSave)
 
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
@@ -26,11 +29,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	}))
 
 	// s.Db is useless without the queries
-	appHandlers := handlers.NewHandlers(s.Queries, s.Db, s.Logger, s.Mailer)
-
-	r.Get("/", appHandlers.LandingViewHandler)
-
-	r.Get("/health", appHandlers.HealthHandler)
+	appHandlers := handlers.NewHandlers(s.Queries, s.Db, s.Logger, s.Mailer, s.SessionManager)
 
 	fileServer := http.FileServer(http.FS(web.Files))
 	r.Handle("/assets/*", fileServer)
@@ -42,11 +41,15 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Get("/sign-up", appHandlers.SignUpViewHandler)
 	r.Post("/sign-up", appHandlers.SignUpPostHandler)
 
+	r.Post("/logout", appHandlers.LogoutPostHandler)
+
 	r.Get("/forgot-password", appHandlers.ForgotPasswordView)
 	r.Get("/reset-password", appHandlers.ResetPasswordView)
 
+	r.Get("/", appHandlers.LandingViewHandler)
 	r.Get("/dashboard", templ.Handler(views.HelloForm()).ServeHTTP)
 	r.Post("/hello", appHandlers.HelloWebHandler)
+	r.Get("/health", appHandlers.HealthHandler)
 
 	return r
 }

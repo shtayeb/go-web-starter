@@ -10,16 +10,13 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS sessions (
-  id SERIAL PRIMARY KEY,
-  expires_at TIMESTAMP NOT NULL,
-  token TEXT NOT NULL UNIQUE,
-  created_at TIMESTAMP NOT NULL,
-  updated_at TIMESTAMP NOT NULL,
-  ip_address TEXT,
-  user_agent TEXT,
-  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE
+CREATE TABLE sessions (
+	token TEXT PRIMARY KEY,
+	data BYTEA NOT NULL,
+	expiry TIMESTAMPTZ NOT NULL
 );
+
+CREATE INDEX sessions_expiry_idx ON sessions (expiry);
 
 CREATE TABLE IF NOT EXISTS accounts (
   id SERIAL PRIMARY KEY,
