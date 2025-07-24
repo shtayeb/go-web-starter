@@ -4,6 +4,7 @@ package layouts
 import "go-htmx-sqlite/cmd/web/components/ui/dropdown"
 import "go-htmx-sqlite/cmd/web/components/ui/popover"
 import "go-htmx-sqlite/cmd/web/components/ui/avatar"
+import "go-htmx-sqlite/cmd/web/components"
 
 templ BaseLayout() {
 	<!DOCTYPE html>
@@ -18,6 +19,8 @@ templ BaseLayout() {
 			@dropdown.Script()
 			@popover.Script()
 			@avatar.Script()
+
+			@components.ThemeSwitcherScript()
 		</head>
 		<body>
 			{ children... }

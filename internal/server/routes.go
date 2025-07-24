@@ -37,13 +37,15 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	// Auth
 	r.Get("/login", appHandlers.LoginViewHandler)
+	r.Post("/login", appHandlers.LoginPostHandler)
+
 	r.Get("/sign-up", appHandlers.SignUpViewHandler)
 	r.Post("/sign-up", appHandlers.SignUpPostHandler)
 
 	r.Get("/forgot-password", appHandlers.ForgotPasswordView)
 	r.Get("/reset-password", appHandlers.ResetPasswordView)
 
-	r.Get("/web", templ.Handler(views.HelloForm()).ServeHTTP)
+	r.Get("/dashboard", templ.Handler(views.HelloForm()).ServeHTTP)
 	r.Post("/hello", appHandlers.HelloWebHandler)
 
 	return r

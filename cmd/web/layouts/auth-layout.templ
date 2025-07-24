@@ -1,5 +1,8 @@
 package layouts
 
+import "go-htmx-sqlite/cmd/web/components/ui/input"
+import "go-htmx-sqlite/cmd/web/components"
+
 templ AuthLayout() {
 <!DOCTYPE html>
 <html lang="en" class="h-screen">
@@ -10,6 +13,9 @@ templ AuthLayout() {
 	<title>Go Blueprint Hello</title>
 	<link href="assets/css/output.css" rel="stylesheet" />
 	<script src="assets/js/htmx.min.js"></script>
+
+	@input.Script()
+	@components.ThemeSwitcherScript()
 </head>
 
 <body class="h-full">

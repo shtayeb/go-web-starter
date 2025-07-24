@@ -34,6 +34,16 @@ type userLoginForm struct {
 	Password string `form:"password"`
 }
 
+func hashPassword(plainTextPassword string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(plainTextPassword), 14)
+	return string(bytes), err
+}
+
+func checkPasswordHash(hashedPassword, plainTextPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plainTextPassword))
+	return err == nil
+}
+
 func (h *Handlers) LoginPostHandler(w http.ResponseWriter, r *http.Request) {
 	var loginForm userLoginForm
 
@@ -51,13 +61,37 @@ func (h *Handlers) LoginPostHandler(w http.ResponseWriter, r *http.Request) {
 	// validation
 	// handle validation errors
 
-	// authenticate: check the email and password(hashed) exists
+	// authenticate: check the email exists
+	user, err := h.DB.GetUserByEmail(r.Context(), loginForm.Email)
+	if err != nil {
+		// handle error
+		log.Panic(err)
+	}
+
+	account, err := h.DB.GetAccountByUserId(r.Context(), user.ID)
+	if err != nil {
+		// handle error
+		log.Panic(err)
+	}
+
+	fmt.Printf("\n %#v \n %#v", loginForm.Password, account.Password)
+
+	if !checkPasswordHash(account.Password, loginForm.Password) {
+		// invalid password - handle errors in login page
+		w.Write([]byte("not match"))
+		return
+	}
 
 	// session manager
 
-	// get the next=? query string if exists
-	// redirect to it
-	// or redirect to home after login
+	// get the next=? query string if exists. 1 - redirect to it. 2 -  or redirect to home after login
+	redirectURL := "/dashboard"
+	if next := r.URL.Query().Get("next"); next != "" {
+		// validate the redirect URL to prevent open redirect vulnerabilities
+		redirectURL = next
+	}
+
+	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
 
 func (h *Handlers) SignUpViewHandler(w http.ResponseWriter, r *http.Request) {
@@ -110,9 +144,10 @@ func (h *Handlers) SignUpPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// hash the password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(signUpForm.Password), 12)
+	hashedPassword, err := hashPassword(signUpForm.Password)
 	if err != nil {
 		return
+		// handle error in the view
 	}
 
 	// insert into the accounts table - password is in the accounts table
