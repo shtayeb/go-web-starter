@@ -39,24 +39,31 @@ func (s *Server) RegisterRoutes() http.Handler {
 	fileServer := http.FileServer(http.FS(web.Files))
 	r.Handle("/assets/*", fileServer)
 
-	// Auth
-	r.Get("/login", appHandlers.LoginViewHandler)
-	r.Post("/login", appHandlers.LoginPostHandler)
+	// No auth routes
+	r.Group(func(r chi.Router) {
+		// middleware
+		r.Use(s.requireNoAuth)
 
-	r.Get("/sign-up", appHandlers.SignUpViewHandler)
-	r.Post("/sign-up", appHandlers.SignUpPostHandler)
+		// Auth
+		r.Get("/login", appHandlers.LoginViewHandler)
+		r.Post("/login", appHandlers.LoginPostHandler)
 
-	r.Post("/logout", appHandlers.LogoutPostHandler)
+		r.Get("/sign-up", appHandlers.SignUpViewHandler)
+		r.Post("/sign-up", appHandlers.SignUpPostHandler)
 
-	r.Get("/forgot-password", appHandlers.ForgotPasswordView)
-	r.Get("/reset-password", appHandlers.ResetPasswordView)
+		r.Get("/reset-password", appHandlers.ResetPasswordView)
+		r.Get("/forgot-password", appHandlers.ForgotPasswordView)
+	})
 
+	// Public routes
 	r.Get("/", appHandlers.LandingViewHandler)
 	r.Get("/health", appHandlers.HealthHandler)
 
 	// Protected routes
 	r.Group(func(r chi.Router) {
 		r.Use(s.requireAuth)
+
+		r.Post("/logout", appHandlers.LogoutPostHandler)
 
 		r.Get("/dashboard", templ.Handler(views.HelloForm()).ServeHTTP)
 		r.Post("/hello", appHandlers.HelloWebHandler)

@@ -58,6 +58,26 @@ func (s *Server) requireAuth(next http.Handler) http.Handler {
 	})
 }
 
+func (s *Server) requireNoAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		isAuthenticated, ok := r.Context().Value(IsAuthenticatedContextKey).(bool)
+		if !ok {
+			isAuthenticated = false
+		}
+
+		if isAuthenticated {
+			referer := r.Header.Get("Referer")
+			if referer == "" {
+				referer = "/"
+			}
+			http.Redirect(w, r, referer, http.StatusSeeOther)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func (s *Server) noSurf(next http.Handler) http.Handler {
 	csrfHandler := nosurf.New(next)
 
