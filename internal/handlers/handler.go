@@ -80,17 +80,6 @@ func (h *Handlers) decodePostForm(r *http.Request, dst any) error {
 	return nil
 }
 
-type TemplateData struct {
-	// CurrentYear     int
-	// Snippet         *models.Snippet
-	// Snippets        []*models.Snippet
-	// Form            any
-	Flash           string
-	IsAuthenticated bool
-	CSRFToken       string
-	User            queries.User
-}
-
 // The serverError helper writes an error message and stack trace to the errorLog,
 // then sends a generic 500 Internal Server Error response to the user.
 func (h *Handlers) serverError(w http.ResponseWriter, err error) {
