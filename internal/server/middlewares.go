@@ -45,7 +45,7 @@ func (s *Server) requireAuth(next http.Handler) http.Handler {
 			isAuthenticated = false
 		}
 
-		if !isAuthenticated {
+		if !isAuthenticated && r.Method == http.MethodGet {
 			// Get the Location and save somewhere
 			http.Redirect(w, r, fmt.Sprintf("/login?next=%v", r.URL.Path), http.StatusSeeOther)
 			return
