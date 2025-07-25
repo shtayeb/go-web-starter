@@ -20,6 +20,7 @@ type SMTP struct {
 
 type Config struct {
 	AppEnv   string
+	Debug    bool
 	Port     int
 	Database Database
 	Mailer   SMTP
@@ -27,7 +28,9 @@ type Config struct {
 
 func LoadConfigFromEnv() Config {
 	appEnv := GetEnv("APP_ENV", "local")
+	debug := GetEnvAsBool("DEBUG", true)
 	port := GetEnvAsInt("PORT", 8080)
+
 	dbUrl := GetEnv("BLUEPRINT_DB_URL", "./database.db")
 
 	smtpHost := GetEnv("SMTP_HOST", "localhost")
@@ -46,6 +49,7 @@ func LoadConfigFromEnv() Config {
 	return Config{
 		Port:   port,
 		AppEnv: appEnv,
+		Debug:  debug,
 		Database: Database{
 			DBUrl:    dbUrl,
 			Database: database,

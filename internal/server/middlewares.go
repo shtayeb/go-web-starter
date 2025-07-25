@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/justinas/nosurf"
@@ -10,8 +11,8 @@ import (
 type contextKey string
 
 const (
-	isAuthenticatedContextKey = contextKey("isAuthenticated")
-	userContextKey            = contextKey("user")
+	IsAuthenticatedContextKey = contextKey("isAuthenticated")
+	UserContextKey            = contextKey("user")
 )
 
 func (s *Server) authenticate(next http.Handler) http.Handler {
@@ -19,19 +20,39 @@ func (s *Server) authenticate(next http.Handler) http.Handler {
 		// sessionManager
 		id := s.SessionManager.GetInt32(r.Context(), "authenticatedUserID")
 		if id == 0 {
-			http.Redirect(w, r.WithContext(r.Context()), "/login", http.StatusSeeOther)
+			next.ServeHTTP(w, r)
 			return
 		}
 
 		user, err := s.Queries.GetUserById(r.Context(), id)
 		if err != nil {
-			http.Redirect(w, r.WithContext(r.Context()), "/login", http.StatusSeeOther)
+			// app.serverError(w, err)
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
-		ctx = context.WithValue(ctx, userContextKey, user)
+		ctx := context.WithValue(r.Context(), IsAuthenticatedContextKey, true)
+		ctx = context.WithValue(ctx, UserContextKey, user)
 		r = r.WithContext(ctx)
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (s *Server) requireAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		isAuthenticated, ok := r.Context().Value(IsAuthenticatedContextKey).(bool)
+		if !ok {
+			isAuthenticated = false
+		}
+
+		if !isAuthenticated {
+			// Get the Location and save somewhere
+			http.Redirect(w, r, fmt.Sprintf("/login?next=%v", r.URL.Path), http.StatusSeeOther)
+			return
+		}
+
+		// Set the Cache-Control header so that pages require auth are not stored in the users browser cache or any intermediary cache
+		w.Header().Add("Cache-Control", "no-store")
 
 		next.ServeHTTP(w, r)
 	})

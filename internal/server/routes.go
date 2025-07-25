@@ -23,6 +23,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	//  r.Use(s.secureHeaders)
 	// r.Use(s.noSurf)
 	r.Use(s.SessionManager.LoadAndSave)
+	r.Use(s.authenticate)
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
@@ -32,7 +33,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	}))
 
 	// s.Db is useless without the queries
-	appHandlers := handlers.NewHandlers(s.Queries, s.Db, s.Logger, s.Mailer, s.SessionManager)
+	appHandlers := handlers.NewHandlers(s.Queries, s.Db, s.Logger, s.Mailer, s.SessionManager, s.Config)
 
 	// static file server
 	fileServer := http.FileServer(http.FS(web.Files))
@@ -55,7 +56,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	// Protected routes
 	r.Group(func(r chi.Router) {
-		r.Use(s.authenticate)
+		r.Use(s.requireAuth)
 
 		r.Get("/dashboard", templ.Handler(views.HelloForm()).ServeHTTP)
 		r.Post("/hello", appHandlers.HelloWebHandler)

@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/go-playground/form/v4"
 	"github.com/justinas/nosurf"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -17,7 +16,7 @@ import (
 func (h *Handlers) LogoutPostHandler(w http.ResponseWriter, r *http.Request) {
 	err := h.SessionManager.RenewToken(r.Context())
 	if err != nil {
-		// app.serverError(w, err)
+		h.serverError(w, err)
 		return
 	}
 
@@ -66,13 +65,7 @@ func checkPasswordHash(hashedPassword, plainTextPassword string) bool {
 func (h *Handlers) LoginPostHandler(w http.ResponseWriter, r *http.Request) {
 	var loginForm userLoginForm
 
-	err := r.ParseForm()
-	if err != nil {
-		log.Panic(err)
-	}
-
-	decoder := form.NewDecoder()
-	err = decoder.Decode(&loginForm, r.PostForm)
+	err := h.decodePostForm(r, &loginForm)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -136,14 +129,7 @@ type userSignupForm struct {
 func (h *Handlers) SignUpPostHandler(w http.ResponseWriter, r *http.Request) {
 	var signUpForm userSignupForm
 
-	err := r.ParseForm()
-	if err != nil {
-		log.Panic(err)
-	}
-
-	decoder := form.NewDecoder()
-
-	err = decoder.Decode(&signUpForm, r.PostForm)
+	err := h.decodePostForm(r, &signUpForm)
 	if err != nil {
 		log.Panic(err)
 	}

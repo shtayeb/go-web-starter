@@ -25,6 +25,7 @@ type Server struct {
 	Mailer         mailer.Mailer
 	Logger         *jsonlog.Logger
 	SessionManager *scs.SessionManager
+	Config         config.Config
 }
 
 func NewServer() *http.Server {
@@ -46,6 +47,7 @@ func NewServer() *http.Server {
 		Logger:         jsonlog.New(os.Stdout, jsonlog.LevelInfo),
 		Mailer:         mailer.New(config.Mailer),
 		SessionManager: sessionManager,
+		Config:         config,
 	}
 
 	// Declare Server config
