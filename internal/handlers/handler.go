@@ -13,7 +13,6 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
-	"github.com/justinas/nosurf"
 )
 
 type Handlers struct {
@@ -90,16 +89,6 @@ type TemplateData struct {
 	IsAuthenticated bool
 	CSRFToken       string
 	User            queries.User
-}
-
-func (h *Handlers) newTemplateData(r *http.Request) *TemplateData {
-	return &TemplateData{
-		Flash:           h.SessionManager.PopString(r.Context(), "flash"),
-		IsAuthenticated: h.isAuthenticated(r),
-		CSRFToken:       nosurf.Token(r),
-		User:            r.Context().Value("user").(queries.User),
-	}
-
 }
 
 // The serverError helper writes an error message and stack trace to the errorLog,

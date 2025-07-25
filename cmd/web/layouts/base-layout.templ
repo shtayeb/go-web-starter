@@ -1,20 +1,9 @@
 package layouts
 
-
 import "go-htmx-sqlite/cmd/web/components/ui/dropdown"
 import "go-htmx-sqlite/cmd/web/components/ui/popover"
 import "go-htmx-sqlite/cmd/web/components/ui/avatar"
 import "go-htmx-sqlite/cmd/web/components"
-import "context"
-import "go-htmx-sqlite/internal/queries"
-
-func GetUser(ctx context.Context) queries.User {
-	if theme, ok := ctx.Value("user").(queries.User); ok {
-		return theme
-	}
-
-	return queries.User{}
-}
 
 templ BaseLayout() {
 	<!DOCTYPE html>
