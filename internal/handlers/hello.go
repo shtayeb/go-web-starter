@@ -7,6 +7,7 @@ import (
 )
 
 func (h *Handlers) LandingViewHandler(w http.ResponseWriter, r *http.Request) {
+	// data := h.newTemplateData()
 	views.LandingView().Render(r.Context(), w)
 }
 

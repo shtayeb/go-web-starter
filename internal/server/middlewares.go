@@ -3,22 +3,16 @@ package server
 import (
 	"context"
 	"fmt"
+	"go-htmx-sqlite/internal/config"
 	"net/http"
 
 	"github.com/justinas/nosurf"
 )
 
-type contextKey string
-
-const (
-	IsAuthenticatedContextKey = contextKey("isAuthenticated")
-	UserContextKey            = contextKey("user")
-)
-
 func (s *Server) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// sessionManager
-		id := s.SessionManager.GetInt32(r.Context(), "authenticatedUserID")
+		id := s.SessionManager.GetInt32(r.Context(), string(config.AuthenticatedUserID))
 		if id == 0 {
 			next.ServeHTTP(w, r)
 			return
@@ -30,8 +24,8 @@ func (s *Server) authenticate(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), IsAuthenticatedContextKey, true)
-		ctx = context.WithValue(ctx, UserContextKey, user)
+		ctx := context.WithValue(r.Context(), config.IsAuthenticatedContextKey, true)
+		ctx = context.WithValue(ctx, config.UserContextKey, user)
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
@@ -40,7 +34,7 @@ func (s *Server) authenticate(next http.Handler) http.Handler {
 
 func (s *Server) requireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isAuthenticated, ok := r.Context().Value(IsAuthenticatedContextKey).(bool)
+		isAuthenticated, ok := r.Context().Value(config.IsAuthenticatedContextKey).(bool)
 		if !ok {
 			isAuthenticated = false
 		}
@@ -60,7 +54,7 @@ func (s *Server) requireAuth(next http.Handler) http.Handler {
 
 func (s *Server) requireNoAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isAuthenticated, ok := r.Context().Value(IsAuthenticatedContextKey).(bool)
+		isAuthenticated, ok := r.Context().Value(config.IsAuthenticatedContextKey).(bool)
 		if !ok {
 			isAuthenticated = false
 		}

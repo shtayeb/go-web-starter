@@ -13,6 +13,7 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
+	"github.com/justinas/nosurf"
 )
 
 type Handlers struct {
@@ -44,14 +45,14 @@ func NewHandlers(
 
 // helpers
 
-// func (h *Handlers) isAuthenticated(r *http.Request) bool {
-// 	isAuthenticated, ok := r.Context().Value(IsAuthenticatedContextKey).(bool)
-// 	if !ok {
-// 		return false
-// 	}
+func (h *Handlers) isAuthenticated(r *http.Request) bool {
+	isAuthenticated, ok := r.Context().Value(config.IsAuthenticatedContextKey).(bool)
+	if !ok {
+		return false
+	}
 
-// 	return isAuthenticated
-// }
+	return isAuthenticated
+}
 
 func (h *Handlers) decodePostForm(r *http.Request, dst any) error {
 	// Call ParseForm() on the request
@@ -80,15 +81,26 @@ func (h *Handlers) decodePostForm(r *http.Request, dst any) error {
 	return nil
 }
 
-// func (h *Handlers) newTemplateData(r *http.Request) *templateData {
-// 	return &templateData{
-// 		CurrentYear:     time.Now().Year(),
-// 		Flash:           app.sessionManager.PopString(r.Context(), "flash"),
-// 		IsAuthenticated: app.isAuthenticated(r),
-// 		CSRFToken:       nosurf.Token(r),
-// 	}
+type TemplateData struct {
+	// CurrentYear     int
+	// Snippet         *models.Snippet
+	// Snippets        []*models.Snippet
+	// Form            any
+	Flash           string
+	IsAuthenticated bool
+	CSRFToken       string
+	User            queries.User
+}
 
-// }
+func (h *Handlers) newTemplateData(r *http.Request) *TemplateData {
+	return &TemplateData{
+		Flash:           h.SessionManager.PopString(r.Context(), "flash"),
+		IsAuthenticated: h.isAuthenticated(r),
+		CSRFToken:       nosurf.Token(r),
+		User:            r.Context().Value("user").(queries.User),
+	}
+
+}
 
 // The serverError helper writes an error message and stack trace to the errorLog,
 // then sends a generic 500 Internal Server Error response to the user.
