@@ -1,43 +1,45 @@
 package layouts
 
 import (
-"go-htmx-sqlite/cmd/web/components"
-"go-htmx-sqlite/cmd/web/components/ui/drawer"
-"go-htmx-sqlite/internal/types"
+	"go-htmx-sqlite/cmd/web/components"
+	"go-htmx-sqlite/cmd/web/components/ui/drawer"
 	"go-htmx-sqlite/cmd/web/components/ui/dropdown"
 	"go-htmx-sqlite/cmd/web/components/ui/popover"
+	"go-htmx-sqlite/internal/types"
 )
 
 templ DashboardLayout(data types.TemplateData) {
-<!DOCTYPE html>
-<html lang="en" class="h-screen">
-
-<head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width,initial-scale=1" />
-	<title>Go Blueprint Hello</title>
-	<link href="assets/css/output.css" rel="stylesheet" />
-	<script src="assets/js/htmx.min.js"></script>
-
-	@drawer.Script()
-	@components.ThemeSwitcherScript()
-	@dropdown.Script()
-	@popover.Script()
-</head>
-
-<body class="h-full">
-	<div class="device-content">
-		<div class="flex h-screen">
-			@components.Sidebar()
-			<main class="w-full">
-				@components.Navbar(data)
-				<section class="container mx-auto px-6">
-					{ children... }
-				</section>
-			</main>
-		</div>
-	</div>
-</body>
-
-</html>
+	<!DOCTYPE html>
+	<html lang="en" class="h-screen">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width,initial-scale=1"/>
+			<link href="assets/css/output.css" rel="stylesheet"/>
+			<script src="assets/js/htmx.min.js"></script>
+			<title>
+				if data.PageTitle != "" {
+					{ data.PageTitle }
+				} else {
+					Go Starter
+				}
+			</title>
+			@drawer.Script()
+			@components.ThemeSwitcherScript()
+			@dropdown.Script()
+			@popover.Script()
+		</head>
+		<body class="h-full">
+			<div class="device-content">
+				<div class="flex h-screen">
+					@components.Sidebar()
+					<main class="w-full">
+						@components.Navbar(data)
+						<section class="container mx-auto px-6">
+							{ children... }
+						</section>
+					</main>
+				</div>
+			</div>
+		</body>
+	</html>
 }

@@ -16,6 +16,7 @@ func (h *Handlers) LandingViewHandler(w http.ResponseWriter, r *http.Request) {
 func (h *Handlers) HelloFormHandler(w http.ResponseWriter, r *http.Request) {
 	data := h.newTemplateData(r)
 	data.PageTitle = "Hello Form"
+
 	views.HelloForm(data).Render(r.Context(), w)
 }
 

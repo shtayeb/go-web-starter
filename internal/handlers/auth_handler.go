@@ -28,7 +28,6 @@ func (h *Handlers) LogoutPostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handlers) ResetPasswordView(w http.ResponseWriter, r *http.Request) {
-	// check user shouldnt be logged in
 	data := h.newTemplateData(r)
 	data.PageTitle = "Reset Password"
 
@@ -37,14 +36,13 @@ func (h *Handlers) ResetPasswordView(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handlers) ForgotPasswordView(w http.ResponseWriter, r *http.Request) {
-	// check user shouldnt be logged in
 	data := h.newTemplateData(r)
 	data.PageTitle = "Forgot Password"
+
 	auth.ForgotPasswordView(data).Render(r.Context(), w)
 }
 
 func (h *Handlers) LoginViewHandler(w http.ResponseWriter, r *http.Request) {
-	// check user shouldnt be logged in
 	data := h.newTemplateData(r)
 	data.PageTitle = "Login"
 
