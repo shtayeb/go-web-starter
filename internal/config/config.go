@@ -19,6 +19,7 @@ type SMTP struct {
 }
 
 type Config struct {
+	AppName  string
 	AppEnv   string
 	Debug    bool
 	Port     int
@@ -27,6 +28,7 @@ type Config struct {
 }
 
 func LoadConfigFromEnv() Config {
+	appName := GetEnv("APP_NAME", "Go Web Starter")
 	appEnv := GetEnv("APP_ENV", "local")
 	debug := GetEnvAsBool("DEBUG", true)
 	port := GetEnvAsInt("PORT", 8080)
@@ -47,9 +49,10 @@ func LoadConfigFromEnv() Config {
 	schema := GetEnv("BLUEPRINT_DB_SCHEMA", "public")
 
 	return Config{
-		Port:   port,
-		AppEnv: appEnv,
-		Debug:  debug,
+		AppName: appName,
+		Port:    port,
+		AppEnv:  appEnv,
+		Debug:   debug,
 		Database: Database{
 			DBUrl:    dbUrl,
 			Database: database,

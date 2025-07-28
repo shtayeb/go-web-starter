@@ -10,6 +10,7 @@ type TemplateData struct {
 	Flash           string
 	PageTitle       string
 	Meta            map[string]string
+	AppName         string
 }
 
 // PageData wraps template data with page-specific data
