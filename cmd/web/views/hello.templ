@@ -1,12 +1,13 @@
 package views
 
 import "go-htmx-sqlite/cmd/web/layouts"
+import "go-htmx-sqlite/internal/types"
 
-templ HelloForm() {
-@layouts.DashboardLayout(){
+templ HelloForm(data types.TemplateData) {
+	@layouts.DashboardLayout(data) {
 		<div class="py-4">
 			<form hx-post="/hello" method="POST" hx-target="#hello-container">
-				<input class="bg-gray-200 text-black p-2 border border-gray-400 rounded-lg" id="name" name="name" type="text" />
+				<input class="bg-gray-200 text-black p-2 border border-gray-400 rounded-lg" id="name" name="name" type="text"/>
 				<button type="submit" class="bg-orange-500 hover:bg-orange-700 text-white py-2 px-4 rounded">Submit</button>
 			</form>
 			<div id="hello-container"></div>

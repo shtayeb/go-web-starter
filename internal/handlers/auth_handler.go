@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/justinas/nosurf"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -30,21 +29,26 @@ func (h *Handlers) LogoutPostHandler(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handlers) ResetPasswordView(w http.ResponseWriter, r *http.Request) {
 	// check user shouldnt be logged in
+	data := h.newTemplateData(r)
+	data.PageTitle = "Reset Password"
 
 	// Get the token from url params
-	auth.ResetPasswordView().Render(r.Context(), w)
+	auth.ResetPasswordView(data).Render(r.Context(), w)
 }
 
 func (h *Handlers) ForgotPasswordView(w http.ResponseWriter, r *http.Request) {
 	// check user shouldnt be logged in
-	auth.ForgotPasswordView().Render(r.Context(), w)
+	data := h.newTemplateData(r)
+	data.PageTitle = "Forgot Password"
+	auth.ForgotPasswordView(data).Render(r.Context(), w)
 }
 
 func (h *Handlers) LoginViewHandler(w http.ResponseWriter, r *http.Request) {
 	// check user shouldnt be logged in
-	csrfToken := nosurf.Token(r)
+	data := h.newTemplateData(r)
+	data.PageTitle = "Login"
 
-	auth.LoginView(csrfToken).Render(r.Context(), w)
+	auth.LoginView(data).Render(r.Context(), w)
 }
 
 type userLoginForm struct {
@@ -114,9 +118,10 @@ func (h *Handlers) LoginPostHandler(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handlers) SignUpViewHandler(w http.ResponseWriter, r *http.Request) {
 	// check user shouldnt be logged in
-	csrfToken := nosurf.Token(r)
+	data := h.newTemplateData(r)
+	data.PageTitle = "Sign Up"
 
-	auth.SignUpView(csrfToken).Render(r.Context(), w)
+	auth.SignUpView(data).Render(r.Context(), w)
 }
 
 type userSignupForm struct {

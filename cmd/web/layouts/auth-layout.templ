@@ -2,8 +2,9 @@ package layouts
 
 import "go-htmx-sqlite/cmd/web/components/ui/input"
 import "go-htmx-sqlite/cmd/web/components"
+import "go-htmx-sqlite/internal/types"
 
-templ AuthLayout() {
+templ AuthLayout(data types.TemplateData) {
 <!DOCTYPE html>
 <html lang="en" class="h-screen">
 

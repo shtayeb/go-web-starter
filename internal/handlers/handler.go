@@ -8,11 +8,13 @@ import (
 	"go-htmx-sqlite/internal/jsonlog"
 	"go-htmx-sqlite/internal/mailer"
 	"go-htmx-sqlite/internal/queries"
+	"go-htmx-sqlite/internal/types"
 	"net/http"
 	"runtime/debug"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
+	"github.com/justinas/nosurf"
 )
 
 type Handlers struct {
@@ -51,6 +53,31 @@ func (h *Handlers) isAuthenticated(r *http.Request) bool {
 	}
 
 	return isAuthenticated
+}
+
+func (h *Handlers) getUser(r *http.Request) *queries.User {
+	user, ok := r.Context().Value(config.UserContextKey).(queries.User)
+	if !ok {
+		return nil
+	}
+
+	return &user
+}
+
+func (h *Handlers) newTemplateData(r *http.Request) types.TemplateData {
+	return types.TemplateData{
+		IsAuthenticated: h.isAuthenticated(r),
+		User:            h.getUser(r),
+		CSRFToken:       nosurf.Token(r),
+		Flash:           h.SessionManager.PopString(r.Context(), "flash"),
+	}
+}
+
+func (h *Handlers) newPageData(r *http.Request, data any) types.PageData {
+	return types.PageData{
+		Template: h.newTemplateData(r),
+		Data:     data,
+	}
 }
 
 func (h *Handlers) decodePostForm(r *http.Request, dst any) error {

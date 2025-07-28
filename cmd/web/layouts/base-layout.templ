@@ -4,25 +4,36 @@ import "go-htmx-sqlite/cmd/web/components/ui/dropdown"
 import "go-htmx-sqlite/cmd/web/components/ui/popover"
 import "go-htmx-sqlite/cmd/web/components/ui/avatar"
 import "go-htmx-sqlite/cmd/web/components"
+import "go-htmx-sqlite/internal/types"
 
-templ BaseLayout() {
+templ BaseLayout(data types.TemplateData) {
 	<!DOCTYPE html>
 	<html lang="en" class="h-screen">
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width,initial-scale=1"/>
-			<title>Go Blueprint Hello</title>
+			<title>
+				if data.PageTitle != "" {
+					{ data.PageTitle }
+				} else {
+					Go Blueprint Hello
+				}
+			</title>
 			<link href="assets/css/output.css" rel="stylesheet"/>
 			<script src="assets/js/htmx.min.js"></script>
-
 			@dropdown.Script()
 			@popover.Script()
 			@avatar.Script()
-
 			@components.ThemeSwitcherScript()
 		</head>
 		<body>
-			{ children... }
+			@components.Navbar(data)
+			if data.Flash != "" {
+				@components.FlashMessage(data.Flash)
+			}
+			<main>
+				{ children... }
+			</main>
 		</body>
 	</html>
 }

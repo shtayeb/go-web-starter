@@ -2,7 +2,9 @@ package components
 
 import "go-htmx-sqlite/cmd/web/components/ui/icon"
 
-templ Navbar() {
+import "go-htmx-sqlite/internal/types"
+
+templ Navbar(data types.TemplateData) {
 	<nav class="sticky top-0 z-50 w-full border-b">
 		<div class="container mx-auto px-4">
 			<div class="h-16 flex justify-between items-center relative">
@@ -17,7 +19,7 @@ templ Navbar() {
 				// Right
 				<div class="flex gap-1 items-center justify-center">
 					@ThemeSwitcher()
-					@UserDropdown(false,"test")
+					@UserDropdown(data)
 				</div>
 			</div>
 		</div>

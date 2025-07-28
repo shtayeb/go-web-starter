@@ -3,9 +3,12 @@ package layouts
 import (
 "go-htmx-sqlite/cmd/web/components"
 "go-htmx-sqlite/cmd/web/components/ui/drawer"
+"go-htmx-sqlite/internal/types"
+	"go-htmx-sqlite/cmd/web/components/ui/dropdown"
+	"go-htmx-sqlite/cmd/web/components/ui/popover"
 )
 
-templ DashboardLayout() {
+templ DashboardLayout(data types.TemplateData) {
 <!DOCTYPE html>
 <html lang="en" class="h-screen">
 
@@ -18,6 +21,8 @@ templ DashboardLayout() {
 
 	@drawer.Script()
 	@components.ThemeSwitcherScript()
+	@dropdown.Script()
+	@popover.Script()
 </head>
 
 <body class="h-full">
@@ -25,7 +30,7 @@ templ DashboardLayout() {
 		<div class="flex h-screen">
 			@components.Sidebar()
 			<main class="w-full">
-				@components.Navbar()
+				@components.Navbar(data)
 				<section class="container mx-auto px-6">
 					{ children... }
 				</section>

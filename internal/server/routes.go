@@ -4,10 +4,8 @@ import (
 	"net/http"
 
 	"go-htmx-sqlite/cmd/web"
-	"go-htmx-sqlite/cmd/web/views"
 	"go-htmx-sqlite/internal/handlers"
 
-	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -65,7 +63,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 		r.Post("/logout", appHandlers.LogoutPostHandler)
 
-		r.Get("/dashboard", templ.Handler(views.HelloForm()).ServeHTTP)
+		r.Get("/dashboard", appHandlers.HelloFormHandler)
 		r.Post("/hello", appHandlers.HelloWebHandler)
 	})
 
