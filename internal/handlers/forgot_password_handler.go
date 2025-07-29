@@ -86,7 +86,7 @@ func (h *Handlers) ForgotPasswordPostHanlder(w http.ResponseWriter, r *http.Requ
 		println(err)
 	}
 
-	token, err := h.DB.CreateToken(r.Context(), queries.CreateTokenParams{
+	_, err = h.DB.CreateToken(r.Context(), queries.CreateTokenParams{
 		UserID: int64(user.ID),
 		Expiry: time.Now().Add(400),
 		Scope:  ScopePasswordReset,
@@ -106,8 +106,8 @@ func (h *Handlers) ForgotPasswordPostHanlder(w http.ResponseWriter, r *http.Requ
 	}
 
 	// set a flash message in the session manager
-	println("Hello sent the link")
-	println(user.Email, plaintext, token.Hash)
+
+	h.SessionManager.Put(r.Context(), "flash", "Link sent to your email address")
 
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }

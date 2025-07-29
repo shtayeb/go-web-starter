@@ -24,11 +24,11 @@ templ AuthLayout(data types.TemplateData) {
 		</head>
 		<body class="h-full">
 			<div class="device-content h-screen flex items-center justify-center">
-				if data.Flash != "" {
-					@components.FlashMessage(data.Flash)
-				}
 				<main class="w-full max-w-md">
 					<section class="container mx-auto px-6">
+						if data.Flash != "" {
+							@components.FlashMessage(data.Flash)
+						}
 						{ children... }
 					</section>
 				</main>
