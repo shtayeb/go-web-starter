@@ -32,14 +32,16 @@ type Author struct {
 }
 
 type Session struct {
-	ID        int32
-	ExpiresAt time.Time
-	Token     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	IpAddress sql.NullString
-	UserAgent sql.NullString
-	UserID    int32
+	Token  string
+	Data   []byte
+	Expiry time.Time
+}
+
+type Token struct {
+	Hash   []byte
+	UserID int64
+	Expiry time.Time
+	Scope  string
 }
 
 type User struct {

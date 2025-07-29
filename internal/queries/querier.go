@@ -12,12 +12,15 @@ type Querier interface {
 	ChangeAccountPassword(ctx context.Context, arg ChangeAccountPasswordParams) error
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
 	CreateAuthor(ctx context.Context, arg CreateAuthorParams) (Author, error)
+	CreateToken(ctx context.Context, arg CreateTokenParams) (Token, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	DeleteAllForUser(ctx context.Context, arg DeleteAllForUserParams) error
 	DeleteAuthor(ctx context.Context, id int32) error
 	GetAccountById(ctx context.Context, id int32) (Account, error)
 	GetAccountByUserId(ctx context.Context, userID int32) (Account, error)
 	GetAuthor(ctx context.Context, id int32) (Author, error)
 	GetSessionByToken(ctx context.Context, token string) (Session, error)
+	GetTokensForUser(ctx context.Context, userID int64) (Token, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserById(ctx context.Context, id int32) (User, error)
 	ListAuthors(ctx context.Context) ([]Author, error)

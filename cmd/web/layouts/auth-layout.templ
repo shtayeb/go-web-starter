@@ -6,7 +6,7 @@ import "go-htmx-sqlite/internal/types"
 
 templ AuthLayout(data types.TemplateData) {
 	<!DOCTYPE html>
-	<html lang="en" class="h-screen">
+	<html lang="en">
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -24,6 +24,9 @@ templ AuthLayout(data types.TemplateData) {
 		</head>
 		<body class="h-full">
 			<div class="device-content h-screen flex items-center justify-center">
+				if data.Flash != "" {
+					@components.FlashMessage(data.Flash)
+				}
 				<main class="w-full max-w-md">
 					<section class="container mx-auto px-6">
 						{ children... }

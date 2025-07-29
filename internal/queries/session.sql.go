@@ -10,21 +10,12 @@ import (
 )
 
 const getSessionByToken = `-- name: GetSessionByToken :one
-SELECT id, expires_at, token, created_at, updated_at, ip_address, user_agent, user_id FROM sessions WHERE token = $1
+SELECT token, data, expiry FROM sessions WHERE token = $1
 `
 
 func (q *Queries) GetSessionByToken(ctx context.Context, token string) (Session, error) {
 	row := q.db.QueryRowContext(ctx, getSessionByToken, token)
 	var i Session
-	err := row.Scan(
-		&i.ID,
-		&i.ExpiresAt,
-		&i.Token,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.IpAddress,
-		&i.UserAgent,
-		&i.UserID,
-	)
+	err := row.Scan(&i.Token, &i.Data, &i.Expiry)
 	return i, err
 }
