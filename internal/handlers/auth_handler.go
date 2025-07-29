@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"go-htmx-sqlite/cmd/web/views/auth"
 	"go-htmx-sqlite/internal/queries"
 	"log"
@@ -22,8 +21,6 @@ func (h *Handlers) LogoutPostHandler(w http.ResponseWriter, r *http.Request) {
 	h.SessionManager.Remove(r.Context(), "authenticatedUserID")
 	h.SessionManager.Remove(r.Context(), "user")
 
-	h.SessionManager.Put(r.Context(), "flash", "You've been logged out successfully!")
-
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
@@ -40,6 +37,32 @@ func (h *Handlers) ForgotPasswordView(w http.ResponseWriter, r *http.Request) {
 	data.PageTitle = "Forgot Password"
 
 	auth.ForgotPasswordView(data).Render(r.Context(), w)
+}
+
+func (h *Handlers) ForgotPasswordPostHanlder(w http.ResponseWriter, r *http.Request) {
+	// handle form and its validation
+	type ForgotPasswordForm struct {
+		Email string `form:"email"`
+	}
+
+	var forgotPasswordForm ForgotPasswordForm
+
+	err := h.decodePostForm(r, &forgotPasswordForm)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// get the user by email
+	user, err := h.DB.GetUserByEmail(r.Context(), forgotPasswordForm.Email)
+	if err != nil {
+		return
+	}
+
+	println(user.Email)
+	// handle the errors in the view
+
+	// create token with ttl of 15min
+	// send the reset email with the token for the user
 }
 
 func (h *Handlers) LoginViewHandler(w http.ResponseWriter, r *http.Request) {
@@ -167,7 +190,7 @@ func (h *Handlers) SignUpPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// insert into the accounts table - password is in the accounts table
-	account, err := h.DB.CreateAccount(r.Context(), queries.CreateAccountParams{
+	_, err = h.DB.CreateAccount(r.Context(), queries.CreateAccountParams{
 		UserID:    user.ID,
 		AccountID: user.Name,
 		Password:  string(hashedPassword),
@@ -182,10 +205,25 @@ func (h *Handlers) SignUpPostHandler(w http.ResponseWriter, r *http.Request) {
 		// handle the error in the frontend give user an error message
 	}
 
+	// send the user a message to verify the user's email address account
+	// TODO:jwtToken with a ttl of 6 hour
+	jwtToken := "hello"
+	data := map[string]any{
+		"activationToken": jwtToken,
+		"userID":          user.ID,
+	}
+
+	// TODO:Send this to a background job handler, where it can be retried
+	err = h.Mailer.Send(user.Email, "user_welcome.tmpl", data)
+	if err != nil {
+		h.Logger.PrintError(err, nil)
+	}
+
 	// add message to the session manager and display it to the user
+	h.SessionManager.Put(r.Context(), "flash", "Your account was created successfully!")
 
 	// redirect to the login page
-	fmt.Printf("%#v \n %#v", user, account)
+	// fmt.Printf("%#v \n %#v", user, account)
 
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
