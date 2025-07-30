@@ -41,6 +41,13 @@ Live reload the application:
 make watch
 ```
 
+Mailhog test mail server
+- Install mailhog for your OS
+- localhost:8025
+```bash
+mailhog
+```
+
 Run the test suite:
 ```bash
 make test

@@ -1,4 +1,4 @@
-package handlers
+package auth
 
 import (
 	"crypto/rand"
@@ -52,14 +52,14 @@ func generateToken(userID int64, ttl time.Duration, scope string) ([]byte, strin
 	return newHash, plaintext, nil
 }
 
-func (h *Handlers) ForgotPasswordView(w http.ResponseWriter, r *http.Request) {
-	data := h.newTemplateData(r)
+func (ah *AuthHandler) ForgotPasswordView(w http.ResponseWriter, r *http.Request) {
+	data := ah.handler.NewTemplateData(r)
 	data.PageTitle = "Forgot Password"
 
 	auth.ForgotPasswordView(data).Render(r.Context(), w)
 }
 
-func (h *Handlers) ForgotPasswordPostHanlder(w http.ResponseWriter, r *http.Request) {
+func (ah *AuthHandler) ForgotPasswordPostHanlder(w http.ResponseWriter, r *http.Request) {
 	// handle form and its validation
 	type ForgotPasswordForm struct {
 		Email string `form:"email"`
@@ -67,13 +67,13 @@ func (h *Handlers) ForgotPasswordPostHanlder(w http.ResponseWriter, r *http.Requ
 
 	var forgotPasswordForm ForgotPasswordForm
 
-	err := h.decodePostForm(r, &forgotPasswordForm)
+	err := ah.handler.DecodePostForm(r, &forgotPasswordForm)
 	if err != nil {
 		log.Panic(err)
 	}
 
 	// get the user by email
-	user, err := h.DB.GetUserByEmail(r.Context(), forgotPasswordForm.Email)
+	user, err := ah.handler.DB.GetUserByEmail(r.Context(), forgotPasswordForm.Email)
 	if err != nil {
 		return
 	}
@@ -86,7 +86,7 @@ func (h *Handlers) ForgotPasswordPostHanlder(w http.ResponseWriter, r *http.Requ
 		println(err)
 	}
 
-	_, err = h.DB.CreateToken(r.Context(), queries.CreateTokenParams{
+	_, err = ah.handler.DB.CreateToken(r.Context(), queries.CreateTokenParams{
 		UserID: int64(user.ID),
 		Expiry: time.Now().Add(400),
 		Scope:  ScopePasswordReset,
@@ -100,14 +100,14 @@ func (h *Handlers) ForgotPasswordPostHanlder(w http.ResponseWriter, r *http.Requ
 	data := map[string]any{
 		"passwordResetLink": fmt.Sprintf("http://localhost:8080/reset-password?token=%s", plaintext),
 	}
-	err = h.Mailer.Send(user.Email, "reset_password.tmpl", data)
+	err = ah.handler.Mailer.Send(user.Email, "reset_password.tmpl", data)
 	if err != nil {
-		h.Logger.PrintError(err, nil)
+		ah.handler.Logger.PrintError(err, nil)
 	}
 
 	// set a flash message in the session manager
 
-	h.SessionManager.Put(r.Context(), "flash", "Link sent to your email address")
+	ah.handler.SessionManager.Put(r.Context(), "flash", "Link sent to your email address")
 
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }

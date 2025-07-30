@@ -1,4 +1,4 @@
-package handlers
+package auth
 
 import (
 	"crypto/sha256"
@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (h *Handlers) ResetPasswordPostHandler(w http.ResponseWriter, r *http.Request) {
+func (ah *AuthHandler) ResetPasswordPostHandler(w http.ResponseWriter, r *http.Request) {
 	// form
 
 	// validate
@@ -24,8 +24,8 @@ func (h *Handlers) ResetPasswordPostHandler(w http.ResponseWriter, r *http.Reque
 	// redirect to login page
 }
 
-func (h *Handlers) ResetPasswordView(w http.ResponseWriter, r *http.Request) {
-	data := h.newTemplateData(r)
+func (ah *AuthHandler) ResetPasswordView(w http.ResponseWriter, r *http.Request) {
+	data := ah.handler.NewTemplateData(r)
 	data.PageTitle = "Reset Password"
 
 	// get the token from query ?token=
@@ -39,7 +39,7 @@ func (h *Handlers) ResetPasswordView(w http.ResponseWriter, r *http.Request) {
 	println(plainTextToken, tokenHash[:], time.Now().String())
 
 	// compare the token with the hashed one in the database
-	_, err := h.DB.GetUserByToken(r.Context(), queries.GetUserByTokenParams{
+	_, err := ah.handler.DB.GetUserByToken(r.Context(), queries.GetUserByTokenParams{
 		Hash:   tokenHash[:],
 		Scope:  ScopePasswordReset,
 		Expiry: time.Now(),

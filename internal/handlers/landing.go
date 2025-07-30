@@ -7,14 +7,14 @@ import (
 )
 
 func (h *Handlers) LandingViewHandler(w http.ResponseWriter, r *http.Request) {
-	data := h.newTemplateData(r)
+	data := h.NewTemplateData(r)
 	data.PageTitle = "Welcome"
 
 	views.LandingView(data).Render(r.Context(), w)
 }
 
 func (h *Handlers) HelloFormHandler(w http.ResponseWriter, r *http.Request) {
-	data := h.newTemplateData(r)
+	data := h.NewTemplateData(r)
 	data.PageTitle = "Hello Form"
 
 	views.HelloForm(data).Render(r.Context(), w)

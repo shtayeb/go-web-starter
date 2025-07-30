@@ -1,4 +1,4 @@
-package handlers
+package auth
 
 import (
 	"go-htmx-sqlite/cmd/web/views/auth"
@@ -15,10 +15,10 @@ type userSignupForm struct {
 	PasswordConfirmation string `form:"password-confirmation"`
 }
 
-func (h *Handlers) SignUpPostHandler(w http.ResponseWriter, r *http.Request) {
+func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request) {
 	var signUpForm userSignupForm
 
-	err := h.decodePostForm(r, &signUpForm)
+	err := ah.handler.DecodePostForm(r, &signUpForm)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -29,14 +29,14 @@ func (h *Handlers) SignUpPostHandler(w http.ResponseWriter, r *http.Request) {
 	// handle valid
 
 	// insert into the users table
-	user, err := h.DB.CreateUser(r.Context(), queries.CreateUserParams{
+	user, err := ah.handler.DB.CreateUser(r.Context(), queries.CreateUserParams{
 		Name:      signUpForm.Name,
 		Email:     signUpForm.Email,
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 	})
 	if err != nil {
-		h.Logger.PrintError(err, map[string]string{
+		ah.handler.Logger.PrintError(err, map[string]string{
 			"request_method": r.Method,
 			"request_url":    r.URL.String(),
 		})
@@ -46,21 +46,21 @@ func (h *Handlers) SignUpPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// hash the password
-	hashedPassword, err := hashPassword(signUpForm.Password)
+	hashedPassword, err := ah.handler.HashPassword(signUpForm.Password)
 	if err != nil {
 		return
 		// handle error in the view
 	}
 
 	// insert into the accounts table - password is in the accounts table
-	_, err = h.DB.CreateAccount(r.Context(), queries.CreateAccountParams{
+	_, err = ah.handler.DB.CreateAccount(r.Context(), queries.CreateAccountParams{
 		UserID:    user.ID,
 		AccountID: user.Name,
 		Password:  string(hashedPassword),
 	})
 	// handle database errors
 	if err != nil {
-		h.Logger.PrintError(err, map[string]string{
+		ah.handler.Logger.PrintError(err, map[string]string{
 			"request_method": r.Method,
 			"request_url":    r.URL.String(),
 		})
@@ -77,13 +77,13 @@ func (h *Handlers) SignUpPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO:Send this to a background job handler, where it can be retried
-	err = h.Mailer.Send(user.Email, "user_welcome.tmpl", data)
+	err = ah.handler.Mailer.Send(user.Email, "user_welcome.tmpl", data)
 	if err != nil {
-		h.Logger.PrintError(err, nil)
+		ah.handler.Logger.PrintError(err, nil)
 	}
 
 	// add message to the session manager and display it to the user
-	h.SessionManager.Put(r.Context(), "flash", "Your account was created successfully!")
+	ah.handler.SessionManager.Put(r.Context(), "flash", "Your account was created successfully!")
 
 	// redirect to the login page
 	// fmt.Printf("%#v \n %#v", user, account)
@@ -91,9 +91,9 @@ func (h *Handlers) SignUpPostHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
-func (h *Handlers) SignUpViewHandler(w http.ResponseWriter, r *http.Request) {
+func (ah *AuthHandler) SignUpViewHandler(w http.ResponseWriter, r *http.Request) {
 	// check user shouldnt be logged in
-	data := h.newTemplateData(r)
+	data := ah.handler.NewTemplateData(r)
 	data.PageTitle = "Sign Up"
 
 	auth.SignUpView(data).Render(r.Context(), w)

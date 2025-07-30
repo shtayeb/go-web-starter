@@ -15,6 +15,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
 	"github.com/justinas/nosurf"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Handlers struct {
@@ -64,7 +65,7 @@ func (h *Handlers) getUser(r *http.Request) *queries.User {
 	return &user
 }
 
-func (h *Handlers) newTemplateData(r *http.Request) types.TemplateData {
+func (h *Handlers) NewTemplateData(r *http.Request) types.TemplateData {
 	return types.TemplateData{
 		AppName:         h.Config.AppName,
 		IsAuthenticated: h.isAuthenticated(r),
@@ -76,12 +77,12 @@ func (h *Handlers) newTemplateData(r *http.Request) types.TemplateData {
 
 func (h *Handlers) newPageData(r *http.Request, data any) types.PageData {
 	return types.PageData{
-		Template: h.newTemplateData(r),
+		Template: h.NewTemplateData(r),
 		Data:     data,
 	}
 }
 
-func (h *Handlers) decodePostForm(r *http.Request, dst any) error {
+func (h *Handlers) DecodePostForm(r *http.Request, dst any) error {
 	// Call ParseForm() on the request
 	err := r.ParseForm()
 	if err != nil {
@@ -110,7 +111,7 @@ func (h *Handlers) decodePostForm(r *http.Request, dst any) error {
 
 // The serverError helper writes an error message and stack trace to the errorLog,
 // then sends a generic 500 Internal Server Error response to the user.
-func (h *Handlers) serverError(w http.ResponseWriter, err error) {
+func (h *Handlers) ServerError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
 	h.Logger.Write([]byte(trace))
 
@@ -120,4 +121,9 @@ func (h *Handlers) serverError(w http.ResponseWriter, err error) {
 	}
 
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+}
+
+func (h *Handlers) HashPassword(plainTextPassword string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(plainTextPassword), 14)
+	return string(bytes), err
 }
