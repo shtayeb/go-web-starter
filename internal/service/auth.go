@@ -34,6 +34,7 @@ func checkPasswordHash(hashedPassword, plainTextPassword string) bool {
 	return err == nil
 }
 
+// TODO: duplicate func, move it to util package
 func hashPassword(plainTextPassword string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(plainTextPassword), 14)
 	return string(bytes), err
