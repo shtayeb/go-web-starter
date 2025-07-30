@@ -40,14 +40,7 @@ func hashPassword(plainTextPassword string) (string, error) {
 	return string(bytes), err
 }
 
-func generateToken(userID int64, ttl time.Duration, scope string) ([]byte, string, error) {
-	// Create a Token instance containing the user ID, expiry, and scope information.
-	// token := &queries.Token{
-	// 	UserID: userID,
-	// 	Expiry: time.Now().Add(ttl),
-	// 	Scope:  scope,
-	// }
-
+func (as *AuthService) GenerateToken(ctx context.Context, userID int64, ttl time.Duration, scope string) (string, error) {
 	// Initialize a zero-valued byte slice with a length of 16 bytes.
 	randomBytes := make([]byte, 16)
 
@@ -55,7 +48,7 @@ func generateToken(userID int64, ttl time.Duration, scope string) ([]byte, strin
 	// random bytes from your operating system's CSPRNG.
 	_, err := rand.Read(randomBytes)
 	if err != nil {
-		return nil, "", err
+		return "", err
 	}
 
 	// Encode the byte slice to a base-32-encoded string and assign it to the token
@@ -73,7 +66,18 @@ func generateToken(userID int64, ttl time.Duration, scope string) ([]byte, strin
 	hash := sha256.Sum256([]byte(plaintext))
 	newHash := hash[:]
 
-	return newHash, plaintext, nil
+	_, err = as.dbQueries.CreateToken(ctx, queries.CreateTokenParams{
+		UserID: userID,
+		Expiry: time.Now().Add(ttl),
+		Scope:  scope,
+		Hash:   newHash,
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return plaintext, nil
 }
 
 func (as *AuthService) Login(ctx context.Context, email string, password string) (*queries.User, error) {
@@ -159,19 +163,10 @@ func (as *AuthService) GetPasswordResetLink(ctx context.Context, email string) (
 		return "", err
 	}
 
-	// create token with ttl of 15min
-	hash, plaintext, err := generateToken(int64(user.ID), 45*time.Second, config.ScopePasswordReset)
+	// create token with ttl of 45min
+	plaintext, err := as.GenerateToken(ctx, int64(user.ID), 45*time.Minute, config.ScopePasswordReset)
 	if err != nil {
 		println(err)
-	}
-
-	_, err = as.dbQueries.CreateToken(ctx, queries.CreateTokenParams{
-		UserID: int64(user.ID),
-		Expiry: time.Now().Add(45 * time.Minute),
-		Scope:  config.ScopePasswordReset,
-		Hash:   hash,
-	})
-	if err != nil {
 		return "", err
 	}
 
