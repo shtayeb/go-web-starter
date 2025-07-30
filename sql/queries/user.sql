@@ -10,3 +10,12 @@ SELECT * FROM users WHERE email = $1;
 
 -- name: GetUserById :one
 SELECT * FROM users WHERE id = $1;
+
+-- name: GetUserByToken :one
+SELECT 
+    sqlc.embed(users)
+FROM users
+    INNER JOIN tokens ON users.id = tokens.user_id
+WHERE tokens.hash = $1
+    AND tokens.scope = $2
+    AND tokens.expiry > $3;

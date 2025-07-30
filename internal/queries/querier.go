@@ -23,6 +23,7 @@ type Querier interface {
 	GetTokensForUser(ctx context.Context, userID int64) (Token, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserById(ctx context.Context, id int32) (User, error)
+	GetUserByToken(ctx context.Context, arg GetUserByTokenParams) (GetUserByTokenRow, error)
 	ListAuthors(ctx context.Context) ([]Author, error)
 	UpdateAuthor(ctx context.Context, arg UpdateAuthorParams) error
 	UpdateUserName(ctx context.Context, arg UpdateUserNameParams) error

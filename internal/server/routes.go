@@ -50,6 +50,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Post("/sign-up", appHandlers.SignUpPostHandler)
 
 		r.Get("/reset-password", appHandlers.ResetPasswordView)
+		r.Post("/reset-password", appHandlers.ResetPasswordPostHandler)
 
 		r.Get("/forgot-password", appHandlers.ForgotPasswordView)
 		r.Post("/forgot-password", appHandlers.ForgotPasswordPostHanlder)

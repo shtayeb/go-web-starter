@@ -80,6 +80,41 @@ func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
 	return i, err
 }
 
+const getUserByToken = `-- name: GetUserByToken :one
+SELECT 
+    users.id, users.name, users.email, users.email_verified, users.image, users.created_at, users.updated_at
+FROM users
+    INNER JOIN tokens ON users.id = tokens.user_id
+WHERE tokens.hash = $1
+    AND tokens.scope = $2
+    AND tokens.expiry > $3
+`
+
+type GetUserByTokenParams struct {
+	Hash   []byte
+	Scope  string
+	Expiry time.Time
+}
+
+type GetUserByTokenRow struct {
+	User User
+}
+
+func (q *Queries) GetUserByToken(ctx context.Context, arg GetUserByTokenParams) (GetUserByTokenRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserByToken, arg.Hash, arg.Scope, arg.Expiry)
+	var i GetUserByTokenRow
+	err := row.Scan(
+		&i.User.ID,
+		&i.User.Name,
+		&i.User.Email,
+		&i.User.EmailVerified,
+		&i.User.Image,
+		&i.User.CreatedAt,
+		&i.User.UpdatedAt,
+	)
+	return i, err
+}
+
 const updateUserName = `-- name: UpdateUserName :exec
 UPDATE users SET name = $1 WHERE id = $2
 `
