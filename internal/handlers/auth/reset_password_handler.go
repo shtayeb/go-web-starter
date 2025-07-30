@@ -31,7 +31,10 @@ func (ah *AuthHandler) ResetPasswordPostHandler(w http.ResponseWriter, r *http.R
 	}
 
 	// notify the user by mail
-	println("user password has been updated", user.Email)
+	err = ah.handler.Mailer.Send(user.Email, "reset_password_confirmation.tmpl", nil)
+	if err != nil {
+		ah.handler.Logger.PrintError(err, nil)
+	}
 
 	// redirect to login page with session 'flash' message
 	ah.handler.SessionManager.Put(r.Context(), "flash", "Password reset successfully")
