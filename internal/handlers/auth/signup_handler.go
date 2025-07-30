@@ -2,10 +2,8 @@ package auth
 
 import (
 	"go-htmx-sqlite/cmd/web/views/auth"
-	"go-htmx-sqlite/internal/queries"
 	"log"
 	"net/http"
-	"time"
 )
 
 type userSignupForm struct {
@@ -25,39 +23,10 @@ func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request)
 
 	// validate the form
 	// Handle if not valid - return the validation errors
-
 	// handle valid
 
-	// insert into the users table
-	user, err := ah.handler.DB.CreateUser(r.Context(), queries.CreateUserParams{
-		Name:      signUpForm.Name,
-		Email:     signUpForm.Email,
-		CreatedAt: time.Now().UTC(),
-		UpdatedAt: time.Now().UTC(),
-	})
-	if err != nil {
-		ah.handler.Logger.PrintError(err, map[string]string{
-			"request_method": r.Method,
-			"request_url":    r.URL.String(),
-		})
-
-		panic(err)
-		// handle the error in the frontend give user a error message
-	}
-
-	// hash the password
-	hashedPassword, err := ah.handler.HashPassword(signUpForm.Password)
-	if err != nil {
-		return
-		// handle error in the view
-	}
-
-	// insert into the accounts table - password is in the accounts table
-	_, err = ah.handler.DB.CreateAccount(r.Context(), queries.CreateAccountParams{
-		UserID:    user.ID,
-		AccountID: user.Name,
-		Password:  string(hashedPassword),
-	})
+	// insert into the users table - with DB transaction
+	user, err := ah.authService.SignUp(r.Context(), signUpForm.Name, signUpForm.Email, signUpForm.Password)
 	// handle database errors
 	if err != nil {
 		ah.handler.Logger.PrintError(err, map[string]string{
@@ -66,16 +35,17 @@ func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request)
 		})
 
 		// handle the error in the frontend give user an error message
+		ah.handler.ServerError(w, err)
+		return
 	}
 
 	// send the user a message to verify the user's email address account
-	// TODO:jwtToken with a ttl of 6 hour
-	jwtToken := "hello"
+	// TODO:token with a ttl of 6 hour
+	activationLink := "hello"
 	data := map[string]any{
-		"activationToken": jwtToken,
-		"userID":          user.ID,
+		"activationLink": activationLink,
+		"userID":         user.ID,
 	}
-
 	// TODO:Send this to a background job handler, where it can be retried
 	err = ah.handler.Mailer.Send(user.Email, "user_welcome.tmpl", data)
 	if err != nil {

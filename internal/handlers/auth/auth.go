@@ -1,13 +1,18 @@
 package auth
 
-import "go-htmx-sqlite/internal/handlers"
+import (
+	"go-htmx-sqlite/internal/handlers"
+	"go-htmx-sqlite/internal/service"
+)
 
 type AuthHandler struct {
-	handler *handlers.Handlers
+	handler     *handlers.Handlers
+	authService *service.AuthService
 }
 
-func NewAuthHandler(h *handlers.Handlers) *AuthHandler {
+func NewAuthHandler(h *handlers.Handlers, authService *service.AuthService) *AuthHandler {
 	return &AuthHandler{
-		handler: h,
+		handler:     h,
+		authService: authService,
 	}
 }

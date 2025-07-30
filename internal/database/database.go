@@ -26,6 +26,7 @@ type Service interface {
 
 	// GetDB returns the underlying database connection
 	GetDB() *sql.DB
+	WithTransaction(context.Context, func(tx *sql.Tx) error) error
 }
 
 type service struct {
@@ -35,6 +36,20 @@ type service struct {
 var (
 	dbInstance *service
 )
+
+func (s *service) WithTransaction(ctx context.Context, fn func(tx *sql.Tx) error) error {
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := fn(tx); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
 
 func New(dbConfig config.Database) Service {
 	// Reuse Connection

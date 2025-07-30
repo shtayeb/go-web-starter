@@ -19,7 +19,7 @@ import (
 )
 
 type Handlers struct {
-	DB             queries.Queries
+	DbQueries      queries.Queries
 	DbService      database.Service
 	Logger         *jsonlog.Logger
 	Mailer         mailer.Mailer
@@ -36,7 +36,7 @@ func NewHandlers(
 	config config.Config,
 ) *Handlers {
 	return &Handlers{
-		DB:             q,
+		DbQueries:      q,
 		DbService:      dbService,
 		Logger:         logger,
 		Mailer:         mailer,
@@ -75,7 +75,7 @@ func (h *Handlers) NewTemplateData(r *http.Request) types.TemplateData {
 	}
 }
 
-func (h *Handlers) newPageData(r *http.Request, data any) types.PageData {
+func (h *Handlers) NewPageData(r *http.Request, data any) types.PageData {
 	return types.PageData{
 		Template: h.NewTemplateData(r),
 		Data:     data,

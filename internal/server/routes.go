@@ -6,6 +6,7 @@ import (
 	"go-htmx-sqlite/cmd/web"
 	"go-htmx-sqlite/internal/handlers"
 	"go-htmx-sqlite/internal/handlers/auth"
+	"go-htmx-sqlite/internal/service"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -37,7 +38,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	// s.Db is useless without the queries
 	appHandlers := handlers.NewHandlers(s.Queries, s.Db, s.Logger, s.Mailer, s.SessionManager, s.Config)
-	authHandlers := auth.NewAuthHandler(appHandlers)
+
+	authService := service.NewAuthService(&s.Queries, s.Db)
+	authHandlers := auth.NewAuthHandler(appHandlers, authService)
 
 	// No auth routes
 	r.Group(func(r chi.Router) {

@@ -5,18 +5,11 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type userLoginForm struct {
 	Email    string `form:"email"`
 	Password string `form:"password"`
-}
-
-func checkPasswordHash(hashedPassword, plainTextPassword string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plainTextPassword))
-	return err == nil
 }
 
 func (ah *AuthHandler) LoginPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -29,24 +22,10 @@ func (ah *AuthHandler) LoginPostHandler(w http.ResponseWriter, r *http.Request) 
 
 	// validation
 	// handle validation errors
-
-	// authenticate: check the email exists
-	user, err := ah.handler.DB.GetUserByEmail(r.Context(), loginForm.Email)
+	// authenticate: check the user and account exists
+	user, err := ah.authService.Login(r.Context(), loginForm.Email, loginForm.Password)
 	if err != nil {
-		// handle error
-		log.Panic(err)
-	}
-
-	account, err := ah.handler.DB.GetAccountByUserId(r.Context(), user.ID)
-	if err != nil {
-		// handle error
-		log.Panic(err)
-	}
-
-	// fmt.Printf("\n %#v \n %#v", loginForm.Password, account.Password)
-	if !checkPasswordHash(account.Password, loginForm.Password) {
-		// invalid password - handle errors in login page
-		w.Write([]byte("not match"))
+		log.Println(err)
 		return
 	}
 

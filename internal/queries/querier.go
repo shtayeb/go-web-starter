@@ -16,6 +16,7 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAllForUser(ctx context.Context, arg DeleteAllForUserParams) error
 	DeleteAuthor(ctx context.Context, id int32) error
+	DeleteToken(ctx context.Context, hash []byte) error
 	GetAccountById(ctx context.Context, id int32) (Account, error)
 	GetAccountByUserId(ctx context.Context, userID int32) (Account, error)
 	GetAuthor(ctx context.Context, id int32) (Author, error)
@@ -26,6 +27,7 @@ type Querier interface {
 	GetUserByToken(ctx context.Context, arg GetUserByTokenParams) (GetUserByTokenRow, error)
 	ListAuthors(ctx context.Context) ([]Author, error)
 	UpdateAuthor(ctx context.Context, arg UpdateAuthorParams) error
+	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error
 	UpdateUserName(ctx context.Context, arg UpdateUserNameParams) error
 }
 

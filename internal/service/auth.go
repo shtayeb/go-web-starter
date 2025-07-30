@@ -1,0 +1,234 @@
+package service
+
+import (
+	"context"
+	"crypto/rand"
+	"crypto/sha256"
+	"database/sql"
+	"encoding/base32"
+	"errors"
+	"fmt"
+	"go-htmx-sqlite/internal/config"
+	"go-htmx-sqlite/internal/database"
+	"go-htmx-sqlite/internal/queries"
+	"log"
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
+)
+
+type AuthService struct {
+	dbQueries *queries.Queries
+	dbService database.Service
+}
+
+func NewAuthService(dbQueries *queries.Queries, db database.Service) *AuthService {
+	return &AuthService{
+		dbQueries: dbQueries,
+		dbService: db,
+	}
+}
+
+func checkPasswordHash(hashedPassword, plainTextPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plainTextPassword))
+	return err == nil
+}
+
+func hashPassword(plainTextPassword string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(plainTextPassword), 14)
+	return string(bytes), err
+}
+
+func generateToken(userID int64, ttl time.Duration, scope string) ([]byte, string, error) {
+	// Create a Token instance containing the user ID, expiry, and scope information.
+	// token := &queries.Token{
+	// 	UserID: userID,
+	// 	Expiry: time.Now().Add(ttl),
+	// 	Scope:  scope,
+	// }
+
+	// Initialize a zero-valued byte slice with a length of 16 bytes.
+	randomBytes := make([]byte, 16)
+
+	// Use the Read() function from the crypto/rand package to fill the byte slice with
+	// random bytes from your operating system's CSPRNG.
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		return nil, "", err
+	}
+
+	// Encode the byte slice to a base-32-encoded string and assign it to the token
+	// Plaintext field. This will be the token string that we send to the user in their
+	// welcome email. They will look similar to this:
+	//
+	// Y3QMGX3PJ3WLRL2YRTQGQ6KRHU
+	//
+	plaintext := base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(randomBytes)
+
+	// Generate a SHA-256 hash of the plaintext token string. This will be the value
+	// that we store in the `hash` field of our database table. Note that the
+	// sha256.Sum256() function returns an *array* of length 32, so to make it easier to
+	// work with we convert it to a slice using the [:] operator before storing it.
+	hash := sha256.Sum256([]byte(plaintext))
+	newHash := hash[:]
+
+	return newHash, plaintext, nil
+}
+
+func (as *AuthService) Login(ctx context.Context, email string, password string) (*queries.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+
+	// check if user exists by their email
+	user, err := as.dbQueries.GetUserByEmail(ctx, email)
+	if err != nil {
+		// handle error
+		log.Println(err)
+		return nil, err
+	}
+
+	// check if the account exist by their user_id
+	account, err := as.dbQueries.GetAccountByUserId(ctx, user.ID)
+	if err != nil {
+		// handle error
+		log.Println(err)
+		return nil, err
+	}
+
+	// check if password hash - is correct
+	// fmt.Printf("\n %#v \n %#v", loginForm.Password, account.Password)
+	if !checkPasswordHash(account.Password, password) {
+		// invalid password - handle errors in login page
+		return nil, errors.New("invalid password")
+	}
+
+	// return the user
+	return &user, nil
+}
+
+func (as *AuthService) SignUp(ctx context.Context, name, email, password string) (*queries.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+
+	user := &queries.User{}
+	// DB transaction
+	err := as.dbService.WithTransaction(ctx, func(tx *sql.Tx) error {
+		qtx := as.dbQueries.WithTx(tx)
+
+		// create user and handle DB errors like - user already exists
+		user, err := qtx.CreateUser(ctx, queries.CreateUserParams{
+			Name:      name,
+			Email:     email,
+			CreatedAt: time.Now().UTC(),
+			UpdatedAt: time.Now().UTC(),
+		})
+		if err != nil {
+			return err
+		}
+
+		// hash the password
+		hashedPassword, err := hashPassword(password)
+		if err != nil {
+			// handle error in the view
+			return err
+		}
+
+		// create account - and handle errors
+		_, err = qtx.CreateAccount(ctx, queries.CreateAccountParams{
+			UserID:    user.ID,
+			AccountID: user.Name,
+			Password:  hashedPassword,
+		})
+
+		return err
+	})
+
+	return user, err
+}
+
+func (as *AuthService) GetPasswordResetLink(ctx context.Context, email string) (string, error) {
+	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+
+	// check if user exists by their email
+	user, err := as.dbQueries.GetUserByEmail(ctx, email)
+	if err != nil {
+		// handle error
+		log.Println(err)
+		return "", err
+	}
+
+	// create token with ttl of 15min
+	hash, plaintext, err := generateToken(int64(user.ID), 45*time.Second, config.ScopePasswordReset)
+	if err != nil {
+		println(err)
+	}
+
+	_, err = as.dbQueries.CreateToken(ctx, queries.CreateTokenParams{
+		UserID: int64(user.ID),
+		Expiry: time.Now().Add(45 * time.Minute),
+		Scope:  config.ScopePasswordReset,
+		Hash:   hash,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	passwordResetLink := fmt.Sprintf("http://localhost:8080/reset-password?token=%s", plaintext)
+
+	return passwordResetLink, nil
+}
+
+func (as *AuthService) GetValidTokenUser(ctx context.Context, token string) (*queries.User, error) {
+	// hash the plainText token
+	tokenHash := sha256.Sum256([]byte(token))
+
+	println(token, tokenHash[:], time.Now().String())
+
+	// compare the token with the hashed one in the database
+	user, err := as.dbQueries.GetUserByToken(ctx, queries.GetUserByTokenParams{
+		Hash:   tokenHash[:],
+		Scope:  config.ScopePasswordReset,
+		Expiry: time.Now(),
+	})
+
+	return &user.User, err
+}
+
+func (as *AuthService) ResetPassword(ctx context.Context, token, password string) (*queries.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+
+	// get user
+	user, err := as.GetValidTokenUser(ctx, token)
+	if err != nil {
+		return nil, err
+	}
+
+	// get user account
+	account, err := as.dbQueries.GetAccountByUserId(ctx, user.ID)
+	if err != nil {
+		return user, err
+	}
+
+	hashedPassword, err := hashPassword(password)
+	if err != nil {
+		return user, err
+	}
+
+	err = as.dbQueries.UpdatePassword(ctx, queries.UpdatePasswordParams{
+		ID:       account.ID,
+		Password: hashedPassword,
+	})
+	if err != nil {
+		return user, err
+	}
+
+	// delete token
+	err = as.dbQueries.DeleteAllForUser(ctx, queries.DeleteAllForUserParams{
+		Scope:  config.ScopePasswordReset,
+		UserID: int64(user.ID),
+	})
+
+	return user, err
+}
