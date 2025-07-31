@@ -26,8 +26,8 @@ type Querier interface {
 	GetUserById(ctx context.Context, id int32) (User, error)
 	GetUserByToken(ctx context.Context, arg GetUserByTokenParams) (GetUserByTokenRow, error)
 	ListAuthors(ctx context.Context) ([]Author, error)
+	UpdateAccountPassword(ctx context.Context, arg UpdateAccountPasswordParams) error
 	UpdateAuthor(ctx context.Context, arg UpdateAuthorParams) error
-	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error
 	UpdateUserNameAndImage(ctx context.Context, arg UpdateUserNameAndImageParams) (User, error)
 }
 

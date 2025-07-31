@@ -212,7 +212,7 @@ func (as *AuthService) ResetPassword(ctx context.Context, token, password string
 		return user, err
 	}
 
-	err = as.dbQueries.UpdatePassword(ctx, queries.UpdatePasswordParams{
+	err = as.dbQueries.UpdateAccountPassword(ctx, queries.UpdateAccountPasswordParams{
 		ID:       account.ID,
 		Password: hashedPassword,
 	})
@@ -240,4 +240,32 @@ func (as *AuthService) UpdateUserNameAndImage(ctx context.Context, id int32, nam
 	})
 
 	return user, err
+}
+
+func (as *AuthService) UpdateAccountPassword(ctx context.Context, userId int32, currentPassword, newPassword string) error {
+	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+
+	// get user account
+	account, err := as.dbQueries.GetAccountByUserId(ctx, userId)
+	if err != nil {
+		return err
+	}
+
+	if !checkPasswordHash(account.Password, currentPassword) {
+		// invalid password - handle errors in login page
+		return errors.New("invalid password")
+	}
+
+	hashedNewPassword, err := hashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+
+	err = as.dbQueries.UpdateAccountPassword(ctx, queries.UpdateAccountPasswordParams{
+		ID:       account.ID,
+		Password: hashedNewPassword,
+	})
+
+	return err
 }

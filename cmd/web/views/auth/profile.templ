@@ -46,7 +46,7 @@ templ ProfileView(data types.TemplateData) {
 				@tabs.Content(tabs.ContentProps{
 					Value: "password",
 				}) {
-					@PasswordTab()
+					@PasswordTab(data)
 				}
 				@tabs.Content(tabs.ContentProps{
 					Value: "appearance",
@@ -123,6 +123,7 @@ templ AccountTab(data types.TemplateData) {
 		}
 		@card.Content() {
 			<form class="flex flex-col gap-4" action="/profile/update" method="post">
+				@CSRFInput(data.CSRFToken)
 				@form.Item() {
 					@form.Label(form.LabelProps{
 						For: "name",
@@ -162,7 +163,7 @@ templ AccountTab(data types.TemplateData) {
 	}
 }
 
-templ PasswordTab() {
+templ PasswordTab(data types.TemplateData) {
 	@card.Card() {
 		@card.Header() {
 			@card.Title() {
@@ -173,7 +174,8 @@ templ PasswordTab() {
 			}
 		}
 		@card.Content() {
-			<form class="flex flex-col gap-4" action="/profile/password/update" method="post">
+			<form class="flex flex-col gap-4" action="/profile/update-password" method="post">
+				@CSRFInput(data.CSRFToken)
 				@form.Item() {
 					@form.Label(form.LabelProps{
 						For: "current_password",
@@ -183,6 +185,7 @@ templ PasswordTab() {
 					@input.Input(input.Props{
 						Type: input.TypePassword,
 						ID:   "current_password",
+						Name: "current_password",
 					})
 				}
 				@form.Item() {
@@ -194,23 +197,25 @@ templ PasswordTab() {
 					@input.Input(input.Props{
 						Type: input.TypePassword,
 						ID:   "new_password",
+						Name: "new_password",
 					})
 				}
 				@form.Item() {
 					@form.Label(form.LabelProps{
-						For: "confirm_password",
+						For: "password_confirmation",
 					}) {
 						Confirm Password
 					}
 					@input.Input(input.Props{
 						Type: input.TypePassword,
-						ID:   "confirm_password",
+						ID:   "password_confirmation",
+						Name: "password_confirmation",
 					})
 				}
 				@button.Button(button.Props{
 					Type: button.TypeSubmit,
 				}) {
-					Save password
+					Change password
 				}
 			</form>
 		}

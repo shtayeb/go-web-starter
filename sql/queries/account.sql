@@ -12,5 +12,5 @@ SELECT * FROM accounts WHERE user_id = $1;
 -- name: GetAccountById :one
 SELECT * FROM accounts WHERE id = $1;
 
--- name: UpdatePassword :exec
+-- name: UpdateAccountPassword :exec
 UPDATE accounts SET password = $1 WHERE id = $2;

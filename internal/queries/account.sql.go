@@ -115,16 +115,16 @@ func (q *Queries) GetAccountByUserId(ctx context.Context, userID int32) (Account
 	return i, err
 }
 
-const updatePassword = `-- name: UpdatePassword :exec
+const updateAccountPassword = `-- name: UpdateAccountPassword :exec
 UPDATE accounts SET password = $1 WHERE id = $2
 `
 
-type UpdatePasswordParams struct {
+type UpdateAccountPasswordParams struct {
 	Password string
 	ID       int32
 }
 
-func (q *Queries) UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error {
-	_, err := q.db.ExecContext(ctx, updatePassword, arg.Password, arg.ID)
+func (q *Queries) UpdateAccountPassword(ctx context.Context, arg UpdateAccountPasswordParams) error {
+	_, err := q.db.ExecContext(ctx, updateAccountPassword, arg.Password, arg.ID)
 	return err
 }
