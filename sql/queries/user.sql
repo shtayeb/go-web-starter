@@ -2,8 +2,8 @@
 INSERT INTO users (name,email,created_at,updated_at)
 VALUES ($1, $2, $3, $4) RETURNING *;
 
--- name: UpdateUserName :exec
-UPDATE users SET name = $1 WHERE id = $2;
+-- name: UpdateUserNameAndImage :one
+UPDATE users SET name = $1, image = $2 WHERE id = $3 RETURNING *;
 
 -- name: GetUserByEmail :one
 SELECT * FROM users WHERE email = $1;

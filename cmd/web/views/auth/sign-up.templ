@@ -57,11 +57,6 @@ templ SignUpView(data types.TemplateData) {
 										Placeholder: "m@example.com",
 										HasError:    false,
 									})
-									@form.Message(form.MessageProps{
-										Variant: form.MessageVariantError,
-									}) {
-										Please enter a valid email address
-									}
 								}
 								@form.Item() {
 									@form.Label(form.LabelProps{

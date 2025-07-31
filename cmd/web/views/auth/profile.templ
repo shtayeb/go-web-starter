@@ -13,52 +13,48 @@ import "go-htmx-sqlite/cmd/web/components/ui/icon"
 templ ProfileView(data types.TemplateData) {
 	@layouts.DashboardLayout(data) {
 		@tabs.Script()
-		@TabsDefault()
-	}
-}
-
-templ TabsDefault() {
-	@tabs.Tabs(tabs.Props{
-		ID: "account-tabs",
-	}) {
-		@tabs.List(tabs.ListProps{
-			Class: "w-full max-w-md mx-auto",
+		@tabs.Tabs(tabs.Props{
+			ID: "account-tabs",
 		}) {
-			@tabs.Trigger(tabs.TriggerProps{
-				Value:    "account",
-				IsActive: true,
+			@tabs.List(tabs.ListProps{
+				Class: "w-full max-w-md mx-auto",
 			}) {
-				Account
+				@tabs.Trigger(tabs.TriggerProps{
+					Value:    "account",
+					IsActive: true,
+				}) {
+					Account
+				}
+				@tabs.Trigger(tabs.TriggerProps{
+					Value: "password",
+				}) {
+					Password
+				}
+				@tabs.Trigger(tabs.TriggerProps{
+					Value: "appearance",
+				}) {
+					Appearance
+				}
 			}
-			@tabs.Trigger(tabs.TriggerProps{
-				Value: "password",
-			}) {
-				Password
-			}
-			@tabs.Trigger(tabs.TriggerProps{
-				Value: "appearance",
-			}) {
-				Appearance
-			}
+			<div class="w-full max-w-2xl mx-auto mt-2">
+				@tabs.Content(tabs.ContentProps{
+					Value:    "account",
+					IsActive: true,
+				}) {
+					@AccountTab(data)
+				}
+				@tabs.Content(tabs.ContentProps{
+					Value: "password",
+				}) {
+					@PasswordTab()
+				}
+				@tabs.Content(tabs.ContentProps{
+					Value: "appearance",
+				}) {
+					@AppearanceTab()
+				}
+			</div>
 		}
-		<div class="w-full max-w-2xl mx-auto mt-2">
-			@tabs.Content(tabs.ContentProps{
-				Value:    "account",
-				IsActive: true,
-			}) {
-				@AccountTab()
-			}
-			@tabs.Content(tabs.ContentProps{
-				Value: "password",
-			}) {
-				@PasswordTab()
-			}
-			@tabs.Content(tabs.ContentProps{
-				Value: "appearance",
-			}) {
-				@AppearanceTab()
-			}
-		</div>
 	}
 }
 
@@ -87,7 +83,7 @@ templ AppearanceTab() {
 					}
 				}
 				@radiocard.RadioCard(radiocard.Props{
-					ID:    "theme-dark", 
+					ID:    "theme-dark",
 					Name:  "theme",
 					Value: "dark",
 				}) {
@@ -115,7 +111,7 @@ templ AppearanceTab() {
 	}
 }
 
-templ AccountTab() {
+templ AccountTab(data types.TemplateData) {
 	@card.Card() {
 		@card.Header() {
 			@card.Title() {
@@ -126,7 +122,7 @@ templ AccountTab() {
 			}
 		}
 		@card.Content() {
-			<form class="flex flex-col gap-4">
+			<form class="flex flex-col gap-4" action="/profile/update" method="post">
 				@form.Item() {
 					@form.Label(form.LabelProps{
 						For: "name",
@@ -135,9 +131,10 @@ templ AccountTab() {
 					}
 					//
 					@input.Input(input.Props{
-						ID:          "name",
-						Type:        input.TypeText,
-						Placeholder: "John Doe",
+						Name: "name",
+						ID:   "name",
+						Type: input.TypeText,
+						Value: data.User.Name,
 					})
 				}
 				@form.Item() {
@@ -148,18 +145,19 @@ templ AccountTab() {
 							Image
 						}
 						@input.Input(input.Props{
-							Type:  input.TypeFile,
+							Type:  input.TypeText,
 							ID:    "image",
-							Value: "",
+							Name:  "image",
+							Value: data.User.Image.String,
 						})
 					}
 				}
+				@button.Button(button.Props{
+					Type: button.TypeSubmit,
+				}) {
+					Save changes
+				}
 			</form>
-		}
-		@card.Footer() {
-			@button.Button() {
-				Save changes
-			}
 		}
 	}
 }
@@ -175,7 +173,7 @@ templ PasswordTab() {
 			}
 		}
 		@card.Content() {
-			<form class="flex flex-col gap-4">
+			<form class="flex flex-col gap-4" action="/profile/password/update" method="post">
 				@form.Item() {
 					@form.Label(form.LabelProps{
 						For: "current_password",
@@ -183,8 +181,8 @@ templ PasswordTab() {
 						Current Password
 					}
 					@input.Input(input.Props{
-						Type:        input.TypePassword,
-						ID:          "current_password",
+						Type: input.TypePassword,
+						ID:   "current_password",
 					})
 				}
 				@form.Item() {
@@ -194,8 +192,8 @@ templ PasswordTab() {
 						New Password
 					}
 					@input.Input(input.Props{
-						Type:        input.TypePassword,
-						ID:          "new_password",
+						Type: input.TypePassword,
+						ID:   "new_password",
 					})
 				}
 				@form.Item() {
@@ -205,16 +203,16 @@ templ PasswordTab() {
 						Confirm Password
 					}
 					@input.Input(input.Props{
-						Type:        input.TypePassword,
-						ID:          "confirm_password",
+						Type: input.TypePassword,
+						ID:   "confirm_password",
 					})
 				}
+				@button.Button(button.Props{
+					Type: button.TypeSubmit,
+				}) {
+					Save password
+				}
 			</form>
-		}
-		@card.Footer() {
-			@button.Button() {
-				Save password
-			}
 		}
 	}
 }

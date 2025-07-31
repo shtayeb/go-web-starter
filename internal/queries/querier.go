@@ -28,7 +28,7 @@ type Querier interface {
 	ListAuthors(ctx context.Context) ([]Author, error)
 	UpdateAuthor(ctx context.Context, arg UpdateAuthorParams) error
 	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error
-	UpdateUserName(ctx context.Context, arg UpdateUserNameParams) error
+	UpdateUserNameAndImage(ctx context.Context, arg UpdateUserNameAndImageParams) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

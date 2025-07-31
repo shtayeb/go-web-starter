@@ -2,7 +2,6 @@ package auth
 
 import (
 	"go-htmx-sqlite/cmd/web/views/auth"
-	"log"
 	"net/http"
 	"net/url"
 )
@@ -17,7 +16,8 @@ func (ah *AuthHandler) LoginPostHandler(w http.ResponseWriter, r *http.Request) 
 
 	err := ah.handler.DecodePostForm(r, &loginForm)
 	if err != nil {
-		log.Panic(err)
+		ah.handler.ServerError(w, err)
+		return
 	}
 
 	// validation
@@ -25,7 +25,7 @@ func (ah *AuthHandler) LoginPostHandler(w http.ResponseWriter, r *http.Request) 
 	// authenticate: check the user and account exists
 	user, err := ah.authService.Login(r.Context(), loginForm.Email, loginForm.Password)
 	if err != nil {
-		log.Println(err)
+		ah.handler.ServerError(w, err)
 		return
 	}
 

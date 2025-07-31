@@ -228,3 +228,16 @@ func (as *AuthService) ResetPassword(ctx context.Context, token, password string
 
 	return user, err
 }
+
+func (as *AuthService) UpdateUserNameAndImage(ctx context.Context, id int32, name, image string) (queries.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+
+	user, err := as.dbQueries.UpdateUserNameAndImage(ctx, queries.UpdateUserNameAndImageParams{
+		ID:    id,
+		Name:  name,
+		Image: sql.NullString{String: image, Valid: image != ""},
+	})
+
+	return user, err
+}

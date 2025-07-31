@@ -56,7 +56,7 @@ func (h *Handlers) isAuthenticated(r *http.Request) bool {
 	return isAuthenticated
 }
 
-func (h *Handlers) getUser(r *http.Request) *queries.User {
+func (h *Handlers) GetUser(r *http.Request) *queries.User {
 	user, ok := r.Context().Value(config.UserContextKey).(queries.User)
 	if !ok {
 		return nil
@@ -69,7 +69,7 @@ func (h *Handlers) NewTemplateData(r *http.Request) types.TemplateData {
 	return types.TemplateData{
 		AppName:         h.Config.AppName,
 		IsAuthenticated: h.isAuthenticated(r),
-		User:            h.getUser(r),
+		User:            h.GetUser(r),
 		CSRFToken:       nosurf.Token(r),
 		Flash:           h.SessionManager.PopString(r.Context(), "flash"),
 	}

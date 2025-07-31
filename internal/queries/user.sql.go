@@ -7,6 +7,7 @@ package queries
 
 import (
 	"context"
+	"database/sql"
 	"time"
 )
 
@@ -115,16 +116,27 @@ func (q *Queries) GetUserByToken(ctx context.Context, arg GetUserByTokenParams) 
 	return i, err
 }
 
-const updateUserName = `-- name: UpdateUserName :exec
-UPDATE users SET name = $1 WHERE id = $2
+const updateUserNameAndImage = `-- name: UpdateUserNameAndImage :one
+UPDATE users SET name = $1, image = $2 WHERE id = $3 RETURNING id, name, email, email_verified, image, created_at, updated_at
 `
 
-type UpdateUserNameParams struct {
-	Name string
-	ID   int32
+type UpdateUserNameAndImageParams struct {
+	Name  string
+	Image sql.NullString
+	ID    int32
 }
 
-func (q *Queries) UpdateUserName(ctx context.Context, arg UpdateUserNameParams) error {
-	_, err := q.db.ExecContext(ctx, updateUserName, arg.Name, arg.ID)
-	return err
+func (q *Queries) UpdateUserNameAndImage(ctx context.Context, arg UpdateUserNameAndImageParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateUserNameAndImage, arg.Name, arg.Image, arg.ID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.EmailVerified,
+		&i.Image,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
