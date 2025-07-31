@@ -4,17 +4,19 @@ import "go-htmx-sqlite/cmd/web/components/ui/icon"
 
 import "go-htmx-sqlite/internal/types"
 
-templ Navbar(data types.TemplateData) {
+templ Navbar(data types.TemplateData, showLogo bool) {
 	<nav class="sticky top-0 z-50 w-full border-b">
 		<div class="container mx-auto px-4">
 			<div class="h-16 flex justify-between items-center relative">
 				// Left
 				<div class="flex items-center">
-					<!-- @NavbarMobileMenu() -->
-					<a href="/" class="flex items-center gap-1.5">
-						@icon.ToggleLeft(icon.Props{Class: "w-6 h-6"})
-						<span class="text-xl">templ<span class="font-bold">UI</span></span>
-					</a>
+					if showLogo {
+						<!-- @NavbarMobileMenu() -->
+						<a href="/" class="flex items-center gap-1.5">
+							@icon.ToggleLeft(icon.Props{Class: "w-6 h-6"})
+							<span class="text-xl">templ<span class="font-bold">UI</span></span>
+						</a>
+					}
 				</div>
 				// Right
 				<div class="flex gap-1 items-center justify-center">

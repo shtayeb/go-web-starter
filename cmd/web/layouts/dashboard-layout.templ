@@ -33,7 +33,7 @@ templ DashboardLayout(data types.TemplateData) {
 				<div class="flex h-screen">
 					@components.Sidebar()
 					<main class="w-full">
-						@components.Navbar(data)
+						@components.Navbar(data,false)
 						<section class="container mx-auto px-6 py-4">
 							{ children... }
 						</section>

@@ -3,17 +3,217 @@ package auth
 import "go-htmx-sqlite/cmd/web/layouts"
 import "go-htmx-sqlite/cmd/web/components/ui/card"
 import "go-htmx-sqlite/internal/types"
+import "go-htmx-sqlite/cmd/web/components/ui/button"
+import "go-htmx-sqlite/cmd/web/components/ui/input"
+import "go-htmx-sqlite/cmd/web/components/ui/tabs"
+import "go-htmx-sqlite/cmd/web/components/ui/form"
+import "go-htmx-sqlite/cmd/web/components/ui/radiocard"
+import "go-htmx-sqlite/cmd/web/components/ui/icon"
 
 templ ProfileView(data types.TemplateData) {
 	@layouts.DashboardLayout(data) {
-		@card.Card() {
-			@card.Header() {
-				@card.Title() {
-					Profile
-				}
+		@tabs.Script()
+		@TabsDefault()
+	}
+}
+
+templ TabsDefault() {
+	@tabs.Tabs(tabs.Props{
+		ID: "account-tabs",
+	}) {
+		@tabs.List(tabs.ListProps{
+			Class: "w-full max-w-md mx-auto",
+		}) {
+			@tabs.Trigger(tabs.TriggerProps{
+				Value:    "account",
+				IsActive: true,
+			}) {
+				Account
 			}
-			@card.Content() {
-				Profile content
+			@tabs.Trigger(tabs.TriggerProps{
+				Value: "password",
+			}) {
+				Password
+			}
+			@tabs.Trigger(tabs.TriggerProps{
+				Value: "appearance",
+			}) {
+				Appearance
+			}
+		}
+		<div class="w-full max-w-2xl mx-auto mt-2">
+			@tabs.Content(tabs.ContentProps{
+				Value:    "account",
+				IsActive: true,
+			}) {
+				@AccountTab()
+			}
+			@tabs.Content(tabs.ContentProps{
+				Value: "password",
+			}) {
+				@PasswordTab()
+			}
+			@tabs.Content(tabs.ContentProps{
+				Value: "appearance",
+			}) {
+				@AppearanceTab()
+			}
+		</div>
+	}
+}
+
+templ AppearanceTab() {
+	@card.Card() {
+		@card.Header() {
+			@card.Title() {
+				Appearance 
+			}
+			@card.Description() {
+				Make changes to your appearance here
+			}
+		}
+		@card.Content() {
+			<form class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+				@radiocard.RadioCard(radiocard.Props{
+					ID:    "theme-light",
+					Name:  "theme",
+					Value: "light",
+				}) {
+					@radiocard.Header() {
+						<div class="flex items-center gap-2">
+							@icon.Sun(icon.Props{Size: 20})
+							<h3>Light</h3>
+						</div>
+					}
+				}
+				@radiocard.RadioCard(radiocard.Props{
+					ID:    "theme-dark", 
+					Name:  "theme",
+					Value: "dark",
+				}) {
+					@radiocard.Header() {
+						<div class="flex items-center gap-2">
+							@icon.Moon(icon.Props{Size: 20})
+							<h3>Dark</h3>
+						</div>
+					}
+				}
+				@radiocard.RadioCard(radiocard.Props{
+					ID:    "theme-system",
+					Name:  "theme",
+					Value: "system",
+				}) {
+					@radiocard.Header() {
+						<div class="flex items-center gap-2">
+							@icon.Monitor(icon.Props{Size: 20})
+							<h3>System</h3>
+						</div>
+					}
+				}
+			</form>
+		}
+	}
+}
+
+templ AccountTab() {
+	@card.Card() {
+		@card.Header() {
+			@card.Title() {
+				Account 
+			}
+			@card.Description() {
+				Make changes to your account here. Click save when you are done.
+			}
+		}
+		@card.Content() {
+			<form class="flex flex-col gap-4">
+				@form.Item() {
+					@form.Label(form.LabelProps{
+						For: "name",
+					}) {
+						Name
+					}
+					//
+					@input.Input(input.Props{
+						ID:          "name",
+						Type:        input.TypeText,
+						Placeholder: "John Doe",
+					})
+				}
+				@form.Item() {
+					@form.Item() {
+						@form.Label(form.LabelProps{
+							For: "image",
+						}) {
+							Image
+						}
+						@input.Input(input.Props{
+							Type:  input.TypeFile,
+							ID:    "image",
+							Value: "",
+						})
+					}
+				}
+			</form>
+		}
+		@card.Footer() {
+			@button.Button() {
+				Save changes
+			}
+		}
+	}
+}
+
+templ PasswordTab() {
+	@card.Card() {
+		@card.Header() {
+			@card.Title() {
+				Password 
+			}
+			@card.Description() {
+				Change your password here. After saving, you will be logged out.
+			}
+		}
+		@card.Content() {
+			<form class="flex flex-col gap-4">
+				@form.Item() {
+					@form.Label(form.LabelProps{
+						For: "current_password",
+					}) {
+						Current Password
+					}
+					@input.Input(input.Props{
+						Type:        input.TypePassword,
+						ID:          "current_password",
+					})
+				}
+				@form.Item() {
+					@form.Label(form.LabelProps{
+						For: "new_password",
+					}) {
+						New Password
+					}
+					@input.Input(input.Props{
+						Type:        input.TypePassword,
+						ID:          "new_password",
+					})
+				}
+				@form.Item() {
+					@form.Label(form.LabelProps{
+						For: "confirm_password",
+					}) {
+						Confirm Password
+					}
+					@input.Input(input.Props{
+						Type:        input.TypePassword,
+						ID:          "confirm_password",
+					})
+				}
+			</form>
+		}
+		@card.Footer() {
+			@button.Button() {
+				Save password
 			}
 		}
 	}
