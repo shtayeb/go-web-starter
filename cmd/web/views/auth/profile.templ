@@ -1,0 +1,20 @@
+package auth
+
+import "go-htmx-sqlite/cmd/web/layouts"
+import "go-htmx-sqlite/cmd/web/components/ui/card"
+import "go-htmx-sqlite/internal/types"
+
+templ ProfileView(data types.TemplateData) {
+	@layouts.DashboardLayout(data) {
+		@card.Card() {
+			@card.Header() {
+				@card.Title() {
+					Profile
+				}
+			}
+			@card.Content() {
+				Profile content
+			}
+		}
+	}
+}

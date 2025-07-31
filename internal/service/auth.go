@@ -120,7 +120,7 @@ func (as *AuthService) SignUp(ctx context.Context, name, email, password string)
 	err := as.dbService.WithTransaction(ctx, func(tx *sql.Tx) error {
 		qtx := as.dbQueries.WithTx(tx)
 
-		// create user and handle DB errors like - user already exists
+		// create user and handle DB errors - like user already exists
 		user, err := qtx.CreateUser(ctx, queries.CreateUserParams{
 			Name:      name,
 			Email:     email,

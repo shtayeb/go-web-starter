@@ -22,21 +22,21 @@ templ AvatarFallback(name string) {
 
 templ CSRFInput(csrfToken string) {
 	<!-- Include the CSRF token -->
-	<input type="hidden" name="csrf_token" value={csrfToken}/>
+	<input type="hidden" name="csrf_token" value={ csrfToken }/>
 }
 
-templ LogoutForm(csrfToken string){
+templ LogoutForm(csrfToken string) {
 	<form method="post" action="/logout">
-			@CSRFInput(csrfToken)
-			@button.Button(button.Props{
-				Class:   "flex gap-2 items-center",
-				Variant: button.VariantSecondary,
-				Type: button.TypeSubmit,
-			}) {
-				@icon.LogOut()
-				Logout
-			}
-		</form>
+		@CSRFInput(csrfToken)
+		@button.Button(button.Props{
+			Class:   "flex gap-2 items-center",
+			Variant: button.VariantSecondary,
+			Type:    button.TypeSubmit,
+		}) {
+			@icon.LogOut()
+			Logout
+		}
+	</form>
 }
 
 templ UserDropdown(data types.TemplateData) {
@@ -67,31 +67,22 @@ templ UserDropdown(data types.TemplateData) {
 				Width: "w-56",
 			}) {
 				@dropdown.Label() {
-					if data.User != nil {
-						{ data.User.Name }
-					} else {
-						My Account
-					}
+						<p class="font-medium">{ data.User.Name }</p>
+						<p class="text-sm text-muted-foreground">{ data.User.Email }</p>
 				}
 				@dropdown.Separator()
-
 				@dropdown.Group() {
-					@dropdown.Item() {
-						Team
-					}
-					@dropdown.Item() {
-						New Team
-						@dropdown.Shortcut() {
-							⌘+T
-						}
+					@dropdown.Item(dropdown.ItemProps{
+						Href: "/profile",
+					}) {
+						<span class="flex items-center">
+							@icon.User(icon.Props{Size: 16, Class: "mr-2"})
+							My Account
+						</span>
 					}
 				}
-
 				@dropdown.Separator()
-
-				@dropdown.Item() {
-					@LogoutForm(data.CSRFToken)
-				}
+				@LogoutForm(data.CSRFToken)
 			}
 		}
 	}

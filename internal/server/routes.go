@@ -70,6 +70,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(s.requireAuth)
 
 		r.Post("/logout", authHandlers.LogoutPostHandler)
+		r.Get("/profile", authHandlers.ProfileViewHandler)
 
 		r.Get("/dashboard", appHandlers.HelloFormHandler)
 		r.Post("/hello", appHandlers.HelloWebHandler)
