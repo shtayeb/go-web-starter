@@ -22,9 +22,25 @@ templ Navbar(data types.TemplateData, showLogo bool) {
 							@button.Button(button.Props{
 								Size:    button.SizeIcon,
 								Variant: button.VariantGhost,
+								ID:      "sidebar-toggle",
 							}) {
 								@icon.PanelLeftClose(icon.Props{Class: "w-4 h-4"})
 							}
+							<script>
+								document.querySelector("#sidebar-toggle").addEventListener("click", function() {
+									// todo: to toggle in small screens also handle the classes 'hidden md:flex' in sidebar and sidebar-gap
+								const sidebar = document.querySelector("#sidebar")
+								;
+								if (sidebar.dataset.collapsible === "none") {
+									sidebar.dataset.collapsible = "offcanvas";
+									sidebar.dataset.state = "collapsed";
+								} else {
+									sidebar.dataset.collapsible = "none"; 
+									sidebar.dataset.state = "expanded";
+								}
+
+								});
+							</script>
 							<span class="text-xl font-medium tracking-wider">{ data.PageTitle }</span>
 						</div>
 					}
