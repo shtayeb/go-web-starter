@@ -5,219 +5,186 @@ import "go-htmx-sqlite/cmd/web/components/ui/card"
 import "go-htmx-sqlite/internal/types"
 import "go-htmx-sqlite/cmd/web/components/ui/button"
 import "go-htmx-sqlite/cmd/web/components/ui/input"
-import "go-htmx-sqlite/cmd/web/components/ui/tabs"
 import "go-htmx-sqlite/cmd/web/components/ui/form"
 import "go-htmx-sqlite/cmd/web/components/ui/radiocard"
 import "go-htmx-sqlite/cmd/web/components/ui/icon"
 
 templ ProfileView(data types.TemplateData) {
 	@layouts.DashboardLayout(data) {
-		@tabs.Script()
-		@tabs.Tabs(tabs.Props{
-			ID: "account-tabs",
-		}) {
-			@tabs.List(tabs.ListProps{
-				Class: "w-full max-w-md mx-auto",
-			}) {
-				@tabs.Trigger(tabs.TriggerProps{
-					Value:    "account",
-					IsActive: true,
-				}) {
-					Account
-				}
-				@tabs.Trigger(tabs.TriggerProps{
-					Value: "password",
-				}) {
-					Password
-				}
-				@tabs.Trigger(tabs.TriggerProps{
-					Value: "appearance",
-				}) {
-					Appearance
-				}
-			}
-			<div class="w-full max-w-2xl mx-auto mt-2">
-				@tabs.Content(tabs.ContentProps{
-					Value:    "account",
-					IsActive: true,
-				}) {
-					@AccountTab(data)
-				}
-				@tabs.Content(tabs.ContentProps{
-					Value: "password",
-				}) {
-					@PasswordTab(data)
-				}
-				@tabs.Content(tabs.ContentProps{
-					Value: "appearance",
-				}) {
-					@AppearanceTab()
-				}
-			</div>
-		}
-	}
-}
+		<div class="space-y-4">
+			@input.Script()
 
-templ AppearanceTab() {
-	@card.Card() {
-		@card.Header() {
-			@card.Title() {
-				Appearance 
-			}
-			@card.Description() {
-				Make changes to your appearance here
-			}
-		}
-		@card.Content() {
-			<form class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-				@radiocard.RadioCard(radiocard.Props{
-					ID:    "theme-light",
-					Name:  "theme",
-					Value: "light",
-				}) {
-					@radiocard.Header() {
-						<div class="flex items-center gap-2">
-							@icon.Sun(icon.Props{Size: 20})
-							<h3>Light</h3>
-						</div>
-					}
-				}
-				@radiocard.RadioCard(radiocard.Props{
-					ID:    "theme-dark",
-					Name:  "theme",
-					Value: "dark",
-				}) {
-					@radiocard.Header() {
-						<div class="flex items-center gap-2">
-							@icon.Moon(icon.Props{Size: 20})
-							<h3>Dark</h3>
-						</div>
-					}
-				}
-				@radiocard.RadioCard(radiocard.Props{
-					ID:    "theme-system",
-					Name:  "theme",
-					Value: "system",
-				}) {
-					@radiocard.Header() {
-						<div class="flex items-center gap-2">
-							@icon.Monitor(icon.Props{Size: 20})
-							<h3>System</h3>
-						</div>
-					}
-				}
-			</form>
-		}
+			@AccountTab(data)
+			@PasswordTab(data)
+			@AppearanceTab()
+		</div>
 	}
 }
 
 templ AccountTab(data types.TemplateData) {
-	@card.Card() {
-		@card.Header() {
-			@card.Title() {
-				Account 
-			}
-			@card.Description() {
-				Make changes to your account here. Click save when you are done.
-			}
-		}
-		@card.Content() {
-			<form class="flex flex-col gap-4" action="/profile/update" method="post">
-				@CSRFInput(data.CSRFToken)
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "name",
-					}) {
-						Name
-					}
-					//
-					@input.Input(input.Props{
-						Name: "name",
-						ID:   "name",
-						Type: input.TypeText,
-						Value: data.User.Name,
-					})
-				}
-				@form.Item() {
-					@form.Item() {
-						@form.Label(form.LabelProps{
-							For: "image",
-						}) {
-							Image
+	<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+		<div class="col-span-1">
+			<h2 class="text-lg font-medium">Account</h2>
+			<p class="text-sm text-gray-500 dark:text-gray-400">Update your account settings</p>
+		</div>
+		<div class="col-span-3 max-w-2xl">
+			@card.Card() {
+				@card.Content() {
+					<form class="flex flex-col gap-4" action="/profile/update" method="post">
+						@CSRFInput(data.CSRFToken)
+						@form.Item() {
+							@form.Label(form.LabelProps{
+								For: "name",
+							}) {
+								Name
+							}
+							//
+							@input.Input(input.Props{
+								Name:  "name",
+								ID:    "name",
+								Type:  input.TypeText,
+								Value: data.User.Name,
+							})
 						}
-						@input.Input(input.Props{
-							Type:  input.TypeText,
-							ID:    "image",
-							Name:  "image",
-							Value: data.User.Image.String,
-						})
-					}
+						@form.Item() {
+							@form.Item() {
+								@form.Label(form.LabelProps{
+									For: "image",
+								}) {
+									Image
+								}
+								@input.Input(input.Props{
+									Type:  input.TypeText,
+									ID:    "image",
+									Name:  "image",
+									Value: data.User.Image.String,
+								})
+							}
+						}
+						<div class="flex justify-end">
+							@button.Button(button.Props{
+								Type: button.TypeSubmit,
+							}) {
+								Save changes
+							}
+						</div>
+					</form>
 				}
-				@button.Button(button.Props{
-					Type: button.TypeSubmit,
-				}) {
-					Save changes
-				}
-			</form>
-		}
-	}
+			}
+		</div>
+	</div>
 }
 
 templ PasswordTab(data types.TemplateData) {
-	@card.Card() {
-		@card.Header() {
-			@card.Title() {
-				Password 
+	<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+		<div class="col-span-1">
+			<h2 class="text-lg font-medium">Password</h2>
+			<p class="text-sm text-gray-500 dark:text-gray-400">Change your password here. After saving, you will be logged out.</p>
+		</div>
+		<div class="col-span-3 max-w-2xl">
+			@card.Card() {
+				@card.Content() {
+					<form class="flex flex-col gap-4" action="/profile/update-password" method="post">
+						@CSRFInput(data.CSRFToken)
+						@form.Item() {
+							@form.Label(form.LabelProps{
+								For: "current_password",
+							}) {
+								Current Password
+							}
+							@input.Input(input.Props{
+								Type: input.TypePassword,
+								ID:   "current_password",
+								Name: "current_password",
+							})
+						}
+						@form.Item() {
+							@form.Label(form.LabelProps{
+								For: "new_password",
+							}) {
+								New Password
+							}
+							@input.Input(input.Props{
+								Type: input.TypePassword,
+								ID:   "new_password",
+								Name: "new_password",
+							})
+						}
+						@form.Item() {
+							@form.Label(form.LabelProps{
+								For: "password_confirmation",
+							}) {
+								Confirm Password
+							}
+							@input.Input(input.Props{
+								Type: input.TypePassword,
+								ID:   "password_confirmation",
+								Name: "password_confirmation",
+							})
+						}
+						<div class="flex justify-end">
+							@button.Button(button.Props{
+								Type: button.TypeSubmit,
+							}) {
+								Change password
+							}
+						</div>
+					</form>
+				}
 			}
-			@card.Description() {
-				Change your password here. After saving, you will be logged out.
+		</div>
+	</div>
+}
+
+templ AppearanceTab() {
+	<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+		<div class="col-span-1">
+			<h2 class="text-lg font-medium">Appearance</h2>
+			<p class="text-sm text-gray-500 dark:text-gray-400">Customize your appearance here</p>
+		</div>
+		<div class="col-span-3 max-w-2xl">
+			@card.Card() {
+				@card.Content() {
+					<form class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+						@radiocard.RadioCard(radiocard.Props{
+							ID:    "theme-light",
+							Name:  "theme",
+							Value: "light",
+						}) {
+							@radiocard.Header() {
+								<div class="flex items-center gap-2">
+									@icon.Sun(icon.Props{Size: 20})
+									<h3>Light</h3>
+								</div>
+							}
+						}
+						@radiocard.RadioCard(radiocard.Props{
+							ID:    "theme-dark",
+							Name:  "theme",
+							Value: "dark",
+						}) {
+							@radiocard.Header() {
+								<div class="flex items-center gap-2">
+									@icon.Moon(icon.Props{Size: 20})
+									<h3>Dark</h3>
+								</div>
+							}
+						}
+						@radiocard.RadioCard(radiocard.Props{
+							ID:    "theme-system",
+							Name:  "theme",
+							Value: "system",
+						}) {
+							@radiocard.Header() {
+								<div class="flex items-center gap-2">
+									@icon.Monitor(icon.Props{Size: 20})
+									<h3>System</h3>
+								</div>
+							}
+						}
+					</form>
+				}
 			}
-		}
-		@card.Content() {
-			<form class="flex flex-col gap-4" action="/profile/update-password" method="post">
-				@CSRFInput(data.CSRFToken)
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "current_password",
-					}) {
-						Current Password
-					}
-					@input.Input(input.Props{
-						Type: input.TypePassword,
-						ID:   "current_password",
-						Name: "current_password",
-					})
-				}
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "new_password",
-					}) {
-						New Password
-					}
-					@input.Input(input.Props{
-						Type: input.TypePassword,
-						ID:   "new_password",
-						Name: "new_password",
-					})
-				}
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "password_confirmation",
-					}) {
-						Confirm Password
-					}
-					@input.Input(input.Props{
-						Type: input.TypePassword,
-						ID:   "password_confirmation",
-						Name: "password_confirmation",
-					})
-				}
-				@button.Button(button.Props{
-					Type: button.TypeSubmit,
-				}) {
-					Change password
-				}
-			</form>
-		}
-	}
+		</div>
+	</div>
 }
