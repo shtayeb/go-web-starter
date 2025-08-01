@@ -28,17 +28,15 @@ templ DashboardLayout(data types.TemplateData) {
 			@dropdown.Script()
 			@popover.Script()
 		</head>
-		<body class="h-full">
-			<div class="device-content">
-				<div class="flex h-screen">
-					@components.Sidebar()
-					<main class="w-full">
-						@components.Navbar(data,false)
-						<section class="container mx-auto px-6 py-4">
-							{ children... }
-						</section>
-					</main>
-				</div>
+		<body class="font-sans antialiased">
+			<div class="flex w-full min-h-svh">
+				@components.Sidebar()
+				<main class="relative flex flex-1 bg-background flex-col min-h-svh">
+					@components.Navbar(data, false)
+					<section class="flex h-full flex-1 flex-col gap-4 px-6 py-4 overflow-x-auto">
+						{ children... }
+					</section>
+				</main>
 			</div>
 		</body>
 	</html>

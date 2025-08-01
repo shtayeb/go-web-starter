@@ -3,11 +3,12 @@ package components
 import "go-htmx-sqlite/cmd/web/components/ui/icon"
 
 import "go-htmx-sqlite/internal/types"
+import "go-htmx-sqlite/cmd/web/components/ui/button"
 
 templ Navbar(data types.TemplateData, showLogo bool) {
-	<nav class="sticky top-0 z-50 w-full border-b">
+	<header class="flex items-center gap-2 h-16 shrink-0 border-b">
 		<div class="container mx-auto px-4">
-			<div class="h-16 flex justify-between items-center relative">
+			<div class="flex justify-between items-center relative">
 				// Left
 				<div class="flex items-center">
 					if showLogo {
@@ -16,6 +17,16 @@ templ Navbar(data types.TemplateData, showLogo bool) {
 							@icon.ToggleLeft(icon.Props{Class: "w-6 h-6"})
 							<span class="text-xl">templ<span class="font-bold">UI</span></span>
 						</a>
+					} else {
+						<div class="flex items-center gap-2">
+							@button.Button(button.Props{
+								Size:    button.SizeIcon,
+								Variant: button.VariantGhost,
+							}) {
+								@icon.PanelLeftClose(icon.Props{Class: "w-4 h-4"})
+							}
+							<span class="text-xl font-medium tracking-wider">{ data.PageTitle }</span>
+						</div>
 					}
 				</div>
 				// Right
@@ -25,5 +36,5 @@ templ Navbar(data types.TemplateData, showLogo bool) {
 				</div>
 			</div>
 		</div>
-	</nav>
+	</header>
 }
