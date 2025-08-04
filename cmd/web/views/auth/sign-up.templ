@@ -6,6 +6,8 @@ import "go-htmx-sqlite/cmd/web/components/ui/input"
 import "go-htmx-sqlite/cmd/web/components/ui/button"
 import "go-htmx-sqlite/cmd/web/layouts"
 import "go-htmx-sqlite/internal/types"
+import "go-htmx-sqlite/cmd/web/components/ui/separator"
+import "go-htmx-sqlite/cmd/web/components/ui/icon"
 
 templ CSRFInput(csrfToken string) {
 	<!-- Include the CSRF token -->
@@ -16,12 +18,16 @@ templ SignUpView(data types.TemplateData) {
 	@layouts.AuthLayout(data) {
 		<div class="w-full max-w-sm">
 			@card.Card() {
-				@card.Header() {
-					@card.Title() {
+				@card.Header(card.HeaderProps{
+					Class: "text-center",
+				}) {
+					@card.Title(card.TitleProps{
+						Class: "text-xl tracking-wider",
+					}) {
 						Create Account	
 					}
 					@card.Description() {
-						Create your account
+						Create your account to start using the application
 					}
 				}
 				<form action="/sign-up" method="post">
@@ -29,6 +35,18 @@ templ SignUpView(data types.TemplateData) {
 					@CSRFInput(data.CSRFToken)
 					@card.Content() {
 						<div class="flex flex-col gap-4">
+							@button.Button(button.Props{
+								Class:   "flex gap-2 items-center",
+								Variant: button.VariantSecondary,
+							}) {
+								@icon.Mail()
+								Login with Google
+							}
+							@separator.Separator(separator.Props{
+								Class: "w-full",
+							}) {
+								Or continue with
+							}
 							<div class="w-full max-w-sm grid gap-2">
 								@form.Item() {
 									@form.Label(form.LabelProps{
