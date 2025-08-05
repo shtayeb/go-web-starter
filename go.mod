@@ -7,6 +7,7 @@ require (
 	github.com/a-h/templ v0.3.906
 	github.com/alexedwards/scs/postgresstore v0.0.0-20250417082927-ab20b3feb5e9
 	github.com/alexedwards/scs/v2 v2.9.0
+	github.com/angelofallars/htmx-go v0.5.0
 	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-chi/cors v1.2.2
 	github.com/go-mail/mail/v2 v2.3.0
@@ -19,7 +20,6 @@ require (
 )
 
 require (
-	github.com/angelofallars/htmx-go v0.5.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect

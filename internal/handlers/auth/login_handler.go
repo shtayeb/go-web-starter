@@ -1,43 +1,53 @@
 package auth
 
 import (
+	"go-htmx-sqlite/cmd/web/components"
 	"go-htmx-sqlite/cmd/web/views/auth"
+	"go-htmx-sqlite/internal/types"
+	"go-htmx-sqlite/internal/validator"
 	"net/http"
 	"net/url"
+
+	"github.com/angelofallars/htmx-go"
 )
 
-type userLoginForm struct {
-	Email    string `form:"email"`
-	Password string `form:"password"`
-}
-
 func (ah *AuthHandler) LoginPostHandler(w http.ResponseWriter, r *http.Request) {
-	var loginForm userLoginForm
+	var form types.UserLoginForm
 
-	err := ah.handler.DecodePostForm(r, &loginForm)
+	err := ah.handler.DecodePostForm(r, &form)
 	if err != nil {
-		ah.handler.ServerError(w, err)
+		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Invalid form data"))
 		return
 	}
 
-	// validation
-	// handle validation errors
-	// authenticate: check the user and account exists
-	user, err := ah.authService.Login(r.Context(), loginForm.Email, loginForm.Password)
-	if err != nil {
-		ah.handler.ServerError(w, err)
+	// Validation
+	form.CheckField(validator.NotBlank(form.Email), "email", "This field cannot be blank")
+	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "This field must be a valid email address")
+	form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
+
+	if !form.Valid() {
+		// handle with htmx
+		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Something went wrong!"))
 		return
 	}
 
-	// session manager
+	// Authenticate: check the user and account exists
+	user, err := ah.authService.Login(r.Context(), form.Email, form.Password)
+	if err != nil {
+		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Invalid email or password"))
+		return
+	}
+
+	// Session manager
 	err = ah.handler.SessionManager.RenewToken(r.Context())
 	if err != nil {
+		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Session error occurred"))
 		return
 	}
 
 	ah.handler.SessionManager.Put(r.Context(), "authenticatedUserID", user.ID)
 
-	// get the next=? query string if exists. 1 - redirect to it. 2 -  or redirect to home after login
+	// Get the next=? query string if exists. 1 - redirect to it. 2 - or redirect to home after login
 	redirectURL := "/dashboard"
 	refererUrl, _ := url.Parse(r.Referer())
 	path := refererUrl.Query().Get("next")
@@ -45,8 +55,7 @@ func (ah *AuthHandler) LoginPostHandler(w http.ResponseWriter, r *http.Request) 
 		redirectURL = path
 	}
 
-	ah.handler.SessionManager.Put(r.Context(), "flash", "reset link have been sent to your email")
-
+	// handle the response with htmx
 	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
 
@@ -54,5 +63,7 @@ func (ah *AuthHandler) LoginViewHandler(w http.ResponseWriter, r *http.Request) 
 	data := ah.handler.NewTemplateData(r)
 	data.PageTitle = "Login"
 
-	auth.LoginView(data).Render(r.Context(), w)
+	form := types.UserLoginForm{}
+
+	auth.LoginView(data, form).Render(r.Context(), w)
 }

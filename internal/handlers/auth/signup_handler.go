@@ -1,52 +1,63 @@
 package auth
 
 import (
+	"go-htmx-sqlite/cmd/web/components"
 	"go-htmx-sqlite/cmd/web/views/auth"
-	"log"
+	"go-htmx-sqlite/internal/types"
+	"go-htmx-sqlite/internal/validator"
 	"net/http"
+
+	"github.com/angelofallars/htmx-go"
 )
 
-type userSignupForm struct {
-	Name                 string `form:"name"`
-	Email                string `form:"email"`
-	Password             string `form:"password"`
-	PasswordConfirmation string `form:"password-confirmation"`
-}
-
 func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request) {
-	var signUpForm userSignupForm
+	var form types.UserSignUpForm
 
-	err := ah.handler.DecodePostForm(r, &signUpForm)
+	err := ah.handler.DecodePostForm(r, &form)
 	if err != nil {
-		log.Panic(err)
+		htmx.NewResponse().RenderTempl(
+			r.Context(),
+			w,
+			components.FlashMessage("invalid form data"),
+		)
+		return
 	}
 
-	// validate the form
-	// Handle if not valid - return the validation errors
-	// handle valid
+	// Validation
+	form.CheckField(validator.NotBlank(form.Name), "name", "This field cannot be blank")
+	form.CheckField(validator.NotBlank(form.Email), "email", "This field cannot be blank")
+	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "This field must be a valid email address")
+	form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
+	form.CheckField(validator.MinChars(form.Password, 8), "password", "This field must be at least 8 characters long")
 
-	// insert into the users table - with DB transaction
-	user, err := ah.authService.SignUp(r.Context(), signUpForm.Name, signUpForm.Email, signUpForm.Password)
-	// handle database errors
+	if !form.Valid() {
+		// handle with htmx
+		data := ah.handler.NewTemplateData(r)
+		htmx.NewResponse().RenderTempl(r.Context(), w, auth.SignUpForm(data, form))
+		return
+	}
+
+	// Insert into the users table - with DB transaction
+	user, err := ah.authService.SignUp(r.Context(), form.Name, form.Email, form.Password)
 	if err != nil {
 		ah.handler.Logger.PrintError(err, map[string]string{
 			"request_method": r.Method,
 			"request_url":    r.URL.String(),
 		})
 
-		// handle the error in the frontend give user an error message
-		ah.handler.ServerError(w, err)
+		// Handle common database errors
+		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Something went with your registration. please try again"))
 		return
 	}
 
-	// send the user a message to verify the user's email address account
-	// TODO:token with a ttl of 6 hour
+	// Send the user a message to verify the user's email address account
+	// TODO: token with a ttl of 6 hour
 	activationLink := "hello"
 	data := map[string]any{
 		"activationLink": activationLink,
 		"userID":         user.ID,
 	}
-	// TODO:Send this to a background job handler, where it can be retried
+	// TODO: Send this to a background job handler, where it can be retried
 	err = ah.handler.Mailer.Send(user.Email, "user_welcome.tmpl", data)
 	if err != nil {
 		ah.handler.Logger.PrintError(err, nil)
@@ -54,9 +65,6 @@ func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request)
 
 	// add message to the session manager and display it to the user
 	ah.handler.SessionManager.Put(r.Context(), "flash", "Your account was created successfully!")
-
-	// redirect to the login page
-	// fmt.Printf("%#v \n %#v", user, account)
 
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
@@ -66,5 +74,7 @@ func (ah *AuthHandler) SignUpViewHandler(w http.ResponseWriter, r *http.Request)
 	data := ah.handler.NewTemplateData(r)
 	data.PageTitle = "Sign Up"
 
-	auth.SignUpView(data).Render(r.Context(), w)
+	form := types.UserSignUpForm{}
+
+	auth.SignUpView(data, form).Render(r.Context(), w)
 }

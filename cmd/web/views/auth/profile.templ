@@ -9,19 +9,18 @@ import "go-htmx-sqlite/cmd/web/components/ui/form"
 import "go-htmx-sqlite/cmd/web/components/ui/radiocard"
 import "go-htmx-sqlite/cmd/web/components/ui/icon"
 
-templ ProfileView(data types.TemplateData) {
+templ ProfileView(data types.TemplateData, updateUserForm types.UpdateUserNameAndImageForm, updatePasswordform types.UpdateAccountPasswordForm) {
 	@layouts.DashboardLayout(data) {
 		<div class="space-y-4">
 			@input.Script()
-
-			@AccountTab(data)
-			@PasswordTab(data)
+			@AccountTab(data, updateUserForm)
+			@PasswordTab(data, updatePasswordform)
 			@AppearanceTab()
 		</div>
 	}
 }
 
-templ AccountTab(data types.TemplateData) {
+templ AccountTab(data types.TemplateData, updateUserForm types.UpdateUserNameAndImageForm) {
 	<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 		<div class="col-span-1">
 			<h2 class="text-lg font-medium">Account</h2>
@@ -30,52 +29,14 @@ templ AccountTab(data types.TemplateData) {
 		<div class="col-span-3 max-w-2xl">
 			@card.Card() {
 				@card.Content() {
-					<form class="flex flex-col gap-4" action="/profile/update" method="post">
-						@CSRFInput(data.CSRFToken)
-						@form.Item() {
-							@form.Label(form.LabelProps{
-								For: "name",
-							}) {
-								Name
-							}
-							//
-							@input.Input(input.Props{
-								Name:  "name",
-								ID:    "name",
-								Type:  input.TypeText,
-								Value: data.User.Name,
-							})
-						}
-						@form.Item() {
-							@form.Item() {
-								@form.Label(form.LabelProps{
-									For: "image",
-								}) {
-									Image
-								}
-								@input.Input(input.Props{
-									Type:  input.TypeText,
-									ID:    "image",
-									Name:  "image",
-									Value: data.User.Image.String,
-								})
-							}
-						}
-						<div class="flex justify-end">
-							@button.Button(button.Props{
-								Type: button.TypeSubmit,
-							}) {
-								Save changes
-							}
-						</div>
-					</form>
+					@UpdateUserForm(data, updateUserForm)
 				}
 			}
 		</div>
 	</div>
 }
 
-templ PasswordTab(data types.TemplateData) {
+templ PasswordTab(data types.TemplateData, updatePasswordform types.UpdateAccountPasswordForm) {
 	<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 		<div class="col-span-1">
 			<h2 class="text-lg font-medium">Password</h2>
@@ -84,52 +45,7 @@ templ PasswordTab(data types.TemplateData) {
 		<div class="col-span-3 max-w-2xl">
 			@card.Card() {
 				@card.Content() {
-					<form class="flex flex-col gap-4" action="/profile/update-password" method="post">
-						@CSRFInput(data.CSRFToken)
-						@form.Item() {
-							@form.Label(form.LabelProps{
-								For: "current_password",
-							}) {
-								Current Password
-							}
-							@input.Input(input.Props{
-								Type: input.TypePassword,
-								ID:   "current_password",
-								Name: "current_password",
-							})
-						}
-						@form.Item() {
-							@form.Label(form.LabelProps{
-								For: "new_password",
-							}) {
-								New Password
-							}
-							@input.Input(input.Props{
-								Type: input.TypePassword,
-								ID:   "new_password",
-								Name: "new_password",
-							})
-						}
-						@form.Item() {
-							@form.Label(form.LabelProps{
-								For: "password_confirmation",
-							}) {
-								Confirm Password
-							}
-							@input.Input(input.Props{
-								Type: input.TypePassword,
-								ID:   "password_confirmation",
-								Name: "password_confirmation",
-							})
-						}
-						<div class="flex justify-end">
-							@button.Button(button.Props{
-								Type: button.TypeSubmit,
-							}) {
-								Change password
-							}
-						</div>
-					</form>
+					@ChangePasswordForm(data, updatePasswordform)
 				}
 			}
 		</div>
@@ -187,4 +103,140 @@ templ AppearanceTab() {
 			}
 		</div>
 	</div>
+}
+
+// Forms
+templ UpdateUserForm(data types.TemplateData, updateForm types.UpdateUserNameAndImageForm) {
+	<form
+		class="flex flex-col gap-4"
+		action="/profile/update"
+		method="post"
+		hx-post="/profile/update"
+		hx-target="this"
+		hx-swap="innerHTML"
+		hx-indicator="#account-spinner"
+	>
+		@CSRFInput(data.CSRFToken)
+		@form.Item() {
+			@form.Label(form.LabelProps{
+				For: "name",
+			}) {
+				Name
+			}
+			@input.Input(input.Props{
+				Name:     "name",
+				ID:       "name",
+				Type:     input.TypeText,
+				Value:    updateForm.Name,
+				HasError: updateForm.FieldErrors["name"] != "",
+			})
+			@form.Message(form.MessageProps{
+				Variant: form.MessageVariantError,
+			}) {
+				{ updateForm.FieldErrors["name"] }
+			}
+		}
+		@form.Item() {
+			@form.Item() {
+				@form.Label(form.LabelProps{
+					For: "image",
+				}) {
+					Image
+				}
+				@input.Input(input.Props{
+					Type:     input.TypeText,
+					ID:       "image",
+					Name:     "image",
+					Value:    updateForm.Image,
+					HasError: updateForm.FieldErrors["image"] != "",
+				})
+				@form.Message(form.MessageProps{
+					Variant: form.MessageVariantError,
+				}) {
+					{ updateForm.FieldErrors["image"] }
+				}
+			}
+		}
+		<div class="flex justify-end">
+			@button.Button(button.Props{
+				Type:  button.TypeSubmit,
+				Class: "flex items-center justify-center gap-2",
+			}) {
+				<span id="account-spinner" class="htmx-indicator">
+					<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+						<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+					</svg>
+				</span>
+				Save changes
+			}
+		</div>
+	</form>
+}
+
+templ ChangePasswordForm(data types.TemplateData, updatePasswordform types.UpdateAccountPasswordForm) {
+	<form
+		class="flex flex-col gap-4"
+		action="/profile/update-password"
+		method="post"
+		hx-post="/profile/update-password"
+		hx-target="this"
+		hx-swap="innerHTML"
+		hx-indicator="#password-spinner"
+	>
+		@CSRFInput(data.CSRFToken)
+		@form.Item() {
+			@form.Label(form.LabelProps{
+				For: "current_password",
+			}) {
+				Current Password
+			}
+			@input.Input(input.Props{
+				Type:  input.TypePassword,
+				ID:    "current_password",
+				Name:  "current_password",
+				Value: updatePasswordform.CurrentPassword,
+			})
+		}
+		@form.Item() {
+			@form.Label(form.LabelProps{
+				For: "new_password",
+			}) {
+				New Password
+			}
+			@input.Input(input.Props{
+				Type:  input.TypePassword,
+				ID:    "new_password",
+				Name:  "new_password",
+				Value: updatePasswordform.NewPassword,
+			})
+		}
+		@form.Item() {
+			@form.Label(form.LabelProps{
+				For: "password_confirmation",
+			}) {
+				Confirm Password
+			}
+			@input.Input(input.Props{
+				Type:  input.TypePassword,
+				ID:    "password_confirmation",
+				Name:  "password_confirmation",
+				Value: updatePasswordform.ConfirmPassword,
+			})
+		}
+		<div class="flex justify-end">
+			@button.Button(button.Props{
+				Type:  button.TypeSubmit,
+				Class: "flex items-center justify-center gap-2",
+			}) {
+				<span id="password-spinner" class="htmx-indicator">
+					<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+						<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+					</svg>
+				</span>
+				Change password
+			}
+		</div>
+	</form>
 }

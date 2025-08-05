@@ -9,7 +9,7 @@ import "go-htmx-sqlite/internal/types"
 import "go-htmx-sqlite/cmd/web/components/ui/icon"
 import "go-htmx-sqlite/cmd/web/components/ui/separator"
 
-templ LoginView(data types.TemplateData) {
+templ LoginView(data types.TemplateData,loginForm types.UserLoginForm) {
 	@layouts.AuthLayout(data) {
 		<div class="w-full max-w-sm">
 			@card.Card() {
@@ -25,7 +25,15 @@ templ LoginView(data types.TemplateData) {
 						Login to start using the application
 					}
 				}
-				<form method="post" action="/login">
+				<div id="form-messages"></div>
+				<form 
+					method="post" 
+					action="/login"
+					hx-post="/login"
+					hx-target="#form-messages"
+					hx-swap="innerHTML"
+					hx-indicator="#login-spinner"
+				>
 					@CSRFInput(data.CSRFToken)
 					@card.Content() {
 						<div class="flex flex-col gap-4">
@@ -53,8 +61,8 @@ templ LoginView(data types.TemplateData) {
 										ID:          "email-form",
 										Type:        input.TypeEmail,
 										Placeholder: "m@example.com",
-										HasError:    false,
 									})
+									<div id="error-email" class="text-sm text-red-600 dark:text-red-400 mt-1 hidden"></div>
 								}
 								@form.Item() {
 									@form.Label(form.LabelProps{
@@ -66,8 +74,8 @@ templ LoginView(data types.TemplateData) {
 										Name:     "password",
 										ID:       "password",
 										Type:     input.TypePassword,
-										HasError: false,
 									})
+									<div id="error-password" class="text-sm text-red-600 dark:text-red-400 mt-1 hidden"></div>
 								}
 								<p class="text-sm">
 									<a href="/forgot-password" class="align-right hover:underline">Forgot your password?</a>
@@ -80,8 +88,14 @@ templ LoginView(data types.TemplateData) {
 					}) {
 						@button.Button(button.Props{
 							Type:  button.TypeSubmit,
-							Class: "w-full",
+							Class: "w-full flex items-center justify-center gap-2",
 						}) {
+							<span id="login-spinner" class="htmx-indicator">
+								<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+									<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+									<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+								</svg>
+							</span>
 							Login 
 						}
 						<p class="text-sm">

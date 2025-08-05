@@ -75,10 +75,9 @@ func (h *Handlers) NewTemplateData(r *http.Request) types.TemplateData {
 	}
 }
 
-func (h *Handlers) NewPageData(r *http.Request, data any) types.PageData {
+func (h *Handlers) NewPageData(r *http.Request) types.PageData {
 	return types.PageData{
 		Template: h.NewTemplateData(r),
-		Data:     data,
 	}
 }
 
