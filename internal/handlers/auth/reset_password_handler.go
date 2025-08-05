@@ -67,14 +67,17 @@ func (ah *AuthHandler) ResetPasswordView(w http.ResponseWriter, r *http.Request)
 
 	// get the token from query ?token=
 	plainTextToken := r.URL.Query().Get("token")
-	// validate the token -> should be 26 byte length and its
+
+	// validate the token format - should be 26 characters (base32 encoded 16 bytes)
+	if len(plainTextToken) != 26 {
+		http.Error(w, "Invalid token format", http.StatusBadRequest)
+		return
+	}
 
 	// compare the token with the hashed one in the database
 	_, err := ah.authService.GetValidTokenUser(r.Context(), plainTextToken)
 	if err != nil {
-		// if not match:
-		//	- return with error
-		ah.handler.ServerError(w, err)
+		http.Error(w, "Invalid or expired token", http.StatusBadRequest)
 		return
 	}
 

@@ -75,10 +75,13 @@ func (s *Server) requireNoAuth(next http.Handler) http.Handler {
 func (s *Server) noSurf(next http.Handler) http.Handler {
 	csrfHandler := nosurf.New(next)
 
+	// Set Secure flag based on environment - only true for production
+	isProduction := s.Config.AppEnv == "production"
 	csrfHandler.SetBaseCookie(http.Cookie{
 		HttpOnly: true,
 		Path:     "/",
-		Secure:   true,
+		Secure:   isProduction,
+		SameSite: http.SameSiteLaxMode,
 	})
 
 	return csrfHandler

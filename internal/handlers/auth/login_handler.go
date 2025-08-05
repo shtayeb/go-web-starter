@@ -3,10 +3,10 @@ package auth
 import (
 	"go-htmx-sqlite/cmd/web/components"
 	"go-htmx-sqlite/cmd/web/views/auth"
+	"go-htmx-sqlite/internal/security"
 	"go-htmx-sqlite/internal/types"
 	"go-htmx-sqlite/internal/validator"
 	"net/http"
-	"net/url"
 
 	"github.com/angelofallars/htmx-go"
 )
@@ -38,7 +38,7 @@ func (ah *AuthHandler) LoginPostHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Session manager
+	// Session manager - renew token AFTER successful authentication to prevent session fixation
 	err = ah.handler.SessionManager.RenewToken(r.Context())
 	if err != nil {
 		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Session error occurred"))
@@ -49,10 +49,11 @@ func (ah *AuthHandler) LoginPostHandler(w http.ResponseWriter, r *http.Request) 
 
 	// Get the next=? query string if exists. 1 - redirect to it. 2 - or redirect to home after login
 	redirectURL := "/dashboard"
-	refererUrl, _ := url.Parse(r.Referer())
-	path := refererUrl.Query().Get("next")
-	if path != "" {
-		redirectURL = path
+	if nextPath := r.URL.Query().Get("next"); nextPath != "" {
+		// Validate redirect URL to prevent open redirect attacks
+		if security.IsValidRedirectPath(nextPath) {
+			redirectURL = nextPath
+		}
 	}
 
 	// handle the response with htmx
