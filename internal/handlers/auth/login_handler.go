@@ -3,7 +3,6 @@ package auth
 import (
 	"go-htmx-sqlite/cmd/web/components"
 	"go-htmx-sqlite/cmd/web/views/auth"
-	"go-htmx-sqlite/internal/security"
 	"go-htmx-sqlite/internal/types"
 	"go-htmx-sqlite/internal/validator"
 	"net/http"
@@ -49,11 +48,10 @@ func (ah *AuthHandler) LoginPostHandler(w http.ResponseWriter, r *http.Request) 
 
 	// Get the next=? query string if exists. 1 - redirect to it. 2 - or redirect to home after login
 	redirectURL := "/dashboard"
-	if nextPath := r.URL.Query().Get("next"); nextPath != "" {
-		// Validate redirect URL to prevent open redirect attacks
-		if security.IsValidRedirectPath(nextPath) {
-			redirectURL = nextPath
-		}
+	nextPath := r.URL.Query().Get("next")
+
+	if nextPath != "" && IsValidRedirectPath(nextPath) {
+		redirectURL = nextPath
 	}
 
 	// handle the response with htmx

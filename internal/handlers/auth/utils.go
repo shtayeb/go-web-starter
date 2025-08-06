@@ -1,4 +1,4 @@
-package security
+package auth
 
 import (
 	"regexp"
@@ -66,17 +66,9 @@ func ValidatePasswordStrength(password string) []string {
 		}
 	}
 
-	for _, pattern := range commonPatterns {
-		if matched, _ := regexp.MatchString(`(?i)`+pattern, password); matched {
-			errors = append(errors, "Password contains common patterns and is not secure")
-			break
-		}
-	}
-
 	return errors
 }
 
-// IsValidRedirectPath validates that the redirect path is safe (relative path only)
 func IsValidRedirectPath(path string) bool {
 	// Only allow relative paths that start with /
 	// Reject absolute URLs, protocol-relative URLs, and paths with ..
