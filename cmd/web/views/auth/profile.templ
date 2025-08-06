@@ -192,11 +192,17 @@ templ ChangePasswordForm(data types.TemplateData, updatePasswordform types.Updat
 				Current Password
 			}
 			@input.Input(input.Props{
-				Type:  input.TypePassword,
-				ID:    "current_password",
-				Name:  "current_password",
-				Value: updatePasswordform.CurrentPassword,
+				Type:     input.TypePassword,
+				ID:       "current_password",
+				Name:     "current_password",
+				Value:    updatePasswordform.CurrentPassword,
+				HasError: updatePasswordform.FieldErrors["current_password"] != "",
 			})
+			@form.Message(form.MessageProps{
+				Variant: form.MessageVariantError,
+			}) {
+				{ updatePasswordform.FieldErrors["current_password"] }
+			}
 		}
 		@form.Item() {
 			@form.Label(form.LabelProps{
@@ -205,11 +211,17 @@ templ ChangePasswordForm(data types.TemplateData, updatePasswordform types.Updat
 				New Password
 			}
 			@input.Input(input.Props{
-				Type:  input.TypePassword,
-				ID:    "new_password",
-				Name:  "new_password",
-				Value: updatePasswordform.NewPassword,
+				Type:     input.TypePassword,
+				ID:       "new_password",
+				Name:     "new_password",
+				Value:    updatePasswordform.NewPassword,
+				HasError: updatePasswordform.FieldErrors["new_password"] != "",
 			})
+			@form.Message(form.MessageProps{
+				Variant: form.MessageVariantError,
+			}) {
+				{ updatePasswordform.FieldErrors["new_password"] }
+			}
 		}
 		@form.Item() {
 			@form.Label(form.LabelProps{
@@ -218,11 +230,17 @@ templ ChangePasswordForm(data types.TemplateData, updatePasswordform types.Updat
 				Confirm Password
 			}
 			@input.Input(input.Props{
-				Type:  input.TypePassword,
-				ID:    "password_confirmation",
-				Name:  "password_confirmation",
-				Value: updatePasswordform.ConfirmPassword,
+				Type:     input.TypePassword,
+				ID:       "password_confirmation",
+				Name:     "password_confirmation",
+				Value:    updatePasswordform.ConfirmPassword,
+				HasError: updatePasswordform.FieldErrors["password_confirmation"] != "",
 			})
+			@form.Message(form.MessageProps{
+				Variant: form.MessageVariantError,
+			}) {
+				{ updatePasswordform.FieldErrors["password_confirmation"] }
+			}
 		}
 		<div class="flex justify-end">
 			@button.Button(button.Props{

@@ -29,7 +29,7 @@ func (ah *AuthHandler) UpdateUserNameAndImageHandler(w http.ResponseWriter, r *h
 	err := ah.handler.DecodePostForm(r, &form)
 	if err != nil {
 		htmx.NewResponse().RenderTempl(r.Context(), w,
-			components.FlashMessage("invalid form data"),
+			components.FlashMessage("invalid form data", components.FlashError),
 		)
 		return
 	}
@@ -51,13 +51,13 @@ func (ah *AuthHandler) UpdateUserNameAndImageHandler(w http.ResponseWriter, r *h
 	_, err = ah.authService.UpdateUserNameAndImage(r.Context(), user.ID, form.Name, form.Image)
 	if err != nil {
 		htmx.NewResponse().RenderTempl(r.Context(), w,
-			components.FlashMessage("Failed to update profile. Please try again."),
+			components.FlashMessage("Failed to update profile. Please try again.", components.FlashError),
 		)
 		return
 	}
 
 	htmx.NewResponse().RenderTempl(r.Context(), w,
-		components.FlashMessage("Profile updated successfully!"),
+		components.FlashMessage("Profile updated successfully!", components.FlashSuccess),
 	)
 }
 
@@ -67,7 +67,7 @@ func (ah *AuthHandler) UpdateAccountPasswordHandler(w http.ResponseWriter, r *ht
 	err := ah.handler.DecodePostForm(r, &form)
 	if err != nil {
 		htmx.NewResponse().RenderTempl(r.Context(), w,
-			components.FlashMessage("Invalid form data"),
+			components.FlashMessage("Invalid form data", components.FlashError),
 		)
 		return
 	}
@@ -91,17 +91,17 @@ func (ah *AuthHandler) UpdateAccountPasswordHandler(w http.ResponseWriter, r *ht
 	if err != nil {
 		if err.Error() == "invalid current password" {
 			htmx.NewResponse().RenderTempl(r.Context(), w,
-				components.FlashMessage("Current password is incorrect"),
+				components.FlashMessage("Current password is incorrect", components.FlashError),
 			)
 			return
 		}
 		htmx.NewResponse().RenderTempl(r.Context(), w,
-			components.FlashMessage("Failed to update password. Please try again."),
+			components.FlashMessage("Failed to update password. Please try again.", components.FlashError),
 		)
 		return
 	}
 
 	htmx.NewResponse().RenderTempl(r.Context(), w,
-		components.FlashMessage("Password updated successfully!"),
+		components.FlashMessage("Password updated successfully!", components.FlashSuccess),
 	)
 }

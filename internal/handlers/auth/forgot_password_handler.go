@@ -25,7 +25,7 @@ func (ah *AuthHandler) ForgotPasswordPostHanlder(w http.ResponseWriter, r *http.
 	err := ah.handler.DecodePostForm(r, &form)
 	if err != nil {
 		htmx.NewResponse().RenderTempl(r.Context(), w,
-			components.FlashMessage("invalid form data"),
+			components.FlashMessage("invalid form data", components.FlashError),
 		)
 		return
 	}
@@ -53,7 +53,7 @@ func (ah *AuthHandler) ForgotPasswordPostHanlder(w http.ResponseWriter, r *http.
 		ah.handler.Logger.PrintError(err, nil)
 		// Don't reveal if email exists or not for security
 		htmx.NewResponse().RenderTempl(r.Context(), w,
-			components.FlashMessage("Can not send you a password reset link. Please try again later!"),
+			components.FlashMessage("Can not send you a password reset link. Please try again later!", components.FlashError),
 		)
 		return
 	}
@@ -68,6 +68,6 @@ func (ah *AuthHandler) ForgotPasswordPostHanlder(w http.ResponseWriter, r *http.
 	}
 
 	htmx.NewResponse().RenderTempl(r.Context(), w,
-		components.FlashMessage("If an account with this email exists, a password reset will be sent to it."),
+		components.FlashMessage("If an account with this email exists, a password reset will be sent to it.", components.FlashInfo),
 	)
 }

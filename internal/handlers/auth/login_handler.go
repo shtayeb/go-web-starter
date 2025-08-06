@@ -15,7 +15,7 @@ func (ah *AuthHandler) LoginPostHandler(w http.ResponseWriter, r *http.Request) 
 
 	err := ah.handler.DecodePostForm(r, &form)
 	if err != nil {
-		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Invalid form data"))
+		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Invalid form data", components.FlashError))
 		return
 	}
 
@@ -26,21 +26,21 @@ func (ah *AuthHandler) LoginPostHandler(w http.ResponseWriter, r *http.Request) 
 
 	if !form.Valid() {
 		// handle with htmx
-		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Something went wrong!"))
+		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Something went wrong!", components.FlashError))
 		return
 	}
 
 	// Authenticate: check the user and account exists
 	user, err := ah.authService.Login(r.Context(), form.Email, form.Password)
 	if err != nil {
-		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Invalid email or password"))
+		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Invalid email or password", components.FlashError))
 		return
 	}
 
 	// Session manager - renew token AFTER successful authentication to prevent session fixation
 	err = ah.handler.SessionManager.RenewToken(r.Context())
 	if err != nil {
-		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Session error occurred"))
+		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Session error occurred", components.FlashError))
 		return
 	}
 

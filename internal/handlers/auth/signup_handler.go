@@ -18,7 +18,7 @@ func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request)
 		htmx.NewResponse().RenderTempl(
 			r.Context(),
 			w,
-			components.FlashMessage("invalid form data"),
+			components.FlashMessage("invalid form data", components.FlashError),
 		)
 		return
 	}
@@ -46,7 +46,7 @@ func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request)
 		})
 
 		// Handle common database errors
-		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Something went with your registration. please try again"))
+		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Something went with your registration. please try again", components.FlashError))
 		return
 	}
 

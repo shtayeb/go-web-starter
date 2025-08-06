@@ -29,7 +29,7 @@ templ BaseLayout(data types.TemplateData) {
 		<body>
 			@components.Navbar(data,true)
 			if data.Flash != "" {
-				@components.FlashMessage(data.Flash)
+				@components.FlashMessage(data.Flash, components.FlashSuccess)
 			}
 			<main>
 				{ children... }

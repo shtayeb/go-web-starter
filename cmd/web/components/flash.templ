@@ -1,7 +1,47 @@
 package components
 
-templ FlashMessage(message string) {
-	<div class=" text-center flash-message bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded my-2">
-		{ message }
-	</div>
+import "go-htmx-sqlite/cmd/web/components/ui/alert"
+
+type FlashType string
+
+const (
+	FlashSuccess FlashType = "success"
+	FlashError   FlashType = "error"
+	FlashWarning FlashType = "warning"
+	FlashInfo    FlashType = "info"
+)
+
+templ FlashMessage(message string, flashType FlashType) {
+	@alert.Alert(alert.Props{
+		Class:   "text-center flash-message my-2 " + getFlashClasses(flashType),
+		Variant: getAlertVariant(flashType),
+	}) {
+		@alert.Description() {
+			{ message }
+		}
+	}
+}
+
+func getFlashClasses(flashType FlashType) string {
+	switch flashType {
+	case FlashSuccess:
+		return "bg-green-50 border-green-200 text-green-800"
+	case FlashError:
+		return "bg-red-50 border-red-200 text-red-800"
+	case FlashWarning:
+		return "bg-yellow-50 border-yellow-200 text-yellow-800"
+	case FlashInfo:
+		return "bg-blue-50 border-blue-200 text-blue-800"
+	default:
+		return "bg-green-50 border-green-200 text-green-800"
+	}
+}
+
+func getAlertVariant(flashType FlashType) alert.Variant {
+	switch flashType {
+	case FlashError:
+		return alert.VariantDestructive
+	default:
+		return alert.VariantDefault
+	}
 }

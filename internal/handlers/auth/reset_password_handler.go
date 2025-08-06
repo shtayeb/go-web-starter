@@ -19,7 +19,7 @@ func (ah *AuthHandler) ResetPasswordPostHandler(w http.ResponseWriter, r *http.R
 		htmx.NewResponse().RenderTempl(
 			r.Context(),
 			w,
-			components.FlashMessage("invalid form data"),
+			components.FlashMessage("invalid form data", components.FlashError),
 		)
 		return
 	}
@@ -43,7 +43,7 @@ func (ah *AuthHandler) ResetPasswordPostHandler(w http.ResponseWriter, r *http.R
 		htmx.NewResponse().RenderTempl(
 			r.Context(),
 			w,
-			components.FlashMessage("Invalid or expired reset token. Please request a new password reset."),
+			components.FlashMessage("Invalid or expired reset token. Please request a new password reset.", components.FlashError),
 		)
 		return
 	}
@@ -57,7 +57,7 @@ func (ah *AuthHandler) ResetPasswordPostHandler(w http.ResponseWriter, r *http.R
 	htmx.NewResponse().RenderTempl(
 		r.Context(),
 		w,
-		components.FlashMessage("Password reset successfully! You can now log in with your new password."),
+		components.FlashMessage("Password reset successfully! You can now log in with your new password.", components.FlashSuccess),
 	)
 }
 
