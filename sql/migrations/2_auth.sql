@@ -33,4 +33,6 @@ CREATE TABLE IF NOT EXISTS accounts (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_accounts_provider_lookup ON accounts(user_id, provider_id);
 -- +goose StatementEnd

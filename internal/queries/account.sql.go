@@ -149,6 +149,36 @@ func (q *Queries) GetAccountByUserIdAndProvider(ctx context.Context, arg GetAcco
 	return i, err
 }
 
+const updateAccountOAuthTokens = `-- name: UpdateAccountOAuthTokens :exec
+UPDATE accounts 
+SET access_token = $1, 
+    refresh_token = $2, 
+    access_token_expires_at = $3,
+    updated_at = $4
+WHERE user_id = $5 AND provider_id = $6
+`
+
+type UpdateAccountOAuthTokensParams struct {
+	AccessToken          sql.NullString
+	RefreshToken         sql.NullString
+	AccessTokenExpiresAt sql.NullTime
+	UpdatedAt            time.Time
+	UserID               int32
+	ProviderID           sql.NullString
+}
+
+func (q *Queries) UpdateAccountOAuthTokens(ctx context.Context, arg UpdateAccountOAuthTokensParams) error {
+	_, err := q.db.ExecContext(ctx, updateAccountOAuthTokens,
+		arg.AccessToken,
+		arg.RefreshToken,
+		arg.AccessTokenExpiresAt,
+		arg.UpdatedAt,
+		arg.UserID,
+		arg.ProviderID,
+	)
+	return err
+}
+
 const updateAccountPassword = `-- name: UpdateAccountPassword :exec
 UPDATE accounts SET password = $1 WHERE id = $2
 `

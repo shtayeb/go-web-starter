@@ -14,6 +14,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/markbates/goth"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -80,65 +81,152 @@ func (as *AuthService) GenerateToken(ctx context.Context, userID int64, ttl time
 	return plaintext, nil
 }
 
-func (as *AuthService) SocialLogin(ctx context.Context, name, email, provider string) (*queries.User, error) {
-	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+// ProcessSocialAuth handles both login and signup for social authentication
+func (as *AuthService) ProcessSocialAuth(ctx context.Context, gothUser goth.User, provider string) (*queries.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
-	var userErr, accountErr error
+	var user *queries.User
+	var err error
 
-	user, userErr := as.dbQueries.GetUserByEmail(ctx, email)
-	if userErr == nil {
-		_, accountErr = as.dbQueries.GetAccountByUserIdAndProvider(ctx, queries.GetAccountByUserIdAndProviderParams{
-			UserID:     user.ID,
-			ProviderID: sql.NullString{String: provider, Valid: true},
-		})
+	// Use transaction for consistency
+	err = as.dbService.WithTransaction(ctx, func(tx *sql.Tx) error {
+		qtx := as.dbQueries.WithTx(tx)
 
-		// user exists but not with this provider
-	}
+		// Check if user exists
+		existingUser, userErr := qtx.GetUserByEmail(ctx, gothUser.Email)
 
-	if userErr == nil && accountErr == nil {
-		// user exists -> return it
+		if userErr == nil {
+			// User exists - verify provider linkage
+			user, err = as.linkOrVerifyProvider(ctx, qtx, existingUser, gothUser, provider)
+			if err != nil {
+				return fmt.Errorf("failed to link provider: %w", err)
+			}
+		} else if errors.Is(userErr, sql.ErrNoRows) {
+			// New user - create account
+			user, err = as.createSocialUser(ctx, qtx, gothUser, provider)
+			if err != nil {
+				return fmt.Errorf("failed to create user: %w", err)
+			}
+		} else {
+			// Database error
+			return fmt.Errorf("database error: %w", userErr)
+		}
+
+		// TODO: no need to store OAuth tokens in database
+		// Update OAuth tokens
+		if err := as.updateOAuthTokens(ctx, qtx, user.ID, gothUser, provider); err != nil {
+			return fmt.Errorf("failed to update tokens: %w", err)
+		}
+
+		return nil
+	})
+
+	return user, err
+}
+
+// linkOrVerifyProvider handles existing users logging in with social auth
+func (as *AuthService) linkOrVerifyProvider(
+	ctx context.Context,
+	qtx *queries.Queries,
+	user queries.User,
+	gothUser goth.User,
+	provider string,
+) (*queries.User, error) {
+	// Check if this provider is already linked
+	_, err := qtx.GetAccountByUserIdAndProvider(ctx, queries.GetAccountByUserIdAndProviderParams{
+		UserID:     user.ID,
+		ProviderID: sql.NullString{String: provider, Valid: true},
+	})
+
+	if err == nil {
+		// Provider already linked - just return the user
 		return &user, nil
 	}
 
-	// create user and account for the user
-	// save the provider to the account table
-	user, err := as.SocialSignUp(ctx, name, email, provider)
+	if !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
+	}
+
+	// Provider not linked - for security, we should verify email ownership
+	// In production, you might want to send a verification email
+	// For now, we'll create the link if the email matches
+	if user.Email != gothUser.Email {
+		return nil, errors.New("email mismatch - cannot link provider")
+	}
+
+	// Create new account link
+	_, err = qtx.CreateAccount(ctx, queries.CreateAccountParams{
+		UserID:     user.ID,
+		AccountID:  gothUser.UserID,
+		ProviderID: sql.NullString{String: provider, Valid: true},
+		CreatedAt:  time.Now().UTC(),
+		UpdatedAt:  time.Now().UTC(),
+	})
 
 	return &user, err
 }
 
-func (as *AuthService) SocialSignUp(ctx context.Context, name, email, provider string) (queries.User, error) {
-	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
-	defer cancel()
-
-	user := queries.User{}
-	// DB transaction
-	err := as.dbService.WithTransaction(ctx, func(tx *sql.Tx) error {
-		qtx := as.dbQueries.WithTx(tx)
-
-		// create user and handle DB errors - like user already exists
-		user, err := qtx.CreateUser(ctx, queries.CreateUserParams{
-			Name:      name,
-			Email:     email,
-			CreatedAt: time.Now().UTC(),
-			UpdatedAt: time.Now().UTC(),
-		})
-		if err != nil {
-			return err
-		}
-
-		// create account - and handle errors
-		_, err = qtx.CreateAccount(ctx, queries.CreateAccountParams{
-			UserID:     user.ID,
-			AccountID:  user.Name,
-			ProviderID: sql.NullString{String: provider, Valid: true},
-		})
-
-		return err
+// createSocialUser creates a new user from social auth
+func (as *AuthService) createSocialUser(
+	ctx context.Context,
+	qtx *queries.Queries,
+	gothUser goth.User,
+	provider string,
+) (*queries.User, error) {
+	// Create user
+	user, err := qtx.CreateUser(ctx, queries.CreateUserParams{
+		Name:      gothUser.Name,
+		Email:     gothUser.Email,
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
 	})
 
-	return user, err
+	if err != nil {
+		return nil, err
+	}
+
+	// Create account link
+	_, err = qtx.CreateAccount(ctx, queries.CreateAccountParams{
+		UserID:     user.ID,
+		AccountID:  gothUser.UserID,
+		ProviderID: sql.NullString{String: provider, Valid: true},
+		CreatedAt:  time.Now().UTC(),
+		UpdatedAt:  time.Now().UTC(),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+// updateOAuthTokens updates the OAuth tokens for a user
+func (as *AuthService) updateOAuthTokens(
+	ctx context.Context,
+	qtx *queries.Queries,
+	userID int32,
+	gothUser goth.User,
+	provider string,
+) error {
+	// Calculate token expiry time
+	var expiresAt sql.NullTime
+	if !gothUser.ExpiresAt.IsZero() {
+		expiresAt = sql.NullTime{Time: gothUser.ExpiresAt, Valid: true}
+	}
+
+	// Update OAuth tokens
+	err := qtx.UpdateAccountOAuthTokens(ctx, queries.UpdateAccountOAuthTokensParams{
+		AccessToken:          sql.NullString{String: gothUser.AccessToken, Valid: gothUser.AccessToken != ""},
+		RefreshToken:         sql.NullString{String: gothUser.RefreshToken, Valid: gothUser.RefreshToken != ""},
+		AccessTokenExpiresAt: expiresAt,
+		UpdatedAt:            time.Now().UTC(),
+		UserID:               userID,
+		ProviderID:           sql.NullString{String: provider, Valid: true},
+	})
+
+	return err
 }
 
 func (as *AuthService) Login(ctx context.Context, email string, password string) (*queries.User, error) {

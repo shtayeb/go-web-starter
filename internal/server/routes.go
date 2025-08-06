@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"time"
 
 	"go-htmx-sqlite/cmd/web"
 	"go-htmx-sqlite/internal/handlers"
@@ -11,6 +12,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/go-chi/httprate"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
@@ -46,6 +48,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Group(func(r chi.Router) {
 		// middleware
 		r.Use(s.requireNoAuth)
+		r.Use(httprate.LimitByIP(100, 1*time.Minute))
 
 		// Auth
 		r.Get("/login", authHandlers.LoginViewHandler)

@@ -18,3 +18,11 @@ SELECT * FROM accounts WHERE id = $1;
 
 -- name: UpdateAccountPassword :exec
 UPDATE accounts SET password = $1 WHERE id = $2;
+
+-- name: UpdateAccountOAuthTokens :exec
+UPDATE accounts 
+SET access_token = $1, 
+    refresh_token = $2, 
+    access_token_expires_at = $3,
+    updated_at = $4
+WHERE user_id = $5 AND provider_id = $6;
