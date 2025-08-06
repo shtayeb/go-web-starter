@@ -34,9 +34,11 @@ templ Navbar(data types.TemplateData, showLogo bool) {
 								if (sidebar.dataset.collapsible === "none") {
 									sidebar.dataset.collapsible = "offcanvas";
 									sidebar.dataset.state = "collapsed";
+									localStorage.setItem("sidebarState", "collapsed");
 								} else {
 									sidebar.dataset.collapsible = "none"; 
 									sidebar.dataset.state = "expanded";
+									localStorage.setItem("sidebarState", "expanded");
 								}
 
 								});

@@ -16,6 +16,21 @@ templ DashboardLayout(data types.TemplateData) {
 			<meta name="viewport" content="width=device-width,initial-scale=1"/>
 			<link href="assets/css/output.css" rel="stylesheet"/>
 			<script src="assets/js/htmx.min.js"></script>
+			<style>
+				/* Apply collapsed state immediately to prevent flicker */
+				html.sidebar-init-collapsed #sidebar[data-collapsible="none"] aside {
+					left: calc(var(--sidebar-width) * -1) !important;
+				}
+				html.sidebar-init-collapsed #sidebar[data-collapsible="none"] [data-slot="sidebar-gap"] {
+					width: 0 !important;
+				}
+			</style>
+			<script>
+				// Apply saved sidebar state immediately to prevent flicker
+				if (localStorage.getItem("sidebarState") === "collapsed") {
+					document.documentElement.classList.add("sidebar-init-collapsed");
+				}
+			</script>
 			<title>
 				if data.PageTitle != "" {
 					{ data.PageTitle }
@@ -27,6 +42,24 @@ templ DashboardLayout(data types.TemplateData) {
 			@components.ThemeSwitcherScript()
 			@dropdown.Script()
 			@popover.Script()
+			<script>
+				// Restore sidebar state from localStorage
+				document.addEventListener("DOMContentLoaded", function() {
+					const savedState = localStorage.getItem("sidebarState");
+					const sidebar = document.querySelector("#sidebar");
+					if (sidebar) {
+						if (savedState === "collapsed") {
+							sidebar.dataset.collapsible = "offcanvas";
+							sidebar.dataset.state = "collapsed";
+						} else {
+							sidebar.dataset.collapsible = "none";
+							sidebar.dataset.state = "expanded";
+						}
+						// Remove the temporary CSS class
+						document.documentElement.classList.remove("sidebar-init-collapsed");
+					}
+				});
+			</script>
 		</head>
 		<body class="font-sans antialiased">
 			<div class="flex w-full min-h-svh">
