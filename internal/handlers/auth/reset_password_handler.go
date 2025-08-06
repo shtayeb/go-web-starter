@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"go-htmx-sqlite/cmd/web/components"
 	"go-htmx-sqlite/cmd/web/views/auth"
 	"go-htmx-sqlite/internal/types"
@@ -67,13 +68,17 @@ func (ah *AuthHandler) ResetPasswordView(w http.ResponseWriter, r *http.Request)
 
 	// get the token from query ?token=
 	plainTextToken := r.URL.Query().Get("token")
-	// validate the token -> should be 26 byte length and its
+
+	// validate the token format - should be 26 characters (base32 encoded 16 bytes)
+	if len(plainTextToken) != 26 {
+		err := fmt.Errorf("invalid token format: expected 26 characters, got %d", len(plainTextToken))
+		ah.handler.ServerError(w, err)
+		return
+	}
 
 	// compare the token with the hashed one in the database
 	_, err := ah.authService.GetValidTokenUser(r.Context(), plainTextToken)
 	if err != nil {
-		// if not match:
-		//	- return with error
 		ah.handler.ServerError(w, err)
 		return
 	}

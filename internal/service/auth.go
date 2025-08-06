@@ -84,30 +84,30 @@ func (as *AuthService) Login(ctx context.Context, email string, password string)
 	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
 
-	// check if user exists by their email
-	user, err := as.dbQueries.GetUserByEmail(ctx, email)
-	if err != nil {
-		// handle error
-		log.Println(err)
-		return nil, err
+	var user queries.User
+	var account queries.Account
+	var userErr, accountErr error
+
+	// Always perform both operations to prevent timing attacks
+	user, userErr = as.dbQueries.GetUserByEmail(ctx, email)
+	if userErr == nil {
+		account, accountErr = as.dbQueries.GetAccountByUserId(ctx, user.ID)
 	}
 
-	// check if the account exist by their user_id
-	account, err := as.dbQueries.GetAccountByUserId(ctx, user.ID)
-	if err != nil {
-		// handle error
-		log.Println(err)
-		return nil, err
+	// Always perform password check, even with dummy hash to prevent timing attacks
+	var passwordValid bool
+	if userErr == nil && accountErr == nil {
+		passwordValid = checkPasswordHash(account.Password, password)
+	} else {
+		// Perform dummy hash check to maintain constant time
+		checkPasswordHash("$2a$14$dummy.hash.to.prevent.timing.attacks.abcdefghijklmnopqrstuvwxyz", password)
+		passwordValid = false
 	}
 
-	// check if password hash - is correct
-	// fmt.Printf("\n %#v \n %#v", loginForm.Password, account.Password)
-	if !checkPasswordHash(account.Password, password) {
-		// invalid password - handle errors in login page
-		return nil, errors.New("invalid password")
+	if userErr != nil || accountErr != nil || !passwordValid {
+		return nil, errors.New("invalid email or password")
 	}
 
-	// return the user
 	return &user, nil
 }
 
@@ -151,7 +151,7 @@ func (as *AuthService) SignUp(ctx context.Context, name, email, password string)
 	return user, err
 }
 
-func (as *AuthService) GetPasswordResetLink(ctx context.Context, email string) (string, error) {
+func (as *AuthService) GetPasswordResetLink(ctx context.Context, email string, baseURL string) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
 
@@ -170,7 +170,7 @@ func (as *AuthService) GetPasswordResetLink(ctx context.Context, email string) (
 		return "", err
 	}
 
-	passwordResetLink := fmt.Sprintf("http://localhost:8080/reset-password?token=%s", plaintext)
+	passwordResetLink := fmt.Sprintf("%s/reset-password?token=%s", baseURL, plaintext)
 
 	return passwordResetLink, nil
 }
@@ -178,8 +178,6 @@ func (as *AuthService) GetPasswordResetLink(ctx context.Context, email string) (
 func (as *AuthService) GetValidTokenUser(ctx context.Context, token string) (*queries.User, error) {
 	// hash the plainText token
 	tokenHash := sha256.Sum256([]byte(token))
-
-	println(token, tokenHash[:], time.Now().String())
 
 	// compare the token with the hashed one in the database
 	user, err := as.dbQueries.GetUserByToken(ctx, queries.GetUserByTokenParams{

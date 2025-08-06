@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"go-htmx-sqlite/cmd/web/components"
 	"go-htmx-sqlite/cmd/web/views/auth"
 	"go-htmx-sqlite/internal/types"
@@ -40,7 +41,14 @@ func (ah *AuthHandler) ForgotPasswordPostHanlder(w http.ResponseWriter, r *http.
 		return
 	}
 
-	passwordResetLink, err := ah.authService.GetPasswordResetLink(r.Context(), form.Email)
+	// Construct base URL from request
+	scheme := "http"
+	if r.TLS != nil {
+		scheme = "https"
+	}
+	baseURL := fmt.Sprintf("%s://%s", scheme, r.Host)
+
+	passwordResetLink, err := ah.authService.GetPasswordResetLink(r.Context(), form.Email, baseURL)
 	if err != nil {
 		ah.handler.Logger.PrintError(err, nil)
 		// Don't reveal if email exists or not for security
