@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS accounts (
   access_token_expires_at TIMESTAMP,
   refresh_token_expires_at TIMESTAMP,
   scope TEXT,
-  password TEXT NOT NULL,
-  created_at TIMESTAMP NOT NULL,
-  updated_at TIMESTAMP NOT NULL
+  password TEXT,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 -- +goose StatementEnd

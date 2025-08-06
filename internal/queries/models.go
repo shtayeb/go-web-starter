@@ -20,7 +20,7 @@ type Account struct {
 	AccessTokenExpiresAt  sql.NullTime
 	RefreshTokenExpiresAt sql.NullTime
 	Scope                 sql.NullString
-	Password              string
+	Password              sql.NullString
 	CreatedAt             time.Time
 	UpdatedAt             time.Time
 }

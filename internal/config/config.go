@@ -34,46 +34,30 @@ type Config struct {
 }
 
 func LoadConfigFromEnv() Config {
-	appName := GetEnv("APP_NAME", "Go Web Starter")
-	appEnv := GetEnv("APP_ENV", "local")
-	debug := GetEnvAsBool("DEBUG", true)
-	port := GetEnvAsInt("PORT", 8080)
-
-	dbUrl := GetEnv("BLUEPRINT_DB_URL", "./database.db")
-
-	smtpHost := GetEnv("SMTP_HOST", "localhost")
-	smtpPort := GetEnvAsInt("SMTP_PORT", 587)
-	smtpUsername := GetEnv("SMTP_USERNAME", "test")
-	smtpPassword := GetEnv("SMTP_PASSWORD", "test")
-	smtpSender := GetEnv("SMTP_SENDER", "test@example.com")
-
-	database := GetEnv("BLUEPRINT_DB_DATABASE", "blueprint")
-	password := GetEnv("BLUEPRINT_DB_PASSWORD", "password1234")
-	username := GetEnv("BLUEPRINT_DB_USERNAME", "shtb")
-	dbPort := GetEnv("BLUEPRINT_DB_PORT", "5432")
-	host := GetEnv("BLUEPRINT_DB_HOST", "psql_bp")
-	schema := GetEnv("BLUEPRINT_DB_SCHEMA", "public")
-
 	return Config{
-		AppName: appName,
-		Port:    port,
-		AppEnv:  appEnv,
-		Debug:   debug,
+		AppName: GetEnv("APP_NAME", "Go Web Starter"),
+		Port:    GetEnvAsInt("PORT", 8080),
+		AppEnv:  GetEnv("APP_ENV", "local"),
+		Debug:   GetEnvAsBool("DEBUG", true),
 		Database: Database{
-			DBUrl:    dbUrl,
-			Database: database,
-			Password: password,
-			Username: username,
-			Port:     dbPort,
-			Host:     host,
-			Schema:   schema,
+			DBUrl:    GetEnv("BLUEPRINT_DB_URL", "./database.db"),
+			Database: GetEnv("BLUEPRINT_DB_DATABASE", "blueprint"),
+			Password: GetEnv("BLUEPRINT_DB_PASSWORD", "password1234"),
+			Username: GetEnv("BLUEPRINT_DB_USERNAME", "shtb"),
+			Port:     GetEnv("BLUEPRINT_DB_PORT", "5432"),
+			Host:     GetEnv("BLUEPRINT_DB_HOST", "psql_bp"),
+			Schema:   GetEnv("BLUEPRINT_DB_SCHEMA", "public"),
 		},
 		Mailer: SMTP{
-			Host:     smtpHost,
-			Port:     smtpPort,
-			Username: smtpUsername,
-			Password: smtpPassword,
-			Sender:   smtpSender,
+			Host:     GetEnv("SMTP_HOST", "localhost"),
+			Port:     GetEnvAsInt("SMTP_PORT", 587),
+			Username: GetEnv("SMTP_USERNAME", "test"),
+			Password: GetEnv("SMTP_PASSWORD", "test"),
+			Sender:   GetEnv("SMTP_SENDER", "test@example.com"),
+		},
+		SocialLogins: SocialLogins{
+			GoogleClientID:     GetEnv("GOOGLE_CLIENT_ID", ""),
+			GoogleClientSecret: GetEnv("GOOGLE_CLIENT_SECRET", ""),
 		},
 	}
 }

@@ -7,6 +7,7 @@ package queries
 
 import (
 	"context"
+	"database/sql"
 	"time"
 )
 
@@ -15,7 +16,7 @@ UPDATE accounts SET password = $1 WHERE id = $2
 `
 
 type ChangeAccountPasswordParams struct {
-	Password string
+	Password sql.NullString
 	ID       int32
 }
 
@@ -25,17 +26,18 @@ func (q *Queries) ChangeAccountPassword(ctx context.Context, arg ChangeAccountPa
 }
 
 const createAccount = `-- name: CreateAccount :one
-INSERT INTO accounts (account_id,user_id,password,created_at,updated_at)
-VALUES ( $1, $2, $3, $4, $5)
+INSERT INTO accounts (account_id,user_id,password,provider_id,created_at,updated_at)
+VALUES ( $1, $2, $3, $4, $5, $6)
 RETURNING id, account_id, provider_id, user_id, access_token, refresh_token, id_token, access_token_expires_at, refresh_token_expires_at, scope, password, created_at, updated_at
 `
 
 type CreateAccountParams struct {
-	AccountID string
-	UserID    int32
-	Password  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	AccountID  string
+	UserID     int32
+	Password   sql.NullString
+	ProviderID sql.NullString
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error) {
@@ -43,6 +45,7 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 		arg.AccountID,
 		arg.UserID,
 		arg.Password,
+		arg.ProviderID,
 		arg.CreatedAt,
 		arg.UpdatedAt,
 	)
@@ -115,12 +118,43 @@ func (q *Queries) GetAccountByUserId(ctx context.Context, userID int32) (Account
 	return i, err
 }
 
+const getAccountByUserIdAndProvider = `-- name: GetAccountByUserIdAndProvider :one
+SELECT id, account_id, provider_id, user_id, access_token, refresh_token, id_token, access_token_expires_at, refresh_token_expires_at, scope, password, created_at, updated_at FROM accounts
+WHERE user_id = $1 AND provider_id = $2
+`
+
+type GetAccountByUserIdAndProviderParams struct {
+	UserID     int32
+	ProviderID sql.NullString
+}
+
+func (q *Queries) GetAccountByUserIdAndProvider(ctx context.Context, arg GetAccountByUserIdAndProviderParams) (Account, error) {
+	row := q.db.QueryRowContext(ctx, getAccountByUserIdAndProvider, arg.UserID, arg.ProviderID)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.AccountID,
+		&i.ProviderID,
+		&i.UserID,
+		&i.AccessToken,
+		&i.RefreshToken,
+		&i.IDToken,
+		&i.AccessTokenExpiresAt,
+		&i.RefreshTokenExpiresAt,
+		&i.Scope,
+		&i.Password,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const updateAccountPassword = `-- name: UpdateAccountPassword :exec
 UPDATE accounts SET password = $1 WHERE id = $2
 `
 
 type UpdateAccountPasswordParams struct {
-	Password string
+	Password sql.NullString
 	ID       int32
 }
 

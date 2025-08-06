@@ -39,7 +39,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// s.Db is useless without the queries
 	appHandlers := handlers.NewHandlers(s.Queries, s.Db, s.Logger, s.Mailer, s.SessionManager, s.Config)
 
-	authService := service.NewAuthService(&s.Queries, s.Db, s.Config)
+	authService := service.NewAuthService(&s.Queries, s.Db)
 	authHandlers := auth.NewAuthHandler(appHandlers, authService)
 
 	// No auth routes

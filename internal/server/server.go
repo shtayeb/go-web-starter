@@ -8,6 +8,8 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/providers/google"
 
 	"go-htmx-sqlite/internal/config"
 	"go-htmx-sqlite/internal/database"
@@ -58,6 +60,14 @@ func NewServer() *http.Server {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
+
+	goth.UseProviders(
+		google.New(
+			config.SocialLogins.GoogleClientID,
+			config.SocialLogins.GoogleClientSecret,
+			"http://localhost:3000/auth/google/callback",
+		),
+	)
 
 	return server
 }

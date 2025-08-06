@@ -14,47 +14,18 @@ import (
 	"log"
 	"time"
 
-	"github.com/gorilla/sessions"
-	"github.com/markbates/goth/gothic"
 	"golang.org/x/crypto/bcrypt"
-
-	"github.com/markbates/goth"
-	"github.com/markbates/goth/providers/google"
 )
 
 type AuthService struct {
 	dbQueries *queries.Queries
 	dbService database.Service
-	config    config.Config
 }
 
-const (
-	key    = "randomString"
-	MaxAge = 86400 * 30
-)
-
-func NewAuthService(dbQueries *queries.Queries, db database.Service, config config.Config) *AuthService {
-	store := sessions.NewCookieStore([]byte(key))
-	store.MaxAge(MaxAge)
-
-	store.Options.Path = "/"
-	store.Options.HttpOnly = true
-	store.Options.Secure = config.AppEnv == "production"
-
-	gothic.Store = store
-
-	goth.UseProviders(
-		google.New(
-			config.SocialLogins.GoogleClientID,
-			config.SocialLogins.GoogleClientSecret,
-			"http://localhost:3000/auth/google/callback",
-		),
-	)
-
+func NewAuthService(dbQueries *queries.Queries, db database.Service) *AuthService {
 	return &AuthService{
 		dbQueries: dbQueries,
 		dbService: db,
-		config:    config,
 	}
 }
 
@@ -109,6 +80,67 @@ func (as *AuthService) GenerateToken(ctx context.Context, userID int64, ttl time
 	return plaintext, nil
 }
 
+func (as *AuthService) SocialLogin(ctx context.Context, name, email, provider string) (*queries.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+
+	var userErr, accountErr error
+
+	user, userErr := as.dbQueries.GetUserByEmail(ctx, email)
+	if userErr == nil {
+		_, accountErr = as.dbQueries.GetAccountByUserIdAndProvider(ctx, queries.GetAccountByUserIdAndProviderParams{
+			UserID:     user.ID,
+			ProviderID: sql.NullString{String: provider, Valid: true},
+		})
+
+		// user exists but not with this provider
+	}
+
+	if userErr == nil && accountErr == nil {
+		// user exists -> return it
+		return &user, nil
+	}
+
+	// create user and account for the user
+	// save the provider to the account table
+	user, err := as.SocialSignUp(ctx, name, email, provider)
+
+	return &user, err
+}
+
+func (as *AuthService) SocialSignUp(ctx context.Context, name, email, provider string) (queries.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+
+	user := queries.User{}
+	// DB transaction
+	err := as.dbService.WithTransaction(ctx, func(tx *sql.Tx) error {
+		qtx := as.dbQueries.WithTx(tx)
+
+		// create user and handle DB errors - like user already exists
+		user, err := qtx.CreateUser(ctx, queries.CreateUserParams{
+			Name:      name,
+			Email:     email,
+			CreatedAt: time.Now().UTC(),
+			UpdatedAt: time.Now().UTC(),
+		})
+		if err != nil {
+			return err
+		}
+
+		// create account - and handle errors
+		_, err = qtx.CreateAccount(ctx, queries.CreateAccountParams{
+			UserID:     user.ID,
+			AccountID:  user.Name,
+			ProviderID: sql.NullString{String: provider, Valid: true},
+		})
+
+		return err
+	})
+
+	return user, err
+}
+
 func (as *AuthService) Login(ctx context.Context, email string, password string) (*queries.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
@@ -126,7 +158,7 @@ func (as *AuthService) Login(ctx context.Context, email string, password string)
 	// Always perform password check, even with dummy hash to prevent timing attacks
 	var passwordValid bool
 	if userErr == nil && accountErr == nil {
-		passwordValid = checkPasswordHash(account.Password, password)
+		passwordValid = checkPasswordHash(account.Password.String, password)
 	} else {
 		// Perform dummy hash check to maintain constant time
 		checkPasswordHash("$2a$14$dummy.hash.to.prevent.timing.attacks.abcdefghijklmnopqrstuvwxyz", password)
@@ -171,7 +203,7 @@ func (as *AuthService) SignUp(ctx context.Context, name, email, password string)
 		_, err = qtx.CreateAccount(ctx, queries.CreateAccountParams{
 			UserID:    user.ID,
 			AccountID: user.Name,
-			Password:  hashedPassword,
+			Password:  sql.NullString{String: hashedPassword, Valid: true},
 		})
 
 		return err
@@ -241,7 +273,7 @@ func (as *AuthService) ResetPassword(ctx context.Context, token, password string
 
 	err = as.dbQueries.UpdateAccountPassword(ctx, queries.UpdateAccountPasswordParams{
 		ID:       account.ID,
-		Password: hashedPassword,
+		Password: sql.NullString{String: hashedPassword, Valid: true},
 	})
 	if err != nil {
 		return user, err
@@ -279,7 +311,7 @@ func (as *AuthService) UpdateAccountPassword(ctx context.Context, userId int32, 
 		return err
 	}
 
-	if !checkPasswordHash(account.Password, currentPassword) {
+	if !checkPasswordHash(account.Password.String, currentPassword) {
 		// invalid password - handle errors in login page
 		return errors.New("invalid password")
 	}
@@ -291,7 +323,7 @@ func (as *AuthService) UpdateAccountPassword(ctx context.Context, userId int32, 
 
 	err = as.dbQueries.UpdateAccountPassword(ctx, queries.UpdateAccountPasswordParams{
 		ID:       account.ID,
-		Password: hashedNewPassword,
+		Password: sql.NullString{String: hashedNewPassword, Valid: true},
 	})
 
 	return err

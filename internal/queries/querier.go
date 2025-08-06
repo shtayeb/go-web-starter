@@ -19,6 +19,7 @@ type Querier interface {
 	DeleteToken(ctx context.Context, hash []byte) error
 	GetAccountById(ctx context.Context, id int32) (Account, error)
 	GetAccountByUserId(ctx context.Context, userID int32) (Account, error)
+	GetAccountByUserIdAndProvider(ctx context.Context, arg GetAccountByUserIdAndProviderParams) (Account, error)
 	GetAuthor(ctx context.Context, id int32) (Author, error)
 	GetSessionByToken(ctx context.Context, token string) (Session, error)
 	GetTokensForUser(ctx context.Context, userID int64) (Token, error)
