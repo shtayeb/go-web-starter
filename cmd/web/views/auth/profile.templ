@@ -107,6 +107,7 @@ templ AppearanceTab() {
 
 // Forms
 templ UpdateUserForm(data types.TemplateData, updateForm types.UpdateUserNameAndImageForm) {
+	<div id="account-flash-container"></div>
 	<form
 		class="flex flex-col gap-4"
 		action="/profile/update"
@@ -175,6 +176,7 @@ templ UpdateUserForm(data types.TemplateData, updateForm types.UpdateUserNameAnd
 }
 
 templ ChangePasswordForm(data types.TemplateData, updatePasswordform types.UpdateAccountPasswordForm) {
+	<div id="password-flash-container"></div>
 	<form
 		class="flex flex-col gap-4"
 		action="/profile/update-password"

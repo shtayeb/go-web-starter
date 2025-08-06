@@ -28,9 +28,11 @@ func (ah *AuthHandler) UpdateUserNameAndImageHandler(w http.ResponseWriter, r *h
 
 	err := ah.handler.DecodePostForm(r, &form)
 	if err != nil {
-		htmx.NewResponse().RenderTempl(r.Context(), w,
-			components.FlashMessage("invalid form data", components.FlashError),
-		)
+		htmx.NewResponse().
+			Retarget("#account-flash-container").
+			RenderTempl(r.Context(), w,
+				components.FlashMessage("invalid form data", components.FlashError),
+			)
 		return
 	}
 
@@ -38,9 +40,9 @@ func (ah *AuthHandler) UpdateUserNameAndImageHandler(w http.ResponseWriter, r *h
 	form.CheckField(validator.NotBlank(form.Name), "name", "This field cannot be blank")
 	form.CheckField(validator.NotBlank(form.Image), "image", "This field cannot be blank")
 
-	if !form.Valid() {
-		data := ah.handler.NewTemplateData(r)
+	data := ah.handler.NewTemplateData(r)
 
+	if !form.Valid() {
 		htmx.NewResponse().RenderTempl(r.Context(), w, auth.UpdateUserForm(data, form))
 		return
 	}
@@ -50,15 +52,20 @@ func (ah *AuthHandler) UpdateUserNameAndImageHandler(w http.ResponseWriter, r *h
 
 	_, err = ah.authService.UpdateUserNameAndImage(r.Context(), user.ID, form.Name, form.Image)
 	if err != nil {
-		htmx.NewResponse().RenderTempl(r.Context(), w,
-			components.FlashMessage("Failed to update profile. Please try again.", components.FlashError),
-		)
+		htmx.NewResponse().
+			Retarget("#account-flash-container").
+			RenderTempl(r.Context(), w,
+				components.FlashMessage("Failed to update profile. Please try again.", components.FlashError),
+			)
 		return
 	}
 
-	htmx.NewResponse().RenderTempl(r.Context(), w,
-		components.FlashMessage("Profile updated successfully!", components.FlashSuccess),
-	)
+	htmx.NewResponse().
+		Retarget("#account-flash-container").
+		RenderTempl(r.Context(), w,
+			components.FlashMessage("Profile updated successfully!", components.FlashSuccess),
+		)
+	// htmx.NewResponse().RenderTempl(r.Context(), w, auth.UpdateUserForm(data, form))
 }
 
 func (ah *AuthHandler) UpdateAccountPasswordHandler(w http.ResponseWriter, r *http.Request) {
@@ -66,9 +73,11 @@ func (ah *AuthHandler) UpdateAccountPasswordHandler(w http.ResponseWriter, r *ht
 
 	err := ah.handler.DecodePostForm(r, &form)
 	if err != nil {
-		htmx.NewResponse().RenderTempl(r.Context(), w,
-			components.FlashMessage("Invalid form data", components.FlashError),
-		)
+		htmx.NewResponse().
+			Retarget("#password-flash-container").
+			RenderTempl(r.Context(), w,
+				components.FlashMessage("Invalid form data", components.FlashError),
+			)
 		return
 	}
 
@@ -90,18 +99,24 @@ func (ah *AuthHandler) UpdateAccountPasswordHandler(w http.ResponseWriter, r *ht
 	err = ah.authService.UpdateAccountPassword(r.Context(), user.ID, form.CurrentPassword, form.NewPassword)
 	if err != nil {
 		if err.Error() == "invalid current password" {
-			htmx.NewResponse().RenderTempl(r.Context(), w,
-				components.FlashMessage("Current password is incorrect", components.FlashError),
-			)
+			htmx.NewResponse().
+				Retarget("#password-flash-container").
+				RenderTempl(r.Context(), w,
+					components.FlashMessage("Current password is incorrect", components.FlashError),
+				)
 			return
 		}
-		htmx.NewResponse().RenderTempl(r.Context(), w,
-			components.FlashMessage("Failed to update password. Please try again.", components.FlashError),
-		)
+		htmx.NewResponse().
+			Retarget("#password-flash-container").
+			RenderTempl(r.Context(), w,
+				components.FlashMessage("Failed to update password. Please try again.", components.FlashError),
+			)
 		return
 	}
 
-	htmx.NewResponse().RenderTempl(r.Context(), w,
-		components.FlashMessage("Password updated successfully!", components.FlashSuccess),
-	)
+	htmx.NewResponse().
+		Retarget("#password-flash-container").
+		RenderTempl(r.Context(), w,
+			components.FlashMessage("Password updated successfully!", components.FlashSuccess),
+		)
 }
