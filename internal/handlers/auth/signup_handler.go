@@ -52,7 +52,7 @@ func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request)
 
 	// Send the user a message to verify the user's email address account
 	// TODO: token with a ttl of 6 hour
-	activationLink := "hello"
+	activationLink := "http://localhost:8080/activate?token="
 	data := map[string]any{
 		"activationLink": activationLink,
 		"userID":         user.ID,
@@ -65,6 +65,11 @@ func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request)
 
 	// add message to the session manager and display it to the user
 	ah.handler.SessionManager.Put(r.Context(), "flash", "Your account was created successfully!")
+
+	if htmx.IsHTMX(r) {
+		htmx.NewResponse().Redirect("/login").Write(w)
+		return
+	}
 
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }

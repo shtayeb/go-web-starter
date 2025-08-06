@@ -54,7 +54,11 @@ func (ah *AuthHandler) LoginPostHandler(w http.ResponseWriter, r *http.Request) 
 		redirectURL = nextPath
 	}
 
-	// handle the response with htmx
+	if htmx.IsHTMX(r) {
+		htmx.NewResponse().Redirect(redirectURL).Write(w)
+		return
+	}
+
 	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
 
