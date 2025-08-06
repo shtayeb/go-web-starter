@@ -39,7 +39,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// s.Db is useless without the queries
 	appHandlers := handlers.NewHandlers(s.Queries, s.Db, s.Logger, s.Mailer, s.SessionManager, s.Config)
 
-	authService := service.NewAuthService(&s.Queries, s.Db)
+	authService := service.NewAuthService(&s.Queries, s.Db, s.Config)
 	authHandlers := auth.NewAuthHandler(appHandlers, authService)
 
 	// No auth routes
@@ -59,6 +59,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 		r.Get("/forgot-password", authHandlers.ForgotPasswordView)
 		r.Post("/forgot-password", authHandlers.ForgotPasswordPostHanlder)
+
+		// social logins
+		r.Get("/auth/{provider}", authHandlers.SocialAuthHandler)
+		r.Get("/auth/{provider}/callback", authHandlers.SocialAuthCallbackHandler)
 	})
 
 	// Public routes

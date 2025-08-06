@@ -66,6 +66,7 @@ func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request)
 	// add message to the session manager and display it to the user
 	ah.handler.SessionManager.Put(r.Context(), "flash", "Your account was created successfully!")
 
+	// NOTE: could create a helper for this
 	if htmx.IsHTMX(r) {
 		htmx.NewResponse().Redirect("/login").Write(w)
 		return

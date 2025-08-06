@@ -18,13 +18,19 @@ type SMTP struct {
 	Sender   string
 }
 
+type SocialLogins struct {
+	GoogleClientID     string
+	GoogleClientSecret string
+}
+
 type Config struct {
-	AppName  string
-	AppEnv   string
-	Debug    bool
-	Port     int
-	Database Database
-	Mailer   SMTP
+	AppName      string
+	AppEnv       string
+	Debug        bool
+	Port         int
+	Database     Database
+	Mailer       SMTP
+	SocialLogins SocialLogins
 }
 
 func LoadConfigFromEnv() Config {

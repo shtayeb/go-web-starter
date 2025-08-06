@@ -40,6 +40,7 @@ templ LoginView(data types.TemplateData,loginForm types.UserLoginForm) {
 							@button.Button(button.Props{
 								Class:   "flex gap-2 items-center",
 								Variant: button.VariantSecondary,
+								Href:    "/auth/google",
 							}) {
 								@icon.Mail()
 								Login with Google

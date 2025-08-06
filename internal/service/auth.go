@@ -14,18 +14,47 @@ import (
 	"log"
 	"time"
 
+	"github.com/gorilla/sessions"
+	"github.com/markbates/goth/gothic"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/providers/google"
 )
 
 type AuthService struct {
 	dbQueries *queries.Queries
 	dbService database.Service
+	config    config.Config
 }
 
-func NewAuthService(dbQueries *queries.Queries, db database.Service) *AuthService {
+const (
+	key    = "randomString"
+	MaxAge = 86400 * 30
+)
+
+func NewAuthService(dbQueries *queries.Queries, db database.Service, config config.Config) *AuthService {
+	store := sessions.NewCookieStore([]byte(key))
+	store.MaxAge(MaxAge)
+
+	store.Options.Path = "/"
+	store.Options.HttpOnly = true
+	store.Options.Secure = config.AppEnv == "production"
+
+	gothic.Store = store
+
+	goth.UseProviders(
+		google.New(
+			config.SocialLogins.GoogleClientID,
+			config.SocialLogins.GoogleClientSecret,
+			"http://localhost:3000/auth/google/callback",
+		),
+	)
+
 	return &AuthService{
 		dbQueries: dbQueries,
 		dbService: db,
+		config:    config,
 	}
 }
 
