@@ -2,8 +2,8 @@
 UPDATE accounts SET password = $1 WHERE id = $2;
 
 -- name: CreateAccount :one
-INSERT INTO accounts (account_id,user_id,password,provider_id,created_at,updated_at)
-VALUES ( $1, $2, $3, $4, $5, $6)
+INSERT INTO accounts (account_id, user_id, password, provider_id)
+VALUES ( $1, $2, $3, $4)
 RETURNING *;
 
 -- name: GetAccountByUserId :one
@@ -23,6 +23,5 @@ UPDATE accounts SET password = $1 WHERE id = $2;
 UPDATE accounts 
 SET access_token = $1, 
     refresh_token = $2, 
-    access_token_expires_at = $3,
-    updated_at = $4
-WHERE user_id = $5 AND provider_id = $6;
+    access_token_expires_at = $3
+WHERE user_id = $4 AND provider_id = $5;

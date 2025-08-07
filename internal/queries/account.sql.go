@@ -8,7 +8,6 @@ package queries
 import (
 	"context"
 	"database/sql"
-	"time"
 )
 
 const changeAccountPassword = `-- name: ChangeAccountPassword :exec
@@ -26,8 +25,8 @@ func (q *Queries) ChangeAccountPassword(ctx context.Context, arg ChangeAccountPa
 }
 
 const createAccount = `-- name: CreateAccount :one
-INSERT INTO accounts (account_id,user_id,password,provider_id,created_at,updated_at)
-VALUES ( $1, $2, $3, $4, $5, $6)
+INSERT INTO accounts (account_id, user_id, password, provider_id)
+VALUES ( $1, $2, $3, $4)
 RETURNING id, account_id, provider_id, user_id, access_token, refresh_token, id_token, access_token_expires_at, refresh_token_expires_at, scope, password, created_at, updated_at
 `
 
@@ -36,8 +35,6 @@ type CreateAccountParams struct {
 	UserID     int32
 	Password   sql.NullString
 	ProviderID sql.NullString
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
 }
 
 func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error) {
@@ -46,8 +43,6 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 		arg.UserID,
 		arg.Password,
 		arg.ProviderID,
-		arg.CreatedAt,
-		arg.UpdatedAt,
 	)
 	var i Account
 	err := row.Scan(
@@ -153,16 +148,14 @@ const updateAccountOAuthTokens = `-- name: UpdateAccountOAuthTokens :exec
 UPDATE accounts 
 SET access_token = $1, 
     refresh_token = $2, 
-    access_token_expires_at = $3,
-    updated_at = $4
-WHERE user_id = $5 AND provider_id = $6
+    access_token_expires_at = $3
+WHERE user_id = $4 AND provider_id = $5
 `
 
 type UpdateAccountOAuthTokensParams struct {
 	AccessToken          sql.NullString
 	RefreshToken         sql.NullString
 	AccessTokenExpiresAt sql.NullTime
-	UpdatedAt            time.Time
 	UserID               int32
 	ProviderID           sql.NullString
 }
@@ -172,7 +165,6 @@ func (q *Queries) UpdateAccountOAuthTokens(ctx context.Context, arg UpdateAccoun
 		arg.AccessToken,
 		arg.RefreshToken,
 		arg.AccessTokenExpiresAt,
-		arg.UpdatedAt,
 		arg.UserID,
 		arg.ProviderID,
 	)

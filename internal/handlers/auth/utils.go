@@ -94,9 +94,9 @@ func IsValidRedirectPath(path string) bool {
 	return true
 }
 
-// IsValidEmail validates email format
+var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+
 func IsValidEmail(email string) bool {
 	// Basic email validation regex
-	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 	return emailRegex.MatchString(email) && len(email) <= 255
 }

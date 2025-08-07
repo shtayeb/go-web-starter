@@ -55,7 +55,7 @@ func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request)
 
 	// Send the user a message to verify the user's email address account
 	// TODO: token with a ttl of 6 hour
-	activationLink := "http://localhost:8080/activate?token="
+	activationLink := ah.handler.Config.AppURL + "/activate?token="
 	data := map[string]any{
 		"activationLink": activationLink,
 		"userID":         user.ID,

@@ -1,8 +1,11 @@
 package components
 
 import (
+	"fmt"
 	"go-htmx-sqlite/cmd/web/components/ui/alert"
 	"go-htmx-sqlite/internal/forms"
+	"math/rand"
+	"time"
 )
 
 templ FormMessage(message *forms.Message) {
@@ -20,8 +23,26 @@ templ FormMessage(message *forms.Message) {
 
 var msgDismissHandle = templ.NewOnceHandle()
 
+// generateUniqueID creates a unique identifier for message instances
+func generateUniqueID() string {
+	return fmt.Sprintf("auto-dismiss-message-%d-%d", time.Now().UnixNano(), rand.Intn(10000))
+}
+
+// validateDismissAfter ensures the dismissAfter parameter is within safe bounds
+func validateDismissAfter(dismissAfter int) int {
+	if dismissAfter < 0 {
+		return 3000 // Default to 3 seconds if negative
+	}
+	if dismissAfter > 30000 {
+		return 30000 // Cap at 30 seconds for security
+	}
+	return dismissAfter
+}
+
 templ AutoDismissFormMessage(message *forms.Message, dismissAfter int) {
-	<div class="form-message mb-4" id="auto-dismiss-message">
+	{{ var uniqueID string }}
+	{{ uniqueID = generateUniqueID() }}
+	<div class="form-message mb-4" id={ uniqueID }>
 		@alert.Alert(alert.Props{
 			Class:   "text-center transition-opacity duration-500 " + getMessageClasses(message.Type),
 			Variant: getMessageVariant(message.Type),
@@ -33,12 +54,12 @@ templ AutoDismissFormMessage(message *forms.Message, dismissAfter int) {
 		@msgDismissHandle.Once() {
 			<script>
                 setTimeout(() => {
-                    const messageEl = document.getElementById('auto-dismiss-message');
+                    const messageEl = document.getElementById('{{ uniqueID }}');
                     if (messageEl) {
                         messageEl.style.opacity = '0';
                         setTimeout(() => messageEl.remove(), 500);
                     }
-                }, {{ dismissAfter }} );
+                }, {{ validateDismissAfter(dismissAfter) }} );
             </script>
 		}
 	</div>

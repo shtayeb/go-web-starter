@@ -27,7 +27,7 @@ templ AuthLayout(data types.TemplateData) {
 				<main class="w-full max-w-md">
 					<section class="container mx-auto px-6">
 						if data.Flash != "" {
-							@components.FlashMessage(data.Flash, components.FlashSuccess)
+							@components.FlashMessage(data.Flash, components.FlashInfo)
 						}
 						{ children... }
 					</section>

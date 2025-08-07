@@ -16,9 +16,9 @@ type UserSignUpForm struct {
 
 type ResetPasswordForm struct {
 	Form
-	Password        string `form:"password"`
-	ConfirmPassword string `form:"confirm_password"`
-	Token           string `form:"token"`
+	Password        string `form:"password" validate:"required,min=8"`
+	ConfirmPassword string `form:"confirm_password" validate:"required"`
+	Token           string `form:"token" validate:"required"`
 }
 
 type ForgotPasswordForm struct {
@@ -28,9 +28,9 @@ type ForgotPasswordForm struct {
 
 type UpdateAccountPasswordForm struct {
 	Form
-	CurrentPassword string `form:"current_password"`
-	NewPassword     string `form:"new_password"`
-	ConfirmPassword string `form:"confirm_password"`
+	CurrentPassword string `form:"current_password" validate:"required"`
+	NewPassword     string `form:"new_password" validate:"required,min=8"`
+	ConfirmPassword string `form:"confirm_password" validate:"required"`
 }
 
 type UpdateUserNameAndImageForm struct {

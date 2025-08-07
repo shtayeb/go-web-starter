@@ -26,6 +26,7 @@ type SocialLogins struct {
 type Config struct {
 	AppName      string
 	AppEnv       string
+	AppURL       string
 	Debug        bool
 	Port         int
 	Database     Database
@@ -39,6 +40,7 @@ func LoadConfigFromEnv() Config {
 		Port:    GetEnvAsInt("PORT", 8080),
 		AppEnv:  GetEnv("APP_ENV", "local"),
 		Debug:   GetEnvAsBool("DEBUG", true),
+		AppURL:  GetEnv("APP_URL", "http://localhost:8080"),
 		Database: Database{
 			DBUrl:    GetEnv("BLUEPRINT_DB_URL", "./database.db"),
 			Database: GetEnv("BLUEPRINT_DB_DATABASE", "blueprint"),

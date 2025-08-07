@@ -65,7 +65,7 @@ func NewServer() *http.Server {
 		google.New(
 			config.SocialLogins.GoogleClientID,
 			config.SocialLogins.GoogleClientSecret,
-			"http://localhost:3000/auth/google/callback",
+			fmt.Sprintf("%s/auth/google/callback", s.Config.AppURL),
 		),
 	)
 

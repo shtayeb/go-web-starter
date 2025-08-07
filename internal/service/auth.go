@@ -155,13 +155,13 @@ func (as *AuthService) linkOrVerifyProvider(
 		return nil, errors.New("email mismatch - cannot link provider")
 	}
 
+	// TODO: send verification email - user should verify their email
+
 	// Create new account link
 	_, err = qtx.CreateAccount(ctx, queries.CreateAccountParams{
 		UserID:     user.ID,
 		AccountID:  gothUser.UserID,
 		ProviderID: sql.NullString{String: provider, Valid: true},
-		CreatedAt:  time.Now().UTC(),
-		UpdatedAt:  time.Now().UTC(),
 	})
 
 	return &user, err
@@ -179,7 +179,6 @@ func (as *AuthService) createSocialUser(
 		Name:      gothUser.Name,
 		Email:     gothUser.Email,
 		CreatedAt: time.Now().UTC(),
-		UpdatedAt: time.Now().UTC(),
 	})
 
 	if err != nil {
@@ -191,8 +190,6 @@ func (as *AuthService) createSocialUser(
 		UserID:     user.ID,
 		AccountID:  gothUser.UserID,
 		ProviderID: sql.NullString{String: provider, Valid: true},
-		CreatedAt:  time.Now().UTC(),
-		UpdatedAt:  time.Now().UTC(),
 	})
 
 	if err != nil {
@@ -221,7 +218,6 @@ func (as *AuthService) updateOAuthTokens(
 		AccessToken:          sql.NullString{String: gothUser.AccessToken, Valid: gothUser.AccessToken != ""},
 		RefreshToken:         sql.NullString{String: gothUser.RefreshToken, Valid: gothUser.RefreshToken != ""},
 		AccessTokenExpiresAt: expiresAt,
-		UpdatedAt:            time.Now().UTC(),
 		UserID:               userID,
 		ProviderID:           sql.NullString{String: provider, Valid: true},
 	})
