@@ -18,6 +18,8 @@ templ FormMessage(message *forms.Message) {
 	</div>
 }
 
+var msgDismissHandle = templ.NewOnceHandle()
+
 templ AutoDismissFormMessage(message *forms.Message, dismissAfter int) {
 	<div class="form-message mb-4" id="auto-dismiss-message">
 		@alert.Alert(alert.Props{
@@ -28,15 +30,17 @@ templ AutoDismissFormMessage(message *forms.Message, dismissAfter int) {
 				{ message.Text }
 			}
 		}
-		<script>
-               setTimeout(() => {
-                   const messageEl = document.getElementById('auto-dismiss-message');
-                   if (messageEl) {
-                       messageEl.style.opacity = '0';
-                       setTimeout(() => messageEl.remove(), 500);
-                   }
-               }, { dismissAfter });
-           </script>
+		@msgDismissHandle.Once() {
+			<script>
+                setTimeout(() => {
+                    const messageEl = document.getElementById('auto-dismiss-message');
+                    if (messageEl) {
+                        messageEl.style.opacity = '0';
+                        setTimeout(() => messageEl.remove(), 500);
+                    }
+                }, {{ dismissAfter }} );
+            </script>
+		}
 	</div>
 }
 
