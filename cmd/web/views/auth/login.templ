@@ -10,7 +10,7 @@ import "go-htmx-sqlite/cmd/web/components/ui/icon"
 import "go-htmx-sqlite/cmd/web/components/ui/separator"
 import "go-htmx-sqlite/internal/forms"
 
-templ LoginView(data types.TemplateData,loginForm forms.UserLoginForm) {
+templ LoginView(data types.TemplateData, loginForm forms.UserLoginForm) {
 	@layouts.AuthLayout(data) {
 		<div class="w-full max-w-sm">
 			@card.Card() {
@@ -26,31 +26,35 @@ templ LoginView(data types.TemplateData,loginForm forms.UserLoginForm) {
 						Login to start using the application
 					}
 				}
-				<div id="form-messages"></div>
-				<form 
-					method="post" 
-					action="/login"
-					hx-post="/login"
-					hx-target="#form-messages"
-					hx-swap="innerHTML"
-					hx-indicator="#login-spinner"
-				>
-					@CSRFInput(data.CSRFToken)
-					@card.Content() {
-						<div class="flex flex-col gap-4">
-							@button.Button(button.Props{
-								Class:   "flex gap-2 items-center",
-								Variant: button.VariantSecondary,
-								Href:    "/auth/google",
-							}) {
-								@icon.Mail()
-								Login with Google
-							}
-							@separator.Separator(separator.Props{
-								Class: "w-full",
-							}) {
-								Or continue with
-							}
+				@card.Content(card.ContentProps{
+					Class: "flex flex-col gap-4",
+				}) {
+					<div id="form-messages"></div>
+					<form method="get" action="/auth/google" class="w-full">
+						// @CSRFInput(data.CSRFToken)
+						@button.Button(button.Props{
+							Class:   "flex gap-2 items-center w-full",
+							Variant: button.VariantSecondary,
+							Type:    button.TypeSubmit,
+						}) {
+							@icon.Mail()
+							Login with Google
+						}
+					</form>
+					@separator.Separator(separator.Props{
+						Class: "w-full",
+					}) {
+						Or continue with
+					}
+					<form
+						method="post"
+						action="/login"
+						hx-post="/login"
+						hx-target="#form-messages"
+						hx-swap="innerHTML"
+						hx-indicator="#login-spinner"
+					>
+						@CSRFInput(data.CSRFToken)
 							<div class="w-full max-w-sm grid gap-2">
 								@form.Item() {
 									@form.Label(form.LabelProps{
@@ -73,39 +77,39 @@ templ LoginView(data types.TemplateData,loginForm forms.UserLoginForm) {
 										Password
 									}
 									@input.Input(input.Props{
-										Name:     "password",
-										ID:       "password",
-										Type:     input.TypePassword,
+										Name: "password",
+										ID:   "password",
+										Type: input.TypePassword,
 									})
 									<div id="error-password" class="text-sm text-red-600 dark:text-red-400 mt-1 hidden"></div>
 								}
 								<p class="text-sm">
 									<a href="/forgot-password" class="align-right hover:underline">Forgot your password?</a>
 								</p>
+								@button.Button(button.Props{
+									Type:  button.TypeSubmit,
+									Class: "w-full flex items-center justify-center gap-2",
+								}) {
+									<span id="login-spinner" class="htmx-indicator">
+										<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+											<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+											<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+										</svg>
+									</span>
+									Login 
+								}
 							</div>
-						</div>
-					}
-					@card.Footer(card.FooterProps{
-						Class: "flex flex-col gap-8",
-					}) {
-						@button.Button(button.Props{
-							Type:  button.TypeSubmit,
-							Class: "w-full flex items-center justify-center gap-2",
-						}) {
-							<span id="login-spinner" class="htmx-indicator">
-								<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-									<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-									<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-								</svg>
-							</span>
-							Login 
-						}
-						<p class="text-sm">
-							Don't have an account? 
-							<a href="/sign-up" class="text-blue-500 hover:underline">Sign up</a>
-						</p>
-					}
-				</form>
+						
+					</form>
+				}
+				@card.Footer(card.FooterProps{
+					Class: "flex flex-col gap-8",
+				}) {
+					<p class="text-sm">
+						Don't have an account? 
+						<a href="/sign-up" class="text-blue-500 hover:underline">Sign up</a>
+					</p>
+				}
 			}
 		</div>
 	}

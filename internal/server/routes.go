@@ -23,9 +23,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// removes trailing slashed from the url
 	r.Use(middleware.CleanPath)
 	//  r.Use(s.secureHeaders)
-	// r.Use(s.noSurf)
-	r.Use(s.SessionManager.LoadAndSave)
-	r.Use(s.authenticate)
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
@@ -33,6 +30,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
+	r.Use(s.noSurf)
+	r.Use(s.SessionManager.LoadAndSave)
+	r.Use(s.authenticate)
 
 	// static file server
 	fileServer := http.FileServer(http.FS(web.Files))
@@ -45,11 +45,11 @@ func (s *Server) RegisterRoutes() http.Handler {
 	authHandlers := auth.NewAuthHandler(appHandlers, authService)
 
 	// No auth routes
-	r.Group(func(r chi.Router) {
-		// middleware
-		r.Use(s.requireNoAuth)
-		r.Use(httprate.LimitByIP(100, 1*time.Minute))
-
+	r.With(
+		//middlewares
+		s.requireNoAuth,
+		httprate.LimitByIP(100, 1*time.Minute),
+	).Group(func(r chi.Router) {
 		// Auth
 		r.Get("/login", authHandlers.LoginViewHandler)
 		r.Post("/login", authHandlers.LoginPostHandler)
@@ -73,9 +73,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Get("/health", appHandlers.HealthHandler)
 
 	// Protected routes
-	r.Group(func(r chi.Router) {
-		r.Use(s.requireAuth)
-
+	r.With(
+		//middlewares
+		s.requireAuth,
+	).Group(func(r chi.Router) {
 		r.Post("/logout", authHandlers.LogoutPostHandler)
 
 		r.Get("/profile", authHandlers.ProfileViewHandler)
