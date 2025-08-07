@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"go-htmx-sqlite/cmd/web/components"
 	"go-htmx-sqlite/cmd/web/views/auth"
-	"go-htmx-sqlite/internal/types"
-	"go-htmx-sqlite/internal/validator"
+	"go-htmx-sqlite/internal/forms"
+	"go-htmx-sqlite/internal/forms/validator"
 	"net/http"
 
 	"github.com/angelofallars/htmx-go"
@@ -14,13 +14,13 @@ import (
 func (ah *AuthHandler) ForgotPasswordView(w http.ResponseWriter, r *http.Request) {
 	data := ah.handler.NewTemplateData(r)
 	data.PageTitle = "Forgot Password"
-	form := types.ForgotPasswordForm{}
+	form := forms.ForgotPasswordForm{}
 
 	auth.ForgotPasswordView(data, form).Render(r.Context(), w)
 }
 
 func (ah *AuthHandler) ForgotPasswordPostHanlder(w http.ResponseWriter, r *http.Request) {
-	var form types.ForgotPasswordForm
+	var form forms.ForgotPasswordForm
 
 	err := ah.handler.DecodePostForm(r, &form)
 	if err != nil {

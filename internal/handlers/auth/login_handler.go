@@ -3,15 +3,15 @@ package auth
 import (
 	"go-htmx-sqlite/cmd/web/components"
 	"go-htmx-sqlite/cmd/web/views/auth"
-	"go-htmx-sqlite/internal/types"
-	"go-htmx-sqlite/internal/validator"
+	"go-htmx-sqlite/internal/forms"
+	"go-htmx-sqlite/internal/forms/validator"
 	"net/http"
 
 	"github.com/angelofallars/htmx-go"
 )
 
 func (ah *AuthHandler) LoginPostHandler(w http.ResponseWriter, r *http.Request) {
-	var form types.UserLoginForm
+	var form forms.UserLoginForm
 
 	err := ah.handler.DecodePostForm(r, &form)
 	if err != nil {
@@ -66,7 +66,7 @@ func (ah *AuthHandler) LoginViewHandler(w http.ResponseWriter, r *http.Request) 
 	data := ah.handler.NewTemplateData(r)
 	data.PageTitle = "Login"
 
-	form := types.UserLoginForm{}
+	form := forms.UserLoginForm{}
 
 	auth.LoginView(data, form).Render(r.Context(), w)
 }

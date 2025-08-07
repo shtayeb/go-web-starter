@@ -83,3 +83,7 @@ func PermittedInt(value int, permittedValues ...int) bool {
 func Matches(value string, rx *regexp.Regexp) bool {
 	return rx.MatchString(value)
 }
+
+func Equals(value1, value2 string) bool {
+	return value1 == value2
+}

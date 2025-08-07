@@ -3,15 +3,15 @@ package auth
 import (
 	"go-htmx-sqlite/cmd/web/components"
 	"go-htmx-sqlite/cmd/web/views/auth"
-	"go-htmx-sqlite/internal/types"
-	"go-htmx-sqlite/internal/validator"
+	"go-htmx-sqlite/internal/forms"
+	"go-htmx-sqlite/internal/forms/validator"
 	"net/http"
 
 	"github.com/angelofallars/htmx-go"
 )
 
 func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request) {
-	var form types.UserSignUpForm
+	var form forms.UserSignUpForm
 
 	err := ah.handler.DecodePostForm(r, &form)
 	if err != nil {
@@ -29,6 +29,9 @@ func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request)
 	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "This field must be a valid email address")
 	form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
 	form.CheckField(validator.MinChars(form.Password, 8), "password", "This field must be at least 8 characters long")
+	form.CheckField(validator.NotBlank(form.ConfirmPassword), "confirm_password", "This field cannot be blank")
+	form.CheckField(validator.MinChars(form.ConfirmPassword, 8), "confirm_password", "This field must be at least 8 characters long")
+	form.CheckField(validator.Equals(form.Password, form.ConfirmPassword), "confirm_password", "Passwords do not match")
 
 	if !form.Valid() {
 		// handle with htmx
@@ -80,7 +83,7 @@ func (ah *AuthHandler) SignUpViewHandler(w http.ResponseWriter, r *http.Request)
 	data := ah.handler.NewTemplateData(r)
 	data.PageTitle = "Sign Up"
 
-	form := types.UserSignUpForm{}
+	form := forms.UserSignUpForm{}
 
 	auth.SignUpView(data, form).Render(r.Context(), w)
 }

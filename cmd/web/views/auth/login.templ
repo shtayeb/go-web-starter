@@ -8,8 +8,9 @@ import "go-htmx-sqlite/cmd/web/layouts"
 import "go-htmx-sqlite/internal/types"
 import "go-htmx-sqlite/cmd/web/components/ui/icon"
 import "go-htmx-sqlite/cmd/web/components/ui/separator"
+import "go-htmx-sqlite/internal/forms"
 
-templ LoginView(data types.TemplateData,loginForm types.UserLoginForm) {
+templ LoginView(data types.TemplateData,loginForm forms.UserLoginForm) {
 	@layouts.AuthLayout(data) {
 		<div class="w-full max-w-sm">
 			@card.Card() {

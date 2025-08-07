@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"go-htmx-sqlite/cmd/web/components"
 	"go-htmx-sqlite/cmd/web/views/auth"
-	"go-htmx-sqlite/internal/types"
-	"go-htmx-sqlite/internal/validator"
+	"go-htmx-sqlite/internal/forms"
+	"go-htmx-sqlite/internal/forms/validator"
 	"net/http"
 
 	"github.com/angelofallars/htmx-go"
 )
 
 func (ah *AuthHandler) ResetPasswordPostHandler(w http.ResponseWriter, r *http.Request) {
-	var form types.ResetPasswordForm
+	var form forms.ResetPasswordForm
 
 	err := ah.handler.DecodePostForm(r, &form)
 	if err != nil {
@@ -64,7 +64,7 @@ func (ah *AuthHandler) ResetPasswordPostHandler(w http.ResponseWriter, r *http.R
 func (ah *AuthHandler) ResetPasswordView(w http.ResponseWriter, r *http.Request) {
 	data := ah.handler.NewTemplateData(r)
 	data.PageTitle = "Reset Password"
-	form := types.ResetPasswordForm{}
+	form := forms.ResetPasswordForm{}
 
 	// get the token from query ?token=
 	plainTextToken := r.URL.Query().Get("token")

@@ -2,14 +2,16 @@ package auth
 
 import "go-htmx-sqlite/cmd/web/layouts"
 import "go-htmx-sqlite/cmd/web/components/ui/card"
-import "go-htmx-sqlite/internal/types"
+import "go-htmx-sqlite/internal/forms"
 import "go-htmx-sqlite/cmd/web/components/ui/button"
 import "go-htmx-sqlite/cmd/web/components/ui/input"
 import "go-htmx-sqlite/cmd/web/components/ui/form"
 import "go-htmx-sqlite/cmd/web/components/ui/radiocard"
 import "go-htmx-sqlite/cmd/web/components/ui/icon"
+import "go-htmx-sqlite/internal/types"
+import "go-htmx-sqlite/cmd/web/components"
 
-templ ProfileView(data types.TemplateData, updateUserForm types.UpdateUserNameAndImageForm, updatePasswordform types.UpdateAccountPasswordForm) {
+templ ProfileView(data types.TemplateData, updateUserForm forms.UpdateUserNameAndImageForm, updatePasswordform forms.UpdateAccountPasswordForm) {
 	@layouts.DashboardLayout(data) {
 		<div class="space-y-4">
 			@input.Script()
@@ -20,7 +22,7 @@ templ ProfileView(data types.TemplateData, updateUserForm types.UpdateUserNameAn
 	}
 }
 
-templ AccountTab(data types.TemplateData, updateUserForm types.UpdateUserNameAndImageForm) {
+templ AccountTab(data types.TemplateData, updateUserForm forms.UpdateUserNameAndImageForm) {
 	<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 		<div class="col-span-1">
 			<h2 class="text-lg font-medium">Account</h2>
@@ -36,7 +38,7 @@ templ AccountTab(data types.TemplateData, updateUserForm types.UpdateUserNameAnd
 	</div>
 }
 
-templ PasswordTab(data types.TemplateData, updatePasswordform types.UpdateAccountPasswordForm) {
+templ PasswordTab(data types.TemplateData, updatePasswordform forms.UpdateAccountPasswordForm) {
 	<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 		<div class="col-span-1">
 			<h2 class="text-lg font-medium">Password</h2>
@@ -106,17 +108,20 @@ templ AppearanceTab() {
 }
 
 // Forms
-templ UpdateUserForm(data types.TemplateData, updateForm types.UpdateUserNameAndImageForm) {
-	<div id="account-flash-container"></div>
+templ UpdateUserForm(data types.TemplateData, updateForm forms.UpdateUserNameAndImageForm) {
 	<form
 		class="flex flex-col gap-4"
 		action="/profile/update"
 		method="post"
 		hx-post="/profile/update"
 		hx-target="this"
-		hx-swap="innerHTML"
+		hx-swap="outerHTML"
 		hx-indicator="#account-spinner"
 	>
+		<!-- Render form message if it exists -->
+		if updateForm.HasMessage() {
+			@components.AutoDismissFormMessage(updateForm.Message, 3000)
+		}
 		@CSRFInput(data.CSRFToken)
 		@form.Item() {
 			@form.Label(form.LabelProps{
@@ -175,17 +180,20 @@ templ UpdateUserForm(data types.TemplateData, updateForm types.UpdateUserNameAnd
 	</form>
 }
 
-templ ChangePasswordForm(data types.TemplateData, updatePasswordform types.UpdateAccountPasswordForm) {
-	<div id="password-flash-container"></div>
+templ ChangePasswordForm(data types.TemplateData, updatePasswordform forms.UpdateAccountPasswordForm) {
 	<form
 		class="flex flex-col gap-4"
 		action="/profile/update-password"
 		method="post"
 		hx-post="/profile/update-password"
 		hx-target="this"
-		hx-swap="innerHTML"
+		hx-swap="outerHTML"
 		hx-indicator="#password-spinner"
 	>
+		<!-- Render form message if it exists -->
+		if updatePasswordform.HasMessage(){
+			@components.AutoDismissFormMessage(updatePasswordform.Message, 3000)
+		}
 		@CSRFInput(data.CSRFToken)
 		@form.Item() {
 			@form.Label(form.LabelProps{
@@ -227,21 +235,21 @@ templ ChangePasswordForm(data types.TemplateData, updatePasswordform types.Updat
 		}
 		@form.Item() {
 			@form.Label(form.LabelProps{
-				For: "password_confirmation",
+				For: "confirm_password",
 			}) {
 				Confirm Password
 			}
 			@input.Input(input.Props{
 				Type:     input.TypePassword,
-				ID:       "password_confirmation",
-				Name:     "password_confirmation",
+				ID:       "confirm_password",
+				Name:     "confirm_password",
 				Value:    updatePasswordform.ConfirmPassword,
-				HasError: updatePasswordform.FieldErrors["password_confirmation"] != "",
+				HasError: updatePasswordform.FieldErrors["confirm_password"] != "",
 			})
 			@form.Message(form.MessageProps{
 				Variant: form.MessageVariantError,
 			}) {
-				{ updatePasswordform.FieldErrors["password_confirmation"] }
+				{ updatePasswordform.FieldErrors["confirm_password"] }
 			}
 		}
 		<div class="flex justify-end">

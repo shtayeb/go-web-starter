@@ -8,13 +8,14 @@ import "go-htmx-sqlite/cmd/web/layouts"
 import "go-htmx-sqlite/internal/types"
 import "go-htmx-sqlite/cmd/web/components/ui/separator"
 import "go-htmx-sqlite/cmd/web/components/ui/icon"
+import "go-htmx-sqlite/internal/forms"
 
 templ CSRFInput(csrfToken string) {
 	<!-- Include the CSRF token -->
 	<input type="hidden" name="csrf_token" value={ csrfToken }/>
 }
 
-templ SignUpView(data types.TemplateData, signUpForm types.UserSignUpForm) {
+templ SignUpView(data types.TemplateData, signUpForm forms.UserSignUpForm) {
 	@layouts.AuthLayout(data) {
 		<div class="w-full max-w-sm">
 			@card.Card() {
@@ -46,7 +47,7 @@ templ SignUpView(data types.TemplateData, signUpForm types.UserSignUpForm) {
 	}
 }
 
-templ SignUpForm(data types.TemplateData, signUpForm types.UserSignUpForm) {
+templ SignUpForm(data types.TemplateData, signUpForm forms.UserSignUpForm) {
 	<form
 		action="/sign-up"
 		method="post"
@@ -130,20 +131,20 @@ templ SignUpForm(data types.TemplateData, signUpForm types.UserSignUpForm) {
 				}
 				@form.Item() {
 					@form.Label(form.LabelProps{
-						For: "password-confirmation",
+						For: "confirm_password",
 					}) {
 						Confirm Password
 					}
 					@input.Input(input.Props{
-						Name:     "password-confirmation",
-						ID:       "password-confirmation",
+						Name:     "confirm_password",
+						ID:       "confirm_password",
 						Type:     input.TypePassword,
-						HasError: signUpForm.FieldErrors["password-confirmation"] != "",
+						HasError: signUpForm.FieldErrors["confirm_password"] != "",
 					})
 					@form.Message(form.MessageProps{
 						Variant: form.MessageVariantError,
 					}) {
-						{ signUpForm.FieldErrors["password-confirmation"] }
+						{ signUpForm.FieldErrors["confirm_password"] }
 					}
 				}
 			</div>
