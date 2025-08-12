@@ -256,7 +256,7 @@ func (as *AuthService) Login(ctx context.Context, email string, password string)
 	return &user, nil
 }
 
-func (as *AuthService) SignUp(ctx context.Context, name, email, password string) (*queries.User, error) {
+func (as *AuthService) SignUp(ctx context.Context, name, email, password string, emailVerified bool) (*queries.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
 
@@ -267,10 +267,11 @@ func (as *AuthService) SignUp(ctx context.Context, name, email, password string)
 
 		// create user and handle DB errors - like user already exists
 		user, err := qtx.CreateUser(ctx, queries.CreateUserParams{
-			Name:      name,
-			Email:     email,
-			CreatedAt: time.Now().UTC(),
-			UpdatedAt: time.Now().UTC(),
+			Name:          name,
+			Email:         email,
+			EmailVerified: emailVerified,
+			CreatedAt:     time.Now().UTC(),
+			UpdatedAt:     time.Now().UTC(),
 		})
 		if err != nil {
 			return err

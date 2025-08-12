@@ -41,7 +41,7 @@ func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Insert into the users table - with DB transaction
-	user, err := ah.authService.SignUp(r.Context(), form.Name, form.Email, form.Password)
+	user, err := ah.authService.SignUp(r.Context(), form.Name, form.Email, form.Password, false)
 	if err != nil {
 		ah.handler.Logger.PrintError(err, map[string]string{
 			"request_method": r.Method,

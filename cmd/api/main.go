@@ -9,10 +9,35 @@ import (
 	"syscall"
 	"time"
 
+	"go-htmx-sqlite/cmd/api/commands"
 	"go-htmx-sqlite/internal/server"
+
+	"github.com/spf13/cobra"
 )
 
 func main() {
+	rootCmd := &cobra.Command{
+		Use:   "GO Web App",
+		Short: "A web application built with Go.",
+	}
+
+	serverCmd := &cobra.Command{
+		Use:   "server",
+		Short: "Start the web server",
+		Run:   execServerCommand,
+	}
+
+	// CLI commands
+	rootCmd.AddCommand(
+		serverCmd,
+		commands.SeedCommand(),
+		commands.PingCommand(),
+	)
+
+	rootCmd.Execute()
+}
+
+func execServerCommand(cmd *cobra.Command, args []string) {
 	server := server.NewServer()
 
 	// Create a done channel to signal when the shutdown is complete
