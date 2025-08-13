@@ -155,7 +155,8 @@ func (as *AuthService) linkOrVerifyProvider(
 		return nil, errors.New("email mismatch - cannot link provider")
 	}
 
-	// TODO: send verification email - user should verify their email
+	// TODO:  send verification email - user should verify their email
+	// Dont do it from here.
 
 	// Create new account link
 	_, err = qtx.CreateAccount(ctx, queries.CreateAccountParams{

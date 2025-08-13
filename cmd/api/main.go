@@ -17,7 +17,7 @@ import (
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use:   "GO Web App",
+		Use:   "app",
 		Short: "A web application built with Go.",
 	}
 
