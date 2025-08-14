@@ -5,10 +5,372 @@ import "go-htmx-sqlite/internal/types"
 
 templ LandingView(data types.TemplateData) {
 	@layouts.BaseLayout(data) {
-		<section class="container mx-auto px-4">
-			<div class="p-4 rounded-lg mt-6 border">
-				<h1>This is landing page</h1>
+		<div class="">
+			<section class="w-full overflow-hidden">
+				<div class="px-4 md:px-6 relative">
+					<div class="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-black bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1f1f1f_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
+					<div class="text-center max-w-3xl mx-auto mb-12 py-20 md:py-32 lg:py-40">
+						<div class="mb-4 rounded-full px-4 py-1.5 text-sm font-medium bg-secondary text-secondary-foreground inline-block">
+							Launching Soon
+						</div>
+						<h1 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+							Elevate Your Workflow with Go Web
+						</h1>
+						<p class="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+							The all-in-one platform that helps teams collaborate, automate,
+							and deliver exceptional results. Streamline your processes and
+							focus on what matters most.
+						</p>
+						<div class="flex flex-col sm:flex-row gap-4 justify-center">
+							<a href="#" class="inline-flex items-center justify-center rounded-full h-12 px-8 text-base bg-primary text-primary-foreground hover:bg-primary/90 font-medium transition-colors">
+								Start Free Trial
+								<svg class="ml-2 size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7-7l7 7-7 7"></path>
+								</svg>
+							</a>
+							<a href="#" class="inline-flex items-center justify-center rounded-full h-12 px-8 text-base border border-input bg-background hover:bg-accent hover:text-accent-foreground font-medium transition-colors">
+								Book a Demo
+							</a>
+						</div>
+						<div class="flex items-center justify-center gap-4 mt-6 text-sm text-muted-foreground">
+							<div class="flex items-center gap-1">
+								<svg class="size-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>No credit card</span>
+							</div>
+							<div class="flex items-center gap-1">
+								<svg class="size-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>14-day trial</span>
+							</div>
+							<div class="flex items-center gap-1">
+								<svg class="size-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>Cancel anytime</span>
+							</div>
+						</div>
+					</div>
+					<div class="relative mx-auto max-w-5xl">
+						<div class="rounded-xl overflow-hidden shadow-2xl border border-border/40 bg-gradient-to-b from-background to-muted/20">
+							<img
+								src="https://placehold.co/1504x1128"
+								alt="Go Web dashboard"
+								class="w-full h-auto"
+							/>
+							<div class="absolute inset-0 rounded-xl ring-1 ring-inset ring-black/10 dark:ring-white/10"></div>
+						</div>
+						<div class="absolute -bottom-6 -right-6 -z-10 h-[300px] w-[300px] rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 blur-3xl opacity-70"></div>
+						<div class="absolute -top-6 -left-6 -z-10 h-[300px] w-[300px] rounded-full bg-gradient-to-br from-secondary/30 to-primary/30 blur-3xl opacity-70"></div>
+					</div>
+				</div>
+			</section>
+
+			<section class="w-full py-20 md:py-32 bg-muted/30 relative overflow-hidden">
+				<div class="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-black bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1f1f1f_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_40%,transparent_100%)]"></div>
+				<div class="container mx-auto px-4 md:px-6 relative">
+					<div class="flex flex-col items-center justify-center space-y-4 text-center mb-16">
+						<div class="rounded-full px-4 py-1.5 text-sm font-medium bg-secondary text-secondary-foreground inline-block">
+							How It Works
+						</div>
+						<h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+							Simple Process, Powerful Results
+						</h2>
+						<p class="max-w-[800px] text-muted-foreground md:text-lg">
+							Get started in minutes and see the difference our platform can
+							make for your business.
+						</p>
+					</div>
+					<div class="grid md:grid-cols-3 gap-8 md:gap-12 relative">
+						<div class="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-border to-transparent -translate-y-1/2 z-0"></div>
+						<div class="relative z-10 flex flex-col items-center text-center space-y-4">
+							<div class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-xl font-bold shadow-lg">
+								01
+							</div>
+							<h3 class="text-xl font-bold">Create Account</h3>
+							<p class="text-muted-foreground">Sign up in seconds with just your email. No credit card required to get started.</p>
+						</div>
+						<div class="relative z-10 flex flex-col items-center text-center space-y-4">
+							<div class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-xl font-bold shadow-lg">
+								02
+							</div>
+							<h3 class="text-xl font-bold">Configure Workspace</h3>
+							<p class="text-muted-foreground">Customize your workspace to match your team's unique workflow and requirements.</p>
+						</div>
+						<div class="relative z-10 flex flex-col items-center text-center space-y-4">
+							<div class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-xl font-bold shadow-lg">
+								03
+							</div>
+							<h3 class="text-xl font-bold">Boost Productivity</h3>
+							<p class="text-muted-foreground">Start using our powerful features to streamline processes and achieve your goals.</p>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="faq" class="w-full py-20 md:py-32">
+				<div class="container mx-auto px-4 md:px-6">
+					<div class="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+						<div class="rounded-full px-4 py-1.5 text-sm font-medium bg-secondary text-secondary-foreground inline-block">
+							FAQ
+						</div>
+						<h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+							Frequently Asked Questions
+						</h2>
+						<p class="max-w-[800px] text-muted-foreground md:text-lg">
+							Find answers to common questions about our platform.
+						</p>
+					</div>
+					<div class="mx-auto max-w-3xl">
+						<div class="w-full">
+							<div class="border-b border-border/40 py-2">
+								<details class="group">
+									<summary class="text-left font-medium hover:no-underline cursor-pointer flex justify-between items-center py-4">
+										<span>How does the 14-day free trial work?</span>
+										<svg class="size-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+										</svg>
+									</summary>
+									<div class="text-muted-foreground pb-4">
+										Our 14-day free trial gives you full access to all features of your selected plan. No credit card is required to sign up, and you can cancel at any time during the trial period with no obligation.
+									</div>
+								</details>
+							</div>
+							<div class="border-b border-border/40 py-2">
+								<details class="group">
+									<summary class="text-left font-medium hover:no-underline cursor-pointer flex justify-between items-center py-4">
+										<span>Can I change plans later?</span>
+										<svg class="size-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+										</svg>
+									</summary>
+									<div class="text-muted-foreground pb-4">
+										Yes, you can upgrade or downgrade your plan at any time. If you upgrade, the new pricing will be prorated for the remainder of your billing cycle. If you downgrade, the new pricing will take effect at the start of your next billing cycle.
+									</div>
+								</details>
+							</div>
+							<div class="border-b border-border/40 py-2">
+								<details class="group">
+									<summary class="text-left font-medium hover:no-underline cursor-pointer flex justify-between items-center py-4">
+										<span>Is there a limit to how many users I can add?</span>
+										<svg class="size-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+										</svg>
+									</summary>
+									<div class="text-muted-foreground pb-4">
+										The number of users depends on your plan. The Starter plan allows up to 5 team members, the Professional plan allows up to 20, and the Enterprise plan has no limit on team members.
+									</div>
+								</details>
+							</div>
+							<div class="border-b border-border/40 py-2">
+								<details class="group">
+									<summary class="text-left font-medium hover:no-underline cursor-pointer flex justify-between items-center py-4">
+										<span>Do you offer discounts for nonprofits or educational institutions?</span>
+										<svg class="size-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+										</svg>
+									</summary>
+									<div class="text-muted-foreground pb-4">
+										Yes, we offer special pricing for nonprofits, educational institutions, and open-source projects. Please contact our sales team for more information.
+									</div>
+								</details>
+							</div>
+							<div class="border-b border-border/40 py-2">
+								<details class="group">
+									<summary class="text-left font-medium hover:no-underline cursor-pointer flex justify-between items-center py-4">
+										<span>How secure is my data?</span>
+										<svg class="size-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+										</svg>
+									</summary>
+									<div class="text-muted-foreground pb-4">
+										We take security very seriously. All data is encrypted both in transit and at rest. We use industry-standard security practices and regularly undergo security audits. Our platform is compliant with GDPR, CCPA, and other relevant regulations.
+									</div>
+								</details>
+							</div>
+							<div class="border-b border-border/40 py-2">
+								<details class="group">
+									<summary class="text-left font-medium hover:no-underline cursor-pointer flex justify-between items-center py-4">
+										<span>What kind of support do you offer?</span>
+										<svg class="size-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+										</svg>
+									</summary>
+									<div class="text-muted-foreground pb-4">
+										Support varies by plan. All plans include email support, with the Professional plan offering priority email support. The Enterprise plan includes 24/7 phone and email support. We also have an extensive knowledge base and community forum available to all users.
+									</div>
+								</details>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+		<footer class="w-full border-t bg-background/95 backdrop-blur-sm">
+			<div class="container mx-auto flex flex-col gap-8 px-4 py-10 md:px-6 lg:py-16">
+				<div class="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
+					<div class="space-y-4">
+						<div class="flex items-center gap-2 font-bold">
+							<div class="size-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground">
+								S
+							</div>
+							<span>Go Web</span>
+						</div>
+						<p class="text-sm text-muted-foreground">
+							Streamline your workflow with our all-in-one SaaS platform.
+							Boost productivity and scale your business.
+						</p>
+						<div class="flex gap-4">
+							<a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="size-5"
+								>
+									<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+								</svg>
+								<span class="sr-only">Facebook</span>
+							</a>
+							<a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="size-5"
+								>
+									<path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
+								</svg>
+								<span class="sr-only">Twitter</span>
+							</a>
+							<a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="size-5"
+								>
+									<path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+									<rect width="4" height="12" x="2" y="9"></rect>
+									<circle cx="4" cy="4" r="2"></circle>
+								</svg>
+								<span class="sr-only">LinkedIn</span>
+							</a>
+						</div>
+					</div>
+					<div class="space-y-4">
+						<h4 class="text-sm font-bold">Product</h4>
+						<ul class="space-y-2 text-sm">
+							<li>
+								<a href="#features" class="text-muted-foreground hover:text-foreground transition-colors">
+									Features
+								</a>
+							</li>
+							<li>
+								<a href="#pricing" class="text-muted-foreground hover:text-foreground transition-colors">
+									Pricing
+								</a>
+							</li>
+							<li>
+								<a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+									Integrations
+								</a>
+							</li>
+							<li>
+								<a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+									API
+								</a>
+							</li>
+						</ul>
+					</div>
+					<div class="space-y-4">
+						<h4 class="text-sm font-bold">Resources</h4>
+						<ul class="space-y-2 text-sm">
+							<li>
+								<a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+									Documentation
+								</a>
+							</li>
+							<li>
+								<a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+									Guides
+								</a>
+							</li>
+							<li>
+								<a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+									Blog
+								</a>
+							</li>
+							<li>
+								<a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+									Support
+								</a>
+							</li>
+						</ul>
+					</div>
+					<div class="space-y-4">
+						<h4 class="text-sm font-bold">Company</h4>
+						<ul class="space-y-2 text-sm">
+							<li>
+								<a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+									About
+								</a>
+							</li>
+							<li>
+								<a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+									Careers
+								</a>
+							</li>
+							<li>
+								<a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+									Privacy Policy
+								</a>
+							</li>
+							<li>
+								<a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+									Terms of Service
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="flex flex-col gap-4 sm:flex-row justify-between items-center border-t border-border/40 pt-8">
+					<p class="text-xs text-muted-foreground">
+						&copy; 2024 Go Web. All rights reserved.
+					</p>
+					<div class="flex gap-4">
+						<a href="#" class="text-xs text-muted-foreground hover:text-foreground transition-colors">
+							Privacy Policy
+						</a>
+						<a href="#" class="text-xs text-muted-foreground hover:text-foreground transition-colors">
+							Terms of Service
+						</a>
+						<a href="#" class="text-xs text-muted-foreground hover:text-foreground transition-colors">
+							Cookie Policy
+						</a>
+					</div>
+				</div>
 			</div>
-		</section>
+		</footer>
 	}
 }
