@@ -14,8 +14,8 @@ templ Navbar(data types.TemplateData, showLogo bool) {
 					if showLogo {
 						<!-- @NavbarMobileMenu() -->
 						<a href="/" class="flex items-center gap-1.5">
-							@icon.ToggleLeft(icon.Props{Class: "w-6 h-6"})
-							<span class="text-xl">templ<span class="font-bold">UI</span></span>
+							@icon.Blend(icon.Props{Class: "w-6 h-6"})
+							<span class="text-xl">Go Web</span>
 						</a>
 					} else {
 						<div class="flex items-center gap-2">

@@ -37,7 +37,7 @@ templ DashboardView(data types.TemplateData) {
 			</div>
 		</div>
 		<div class="py-4">
-			<form hx-post="/hello" hx-swap="afterend" method="POST" hx-target="#hello-container" class="flex items-center gap-4">
+			<form hx-post="/hello" hx-swap="beforeend" method="POST" hx-target="#hello-container" class="flex items-center gap-4">
 				@components.CSRFInput(data.CSRFToken)
 				@input.Input(input.Props{
 					Type:        input.TypeText,

@@ -68,9 +68,9 @@ templ LoginWithGoogle(data types.TemplateData) {
 
 templ SignUpForm(data types.TemplateData, signUpForm forms.UserSignUpForm) {
 	<form
-		action="/sign-up"
+		action="/signup"
 		method="post"
-		hx-post="/sign-up"
+		hx-post="/signup"
 		hx-target="this"
 		hx-swap="innerHTML"
 		hx-indicator="#signup-spinner"
