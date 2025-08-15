@@ -13,11 +13,11 @@ func (h *Handlers) LandingViewHandler(w http.ResponseWriter, r *http.Request) {
 	views.LandingView(data).Render(r.Context(), w)
 }
 
-func (h *Handlers) HelloFormHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) DashboardViewHandler(w http.ResponseWriter, r *http.Request) {
 	data := h.NewTemplateData(r)
-	data.PageTitle = "Hello Form"
+	data.PageTitle = "Dashboard"
 
-	views.HelloForm(data).Render(r.Context(), w)
+	views.DashboardView(data).Render(r.Context(), w)
 }
 
 func (h *Handlers) HelloWebHandler(w http.ResponseWriter, r *http.Request) {

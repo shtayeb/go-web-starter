@@ -122,7 +122,7 @@ templ UpdateUserForm(data types.TemplateData, updateForm forms.UpdateUserNameAnd
 		if updateForm.HasMessage() {
 			@components.AutoDismissFormMessage(updateForm.Message, 3000)
 		}
-		@CSRFInput(data.CSRFToken)
+		@components.CSRFInput(data.CSRFToken)
 		@form.Item() {
 			@form.Label(form.LabelProps{
 				For: "name",
@@ -194,7 +194,7 @@ templ ChangePasswordForm(data types.TemplateData, updatePasswordform forms.Updat
 		if updatePasswordform.HasMessage(){
 			@components.AutoDismissFormMessage(updatePasswordform.Message, 3000)
 		}
-		@CSRFInput(data.CSRFToken)
+		@components.CSRFInput(data.CSRFToken)
 		@form.Item() {
 			@form.Label(form.LabelProps{
 				For: "current_password",

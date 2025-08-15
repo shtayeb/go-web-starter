@@ -9,11 +9,8 @@ import "go-htmx-sqlite/internal/types"
 import "go-htmx-sqlite/cmd/web/components/ui/separator"
 import "go-htmx-sqlite/cmd/web/components/ui/icon"
 import "go-htmx-sqlite/internal/forms"
+import "go-htmx-sqlite/cmd/web/components"
 
-templ CSRFInput(csrfToken string) {
-	<!-- Include the CSRF token -->
-	<input type="hidden" name="csrf_token" value={ csrfToken }/>
-}
 
 templ SignUpView(data types.TemplateData, signUpForm forms.UserSignUpForm) {
 	@layouts.AuthLayout(data) {
@@ -57,7 +54,7 @@ templ SignUpView(data types.TemplateData, signUpForm forms.UserSignUpForm) {
 
 templ LoginWithGoogle(data types.TemplateData) {
 	<form method="get" action="/auth/google" class="w-full">
-		@CSRFInput(data.CSRFToken)
+		@components.CSRFInput(data.CSRFToken)
 		@button.Button(button.Props{
 			Class:   "flex gap-2 items-center w-full",
 			Variant: button.VariantSecondary,
@@ -79,7 +76,10 @@ templ SignUpForm(data types.TemplateData, signUpForm forms.UserSignUpForm) {
 		hx-indicator="#signup-spinner"
 		class="space-y-2"
 	>
-		@CSRFInput(data.CSRFToken)
+		if signUpForm.HasMessage() {
+			@components.AutoDismissFormMessage(signUpForm.Message, 3000)
+		}
+		@components.CSRFInput(data.CSRFToken)
 		<div class="w-full max-w-sm grid gap-2">
 			@form.Item() {
 				@form.Label(form.LabelProps{

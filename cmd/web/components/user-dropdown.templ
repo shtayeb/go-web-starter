@@ -20,11 +20,6 @@ templ AvatarFallback(name string) {
 	}
 }
 
-templ CSRFInput(csrfToken string) {
-	<!-- Include the CSRF token -->
-	<input type="hidden" name="csrf_token" value={ csrfToken }/>
-}
-
 templ LogoutForm(csrfToken string) {
 	<form method="post" action="/logout">
 		@CSRFInput(csrfToken)

@@ -9,6 +9,7 @@ import "go-htmx-sqlite/internal/types"
 import "go-htmx-sqlite/cmd/web/components/ui/icon"
 import "go-htmx-sqlite/cmd/web/components/ui/separator"
 import "go-htmx-sqlite/internal/forms"
+import "go-htmx-sqlite/cmd/web/components"
 
 templ LoginView(data types.TemplateData, loginForm forms.UserLoginForm) {
 	@layouts.AuthLayout(data) {
@@ -54,7 +55,7 @@ templ LoginView(data types.TemplateData, loginForm forms.UserLoginForm) {
 						hx-swap="innerHTML"
 						hx-indicator="#login-spinner"
 					>
-						@CSRFInput(data.CSRFToken)
+						@components.CSRFInput(data.CSRFToken)
 							<div class="w-full max-w-sm grid gap-2">
 								@form.Item() {
 									@form.Label(form.LabelProps{

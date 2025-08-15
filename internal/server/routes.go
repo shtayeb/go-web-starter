@@ -83,7 +83,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Post("/profile/update", authHandlers.UpdateUserNameAndImageHandler)
 		r.Post("/profile/update-password", authHandlers.UpdateAccountPasswordHandler)
 
-		r.Get("/dashboard", appHandlers.HelloFormHandler)
+		r.Get("/dashboard", appHandlers.DashboardViewHandler)
 		r.Post("/hello", appHandlers.HelloWebHandler)
 	})
 

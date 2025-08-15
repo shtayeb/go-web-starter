@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"go-htmx-sqlite/cmd/web/components"
 	"go-htmx-sqlite/cmd/web/views/auth"
 	"go-htmx-sqlite/internal/forms"
 	"go-htmx-sqlite/internal/forms/validator"
@@ -12,14 +11,12 @@ import (
 
 func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request) {
 	var form forms.UserSignUpForm
+	templateData := ah.handler.NewTemplateData(r)
 
 	err := ah.handler.DecodePostForm(r, &form)
 	if err != nil {
-		htmx.NewResponse().RenderTempl(
-			r.Context(),
-			w,
-			components.FlashMessage("invalid form data", components.FlashError),
-		)
+		form.SetMessage("Invalid form data", forms.MessageTypeError)
+		htmx.NewResponse().RenderTempl(r.Context(), w, auth.SignUpForm(templateData, form))
 		return
 	}
 
@@ -34,9 +31,7 @@ func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request)
 	form.CheckField(validator.Equals(form.Password, form.ConfirmPassword), "confirm_password", "Passwords do not match")
 
 	if !form.Valid() {
-		// handle with htmx
-		data := ah.handler.NewTemplateData(r)
-		htmx.NewResponse().RenderTempl(r.Context(), w, auth.SignUpForm(data, form))
+		htmx.NewResponse().RenderTempl(r.Context(), w, auth.SignUpForm(templateData, form))
 		return
 	}
 
@@ -46,10 +41,12 @@ func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request)
 		ah.handler.Logger.PrintError(err, map[string]string{
 			"request_method": r.Method,
 			"request_url":    r.URL.String(),
+			"err":            err.Error(),
 		})
 
 		// Handle common database errors
-		htmx.NewResponse().RenderTempl(r.Context(), w, components.FlashMessage("Something went with your registration. please try again", components.FlashError))
+		form.SetMessage("Something went wrong with your registration. please try again", forms.MessageTypeError)
+		htmx.NewResponse().RenderTempl(r.Context(), w, auth.SignUpForm(templateData, form))
 		return
 	}
 
@@ -60,6 +57,7 @@ func (ah *AuthHandler) SignUpPostHandler(w http.ResponseWriter, r *http.Request)
 		"activationLink": activationLink,
 		"userID":         user.ID,
 	}
+
 	// TODO: Send this to a background job handler, where it can be retried
 	err = ah.handler.Mailer.Send(user.Email, "user_welcome.tmpl", data)
 	if err != nil {
