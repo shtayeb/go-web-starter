@@ -1,44 +1,30 @@
 package components
 
-// data-collapsible="offcanvas" - when it is collapsed
+import "go-web-starter/cmd/web/components/ui/icon"
 
+// data-collapsible="offcanvas" - when it is collapsed
 templ Sidebar() {
-	<div class="group peer block"
+	<div
+		class="group peer block"
 		data-state="expanded"
 		data-collapsible="none"
 		data-side="left"
 		style="--sidebar-width:16rem;--sidebar-width-icon:3rem"
 		id="sidebar"
 	>
-		<div 
-			data-slot="sidebar-gap" 
-			class="relative hidden md:flex w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear group-data-[collapsible=offcanvas]:w-0 group-data-[side=right]:rotate-180 group-data-[collapsible=icon]:w-(--sidebar-width-icon)">
-		</div>
-		<aside 
+		<div
+			data-slot="sidebar-gap"
+			class="relative hidden md:flex w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear group-data-[collapsible=offcanvas]:w-0 group-data-[side=right]:rotate-180 group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
+		></div>
+		<aside
 			class="fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l"
 		>
 			<div class="flex h-full w-full flex-col">
 				<div class="flex px-6 border-b h-16 border-border">
 					<div class="flex items-center space-x-3">
-						<svg
-							width="24"
-							height="24"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							class="shrink-0"
-						>
-							<path
-								d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"
-							></path>
-							<path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"></path>
-							<path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"></path>
-						</svg>
+						@icon.Blend(icon.Props{Class: "size-6"})
 						<div class="sidebar-text overflow-hidden">
-							<h2 class="text-xl font-bold tracking-tight whitespace-nowrap">GO WEB</h2>
+							<h2 class="text-xl font-bold tracking-tight whitespace-nowrap">Go Web</h2>
 							<p class="text-sm text-muted-foreground whitespace-nowrap">Workspace</p>
 						</div>
 					</div>

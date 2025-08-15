@@ -1,6 +1,6 @@
 -- name: CreateUser :one
-INSERT INTO users (name,email,email_verified,created_at,updated_at)
-VALUES ($1, $2, $3, $4, $5) RETURNING *;
+INSERT INTO users (name,email,email_verified,image)
+VALUES ($1, $2, $3,$4) RETURNING *;
 
 -- name: UpdateUserNameAndImage :one
 UPDATE users SET name = $1, image = $2 WHERE id = $3 RETURNING *;

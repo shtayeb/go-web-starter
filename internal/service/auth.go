@@ -175,11 +175,14 @@ func (as *AuthService) createSocialUser(
 	gothUser goth.User,
 	provider string,
 ) (*queries.User, error) {
+	log.Println("createSocialUser gothUser", gothUser)
+
 	// Create user
 	user, err := qtx.CreateUser(ctx, queries.CreateUserParams{
-		Name:      gothUser.Name,
-		Email:     gothUser.Email,
-		CreatedAt: time.Now().UTC(),
+		Name:          gothUser.Name,
+		Email:         gothUser.Email,
+		EmailVerified: gothUser.RawData["verified_email"].(bool),
+		Image:         sql.NullString{String: gothUser.AvatarURL, Valid: gothUser.AvatarURL != ""},
 	})
 
 	if err != nil {
@@ -271,8 +274,7 @@ func (as *AuthService) SignUp(ctx context.Context, name, email, password string,
 			Name:          name,
 			Email:         email,
 			EmailVerified: emailVerified,
-			CreatedAt:     time.Now().UTC(),
-			UpdatedAt:     time.Now().UTC(),
+			Image:         sql.NullString{String: "", Valid: false},
 		})
 		if err != nil {
 			return err
