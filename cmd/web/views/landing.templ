@@ -130,78 +130,78 @@ templ LandingView(data types.TemplateData) {
 							<div class="border-b border-border/40 py-2">
 								<details class="group">
 									<summary class="text-left font-medium hover:no-underline cursor-pointer flex justify-between items-center py-4">
-										<span>How does the 14-day free trial work?</span>
+										<span>What technologies power this Go web starter?</span>
 										<svg class="size-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
 										</svg>
 									</summary>
 									<div class="text-muted-foreground pb-4">
-										Our 14-day free trial gives you full access to all features of your selected plan. No credit card is required to sign up, and you can cancel at any time during the trial period with no obligation.
+										This starter is built with modern Go web technologies: Go 1.24.5, Templ for type-safe HTML templating, HTMX for interactive frontend, Postgresql/SQLC for database operations, TailwindCSS for styling, and TemplUI for UI components. It includes Chi router, OAuth authentication with Goth, and session management with SCS.
 									</div>
 								</details>
 							</div>
 							<div class="border-b border-border/40 py-2">
 								<details class="group">
 									<summary class="text-left font-medium hover:no-underline cursor-pointer flex justify-between items-center py-4">
-										<span>Can I change plans later?</span>
+										<span>How do I get started with development?</span>
 										<svg class="size-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
 										</svg>
 									</summary>
 									<div class="text-muted-foreground pb-4">
-										Yes, you can upgrade or downgrade your plan at any time. If you upgrade, the new pricing will be prorated for the remainder of your billing cycle. If you downgrade, the new pricing will take effect at the start of your next billing cycle.
+										Clone the repository, copy .example.env to .env with your settings, then run <code class="bg-muted px-1 rounded">make build</code> to install dependencies and build the project. For live development, use <code class="bg-muted px-1 rounded">make watch</code> which provides hot reload with Air. The Makefile includes all necessary commands for development.
 									</div>
 								</details>
 							</div>
 							<div class="border-b border-border/40 py-2">
 								<details class="group">
 									<summary class="text-left font-medium hover:no-underline cursor-pointer flex justify-between items-center py-4">
-										<span>Is there a limit to how many users I can add?</span>
+										<span>What makes HTMX different from JavaScript frameworks?</span>
 										<svg class="size-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
 										</svg>
 									</summary>
 									<div class="text-muted-foreground pb-4">
-										The number of users depends on your plan. The Starter plan allows up to 5 team members, the Professional plan allows up to 20, and the Enterprise plan has no limit on team members.
+										HTMX allows you to build modern interactive web applications using HTML attributes instead of writing JavaScript. It provides AJAX, CSS transitions, and WebSocket support directly in HTML, resulting in simpler code, better SEO, faster initial page loads, and reduced complexity compared to SPA frameworks.
 									</div>
 								</details>
 							</div>
 							<div class="border-b border-border/40 py-2">
 								<details class="group">
 									<summary class="text-left font-medium hover:no-underline cursor-pointer flex justify-between items-center py-4">
-										<span>Do you offer discounts for nonprofits or educational institutions?</span>
+										<span>How does Templ provide type safety for HTML templates?</span>
 										<svg class="size-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
 										</svg>
 									</summary>
 									<div class="text-muted-foreground pb-4">
-										Yes, we offer special pricing for nonprofits, educational institutions, and open-source projects. Please contact our sales team for more information.
+										Templ generates Go code from .templ files, providing compile-time type checking for your templates. This eliminates runtime template errors, enables IDE support with autocomplete and refactoring, and ensures your templates are always in sync with your Go code. Run <code class="bg-muted px-1 rounded">templ generate</code> to compile templates.
 									</div>
 								</details>
 							</div>
 							<div class="border-b border-border/40 py-2">
 								<details class="group">
 									<summary class="text-left font-medium hover:no-underline cursor-pointer flex justify-between items-center py-4">
-										<span>How secure is my data?</span>
+										<span>What database features are included?</span>
 										<svg class="size-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
 										</svg>
 									</summary>
 									<div class="text-muted-foreground pb-4">
-										We take security very seriously. All data is encrypted both in transit and at rest. We use industry-standard security practices and regularly undergo security audits. Our platform is compliant with GDPR, CCPA, and other relevant regulations.
+										The starter includes Postgresql with SQLC for type-safe database queries, Goose for database migrations, and pre-built user authentication tables. SQLC generates Go code from SQL queries, ensuring type safety and preventing SQL injection. Database migrations are managed with <code class="bg-muted px-1 rounded">goose up</code> command.
 									</div>
 								</details>
 							</div>
 							<div class="border-b border-border/40 py-2">
 								<details class="group">
 									<summary class="text-left font-medium hover:no-underline cursor-pointer flex justify-between items-center py-4">
-										<span>What kind of support do you offer?</span>
+										<span>Can I customize the UI components and styling?</span>
 										<svg class="size-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
 										</svg>
 									</summary>
 									<div class="text-muted-foreground pb-4">
-										Support varies by plan. All plans include email support, with the Professional plan offering priority email support. The Enterprise plan includes 24/7 phone and email support. We also have an extensive knowledge base and community forum available to all users.
+										Yes! The project uses TemplUI components built with TailwindCSS, which are fully customizable. Components are located in <code class="bg-muted px-1 rounded">cmd/web/components/ui/</code> and can be modified or extended. TailwindCSS configuration allows theme customization, and the build process automatically compiles your styles. Dark mode support is included by default.
 									</div>
 								</details>
 							</div>
