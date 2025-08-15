@@ -1,6 +1,6 @@
 package types
 
-import "go-htmx-sqlite/internal/queries"
+import "go-web-starter/internal/queries"
 
 // TemplateData contains common data passed to all templates
 type TemplateData struct {

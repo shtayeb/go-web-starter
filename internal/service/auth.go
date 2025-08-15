@@ -8,9 +8,9 @@ import (
 	"encoding/base32"
 	"errors"
 	"fmt"
-	"go-htmx-sqlite/internal/config"
-	"go-htmx-sqlite/internal/database"
-	"go-htmx-sqlite/internal/queries"
+	"go-web-starter/internal/config"
+	"go-web-starter/internal/database"
+	"go-web-starter/internal/queries"
 	"log"
 	"time"
 

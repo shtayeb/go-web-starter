@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
-	"go-htmx-sqlite/internal/config"
+	"go-web-starter/internal/config"
 	"net/http"
 
 	"github.com/justinas/nosurf"

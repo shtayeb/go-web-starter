@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"go-htmx-sqlite/internal/config"
+	"go-web-starter/internal/config"
 	"log"
 	"strconv"
 	"time"

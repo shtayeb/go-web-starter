@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"go-htmx-sqlite/internal/handlers"
-	"go-htmx-sqlite/internal/service"
+	"go-web-starter/internal/handlers"
+	"go-web-starter/internal/service"
 )
 
 type AuthHandler struct {

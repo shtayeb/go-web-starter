@@ -11,11 +11,11 @@ import (
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/google"
 
-	"go-htmx-sqlite/internal/config"
-	"go-htmx-sqlite/internal/database"
-	"go-htmx-sqlite/internal/jsonlog"
-	"go-htmx-sqlite/internal/mailer"
-	"go-htmx-sqlite/internal/queries"
+	"go-web-starter/internal/config"
+	"go-web-starter/internal/database"
+	"go-web-starter/internal/jsonlog"
+	"go-web-starter/internal/mailer"
+	"go-web-starter/internal/queries"
 
 	"github.com/alexedwards/scs/postgresstore"
 )

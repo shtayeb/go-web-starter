@@ -3,12 +3,12 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"go-htmx-sqlite/internal/config"
-	"go-htmx-sqlite/internal/database"
-	"go-htmx-sqlite/internal/jsonlog"
-	"go-htmx-sqlite/internal/mailer"
-	"go-htmx-sqlite/internal/queries"
-	"go-htmx-sqlite/internal/types"
+	"go-web-starter/internal/config"
+	"go-web-starter/internal/database"
+	"go-web-starter/internal/jsonlog"
+	"go-web-starter/internal/mailer"
+	"go-web-starter/internal/queries"
+	"go-web-starter/internal/types"
 	"net/http"
 	"runtime/debug"
 

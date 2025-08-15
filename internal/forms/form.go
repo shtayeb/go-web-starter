@@ -1,6 +1,6 @@
 package forms
 
-import "go-htmx-sqlite/internal/forms/validator"
+import "go-web-starter/internal/forms/validator"
 
 type MessageType string
 

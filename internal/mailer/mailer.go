@@ -3,7 +3,7 @@ package mailer
 import (
 	"bytes"
 	"embed"
-	"go-htmx-sqlite/internal/config"
+	"go-web-starter/internal/config"
 	"html/template"
 	"time"
 

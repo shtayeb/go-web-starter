@@ -1,10 +1,10 @@
 package auth
 
 import (
-	"go-htmx-sqlite/cmd/web/views/auth"
-	"go-htmx-sqlite/internal/forms"
-	"go-htmx-sqlite/internal/forms/validator"
-	"go-htmx-sqlite/internal/types"
+	"go-web-starter/cmd/web/views/auth"
+	"go-web-starter/internal/forms"
+	"go-web-starter/internal/forms/validator"
+	"go-web-starter/internal/types"
 	"net/http"
 
 	"github.com/angelofallars/htmx-go"

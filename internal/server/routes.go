@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"time"
 
-	"go-htmx-sqlite/cmd/web"
-	"go-htmx-sqlite/internal/handlers"
-	"go-htmx-sqlite/internal/handlers/auth"
-	"go-htmx-sqlite/internal/service"
+	"go-web-starter/cmd/web"
+	"go-web-starter/internal/handlers"
+	"go-web-starter/internal/handlers/auth"
+	"go-web-starter/internal/service"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"

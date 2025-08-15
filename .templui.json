@@ -1,7 +1,7 @@
 {
   "componentsDir": "cmd/web/components/ui",
   "utilsDir": "cmd/web/utils",
-  "moduleName": "go-htmx-sqlite",
+  "moduleName": "go-web-starter",
   "jsDir": "cmd/web/assets/js/ui",
   "jsPublicPath": "assets/js/ui"
 }

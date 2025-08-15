@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 
-	"go-htmx-sqlite/cmd/api/commands"
-	"go-htmx-sqlite/internal/server"
+	"go-web-starter/cmd/api/commands"
+	"go-web-starter/internal/server"
 
 	"github.com/spf13/cobra"
 )

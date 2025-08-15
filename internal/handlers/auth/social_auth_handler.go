@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-htmx-sqlite/internal/queries"
+	"go-web-starter/internal/queries"
 	"net/http"
 	"slices"
 	"time"

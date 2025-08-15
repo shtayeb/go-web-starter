@@ -1,4 +1,4 @@
-module go-htmx-sqlite
+module go-web-starter
 
 go 1.24.5
 

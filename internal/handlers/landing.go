@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"go-htmx-sqlite/cmd/web/views"
+	"go-web-starter/cmd/web/views"
 	"log"
 	"net/http"
 )

@@ -3,10 +3,10 @@ package commands
 import (
 	"context"
 	"fmt"
-	"go-htmx-sqlite/internal/config"
-	"go-htmx-sqlite/internal/database"
-	"go-htmx-sqlite/internal/queries"
-	"go-htmx-sqlite/internal/service"
+	"go-web-starter/internal/config"
+	"go-web-starter/internal/database"
+	"go-web-starter/internal/queries"
+	"go-web-starter/internal/service"
 	"log"
 
 	"github.com/spf13/cobra"
