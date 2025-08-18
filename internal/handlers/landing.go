@@ -20,6 +20,13 @@ func (h *Handlers) DashboardViewHandler(w http.ResponseWriter, r *http.Request) 
 	views.DashboardView(data).Render(r.Context(), w)
 }
 
+func (h *Handlers) ProjectViewHandler(w http.ResponseWriter, r *http.Request) {
+	data := h.NewTemplateData(r)
+	data.PageTitle = "Projects"
+
+	views.ProjectView(data).Render(r.Context(), w)
+}
+
 func (h *Handlers) HelloWebHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {

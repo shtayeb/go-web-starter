@@ -1,0 +1,12 @@
+package views
+
+import "go-web-starter/cmd/web/layouts"
+import "go-web-starter/internal/types"
+
+templ ProjectView(data types.TemplateData) {
+	@layouts.DashboardLayout(data) {
+        <div class="container">
+            <h1>Projects</h1>
+        </div>
+	}
+}
