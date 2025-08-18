@@ -14,9 +14,12 @@ type Querier interface {
 	CreateAuthor(ctx context.Context, arg CreateAuthorParams) (Author, error)
 	CreateToken(ctx context.Context, arg CreateTokenParams) (Token, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	DeleteAccountsByUserId(ctx context.Context, userID int32) error
 	DeleteAllForUser(ctx context.Context, arg DeleteAllForUserParams) error
 	DeleteAuthor(ctx context.Context, id int32) error
 	DeleteToken(ctx context.Context, hash []byte) error
+	DeleteTokensByUserId(ctx context.Context, userID int64) error
+	DeleteUser(ctx context.Context, id int32) error
 	GetAccountById(ctx context.Context, id int32) (Account, error)
 	GetAccountByUserId(ctx context.Context, userID int32) (Account, error)
 	GetAccountByUserIdAndProvider(ctx context.Context, arg GetAccountByUserIdAndProviderParams) (Account, error)

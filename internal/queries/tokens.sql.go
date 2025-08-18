@@ -61,6 +61,15 @@ func (q *Queries) DeleteToken(ctx context.Context, hash []byte) error {
 	return err
 }
 
+const deleteTokensByUserId = `-- name: DeleteTokensByUserId :exec
+DELETE FROM tokens WHERE user_id = $1
+`
+
+func (q *Queries) DeleteTokensByUserId(ctx context.Context, userID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteTokensByUserId, userID)
+	return err
+}
+
 const getTokensForUser = `-- name: GetTokensForUser :one
 SELECT hash, user_id, expiry, scope FROM tokens WHERE user_id = $1
 `

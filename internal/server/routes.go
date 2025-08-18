@@ -82,6 +82,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/profile", authHandlers.ProfileViewHandler)
 		r.Post("/profile/update", authHandlers.UpdateUserNameAndImageHandler)
 		r.Post("/profile/update-password", authHandlers.UpdateAccountPasswordHandler)
+		r.Post("/profile/delete-account", authHandlers.DeleteAccountHandler)
 
 		r.Get("/dashboard", appHandlers.DashboardViewHandler)
 		r.Post("/hello", appHandlers.HelloWebHandler)

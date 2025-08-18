@@ -416,3 +416,36 @@ func (as *AuthService) UpdateAccountPassword(ctx context.Context, userId int32, 
 
 	return err
 }
+
+func (as *AuthService) DeleteAccount(ctx context.Context, email, password string) error {
+	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+
+	user, err := as.Login(ctx, email, password)
+	if err != nil {
+		return errors.New("something went wrong")
+	}
+
+	// Use transaction to ensure all deletions succeed or fail together
+	return as.dbService.WithTransaction(ctx, func(tx *sql.Tx) error {
+		qtx := as.dbQueries.WithTx(tx)
+
+		// Delete related data in the correct order (to respect foreign key constraints)
+		// Delete tokens
+		if err := qtx.DeleteTokensByUserId(ctx, int64(user.ID)); err != nil {
+			return fmt.Errorf("failed to delete tokens: %w", err)
+		}
+
+		// Delete accounts
+		if err := qtx.DeleteAccountsByUserId(ctx, user.ID); err != nil {
+			return fmt.Errorf("failed to delete accounts: %w", err)
+		}
+
+		// Delete user (this should be last)
+		if err := qtx.DeleteUser(ctx, user.ID); err != nil {
+			return fmt.Errorf("failed to delete user: %w", err)
+		}
+
+		return nil
+	})
+}

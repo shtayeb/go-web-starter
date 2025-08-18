@@ -9,3 +9,6 @@ DELETE FROM tokens WHERE scope = $1 AND user_id = $2;
 
 -- name: DeleteToken :exec
 DELETE FROM tokens WHERE hash = $1;
+
+-- name: DeleteTokensByUserId :exec
+DELETE FROM tokens WHERE user_id = $1;

@@ -38,3 +38,8 @@ type UpdateUserNameAndImageForm struct {
 	Name  string `form:"name"`
 	Image string `form:"image"`
 }
+
+type DeleteAccountForm struct {
+	Form
+	Password string `form:"password" validate:"required"`
+}

@@ -19,3 +19,6 @@ FROM users
 WHERE tokens.hash = $1
     AND tokens.scope = $2
     AND tokens.expiry > $3;
+
+-- name: DeleteUser :exec
+DELETE FROM users WHERE id = $1;

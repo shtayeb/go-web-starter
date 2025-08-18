@@ -68,6 +68,7 @@ templ LoginView(data types.TemplateData, loginForm forms.UserLoginForm) {
 										ID:          "email-form",
 										Type:        input.TypeEmail,
 										Placeholder: "m@example.com",
+										Required:    true,
 									})
 									<div id="error-email" class="text-sm text-red-600 dark:text-red-400 mt-1 hidden"></div>
 								}
@@ -81,6 +82,7 @@ templ LoginView(data types.TemplateData, loginForm forms.UserLoginForm) {
 										Name: "password",
 										ID:   "password",
 										Type: input.TypePassword,
+										Required: true,
 									})
 									<div id="error-password" class="text-sm text-red-600 dark:text-red-400 mt-1 hidden"></div>
 								}

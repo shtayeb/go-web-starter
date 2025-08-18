@@ -11,8 +11,7 @@ func (ah *AuthHandler) LogoutPostHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	ah.handler.SessionManager.Remove(r.Context(), "authenticatedUserID")
-	ah.handler.SessionManager.Remove(r.Context(), "user")
+	ah.handler.SessionManager.Destroy(r.Context())
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

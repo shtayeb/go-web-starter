@@ -25,3 +25,6 @@ SET access_token = $1,
     refresh_token = $2, 
     access_token_expires_at = $3
 WHERE user_id = $4 AND provider_id = $5;
+
+-- name: DeleteAccountsByUserId :exec
+DELETE FROM accounts WHERE user_id = $1;

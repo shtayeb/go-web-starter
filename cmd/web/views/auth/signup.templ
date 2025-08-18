@@ -94,6 +94,7 @@ templ SignUpForm(data types.TemplateData, signUpForm forms.UserSignUpForm) {
 					Placeholder: "John Doe",
 					Value:       signUpForm.Name,
 					HasError:    signUpForm.FieldErrors["name"] != "",
+					Required:    true,
 				})
 				@form.Message(form.MessageProps{
 					Variant: form.MessageVariantError,
@@ -114,6 +115,7 @@ templ SignUpForm(data types.TemplateData, signUpForm forms.UserSignUpForm) {
 					Placeholder: "m@example.com",
 					HasError:    signUpForm.FieldErrors["email"] != "",
 					Value:       signUpForm.Email,
+					Required:    true,
 				})
 				@form.Message(form.MessageProps{
 					Variant: form.MessageVariantError,
@@ -132,6 +134,7 @@ templ SignUpForm(data types.TemplateData, signUpForm forms.UserSignUpForm) {
 					ID:       "password",
 					Type:     input.TypePassword,
 					HasError: signUpForm.FieldErrors["password"] != "",
+					Required: true,
 				})
 				@form.Message(form.MessageProps{
 					Variant: form.MessageVariantError,
@@ -150,6 +153,7 @@ templ SignUpForm(data types.TemplateData, signUpForm forms.UserSignUpForm) {
 					ID:       "confirm_password",
 					Type:     input.TypePassword,
 					HasError: signUpForm.FieldErrors["confirm_password"] != "",
+					Required: true,
 				})
 				@form.Message(form.MessageProps{
 					Variant: form.MessageVariantError,

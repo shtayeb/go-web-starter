@@ -6,18 +6,16 @@ import "go-web-starter/internal/forms"
 import "go-web-starter/cmd/web/components/ui/button"
 import "go-web-starter/cmd/web/components/ui/input"
 import "go-web-starter/cmd/web/components/ui/form"
-import "go-web-starter/cmd/web/components/ui/radiocard"
-import "go-web-starter/cmd/web/components/ui/icon"
 import "go-web-starter/internal/types"
 import "go-web-starter/cmd/web/components"
 
-templ ProfileView(data types.TemplateData, updateUserForm forms.UpdateUserNameAndImageForm, updatePasswordform forms.UpdateAccountPasswordForm) {
+templ ProfileView(data types.TemplateData, updateUserForm forms.UpdateUserNameAndImageForm, updatePasswordform forms.UpdateAccountPasswordForm, deleteAccountForm forms.DeleteAccountForm) {
 	@layouts.DashboardLayout(data) {
 		<div class="space-y-4">
 			@input.Script()
 			@AccountTab(data, updateUserForm)
 			@PasswordTab(data, updatePasswordform)
-			@AppearanceTab()
+			@DangerZoneTab(data, deleteAccountForm)
 		</div>
 	}
 }
@@ -54,57 +52,82 @@ templ PasswordTab(data types.TemplateData, updatePasswordform forms.UpdateAccoun
 	</div>
 }
 
-templ AppearanceTab() {
+templ DangerZoneTab(data types.TemplateData, deleteAccountForm forms.DeleteAccountForm) {
 	<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 		<div class="col-span-1">
-			<h2 class="text-lg font-medium">Appearance</h2>
-			<p class="text-sm text-gray-500 dark:text-gray-400">Customize your appearance here</p>
+			<h2 class="text-lg font-medium text-red-600 dark:text-red-400">Danger Zone</h2>
+			<p class="text-sm text-gray-500 dark:text-gray-400">Permanently delete your account and all data</p>
 		</div>
 		<div class="col-span-3 max-w-2xl">
-			@card.Card() {
+			@card.Card(card.Props{
+				Class: "border border-red-500/50",
+			}) {
 				@card.Content() {
-					<form class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-						@radiocard.RadioCard(radiocard.Props{
-							ID:    "theme-light",
-							Name:  "theme",
-							Value: "light",
-						}) {
-							@radiocard.Header() {
-								<div class="flex items-center gap-2">
-									@icon.Sun(icon.Props{Size: 20})
-									<h3>Light</h3>
-								</div>
-							}
-						}
-						@radiocard.RadioCard(radiocard.Props{
-							ID:    "theme-dark",
-							Name:  "theme",
-							Value: "dark",
-						}) {
-							@radiocard.Header() {
-								<div class="flex items-center gap-2">
-									@icon.Moon(icon.Props{Size: 20})
-									<h3>Dark</h3>
-								</div>
-							}
-						}
-						@radiocard.RadioCard(radiocard.Props{
-							ID:    "theme-system",
-							Name:  "theme",
-							Value: "system",
-						}) {
-							@radiocard.Header() {
-								<div class="flex items-center gap-2">
-									@icon.Monitor(icon.Props{Size: 20})
-									<h3>System</h3>
-								</div>
-							}
-						}
-					</form>
+					<div class="rounded-lg p-4">
+						<h3 class="text-lg font-medium text-red-600 dark:text-red-400 mb-2">Delete Account</h3>
+						<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+							This action cannot be undone. This will permanently delete your account and remove all your data from our servers.
+						</p>
+						@DeleteAccountForm(data, deleteAccountForm)
+					</div>
 				}
 			}
 		</div>
 	</div>
+}
+
+templ DeleteAccountForm(data types.TemplateData, deleteAccountForm forms.DeleteAccountForm) {
+	<form
+		class="flex flex-col gap-4"
+		action="/profile/delete-account"
+		method="post"
+		hx-post="/profile/delete-account"
+		hx-target="this"
+		hx-swap="outerHTML"
+		hx-indicator="#delete-spinner"
+		hx-confirm="Are you absolutely sure? This action cannot be undone and will permanently delete your account and all associated data."
+	>
+		if deleteAccountForm.HasMessage() {
+			@components.AutoDismissFormMessage(deleteAccountForm.Message, 3000)
+		}
+		@components.CSRFInput(data.CSRFToken)
+		@form.Item() {
+			@form.Label(form.LabelProps{
+				For: "password",
+			}) {
+				Confirm Password
+			}
+			@input.Input(input.Props{
+				Type:        input.TypePassword,
+				ID:          "password",
+				Name:        "password",
+				Placeholder: "Enter your password to confirm",
+				Value:       deleteAccountForm.Password,
+				HasError:    deleteAccountForm.FieldErrors["password"] != "",
+				Required:    true,
+			})
+			@form.Message(form.MessageProps{
+				Variant: form.MessageVariantError,
+			}) {
+				{ deleteAccountForm.FieldErrors["password"] }
+			}
+		}
+		<div class="flex justify-end">
+			@button.Button(button.Props{
+				Type:    button.TypeSubmit,
+				Variant: button.VariantDestructive,
+				Class:   "flex items-center justify-center gap-2",
+			}) {
+				<span id="delete-spinner" class="htmx-indicator">
+					<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+						<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+					</svg>
+				</span>
+				Delete Account
+			}
+		</div>
+	</form>
 }
 
 // Forms
@@ -118,7 +141,6 @@ templ UpdateUserForm(data types.TemplateData, updateForm forms.UpdateUserNameAnd
 		hx-swap="outerHTML"
 		hx-indicator="#account-spinner"
 	>
-		<!-- Render form message if it exists -->
 		if updateForm.HasMessage() {
 			@components.AutoDismissFormMessage(updateForm.Message, 3000)
 		}
@@ -135,6 +157,7 @@ templ UpdateUserForm(data types.TemplateData, updateForm forms.UpdateUserNameAnd
 				Type:     input.TypeText,
 				Value:    updateForm.Name,
 				HasError: updateForm.FieldErrors["name"] != "",
+				Required: true,
 			})
 			@form.Message(form.MessageProps{
 				Variant: form.MessageVariantError,
@@ -190,7 +213,6 @@ templ ChangePasswordForm(data types.TemplateData, updatePasswordform forms.Updat
 		hx-swap="outerHTML"
 		hx-indicator="#password-spinner"
 	>
-		<!-- Render form message if it exists -->
 		if updatePasswordform.HasMessage(){
 			@components.AutoDismissFormMessage(updatePasswordform.Message, 3000)
 		}
@@ -207,6 +229,7 @@ templ ChangePasswordForm(data types.TemplateData, updatePasswordform forms.Updat
 				Name:     "current_password",
 				Value:    updatePasswordform.CurrentPassword,
 				HasError: updatePasswordform.FieldErrors["current_password"] != "",
+				Required: true,
 			})
 			@form.Message(form.MessageProps{
 				Variant: form.MessageVariantError,
@@ -226,6 +249,7 @@ templ ChangePasswordForm(data types.TemplateData, updatePasswordform forms.Updat
 				Name:     "new_password",
 				Value:    updatePasswordform.NewPassword,
 				HasError: updatePasswordform.FieldErrors["new_password"] != "",
+				Required: true,
 			})
 			@form.Message(form.MessageProps{
 				Variant: form.MessageVariantError,
@@ -245,6 +269,7 @@ templ ChangePasswordForm(data types.TemplateData, updatePasswordform forms.Updat
 				Name:     "confirm_password",
 				Value:    updatePasswordform.ConfirmPassword,
 				HasError: updatePasswordform.FieldErrors["confirm_password"] != "",
+				Required: true,
 			})
 			@form.Message(form.MessageProps{
 				Variant: form.MessageVariantError,
