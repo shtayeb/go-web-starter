@@ -5,23 +5,9 @@ import "go-web-starter/cmd/web/components"
 import "go-web-starter/internal/types"
 
 templ AuthLayout(data types.TemplateData) {
-	<!DOCTYPE html>
-	<html lang="en">
-		<head>
-			<meta charset="utf-8"/>
-			<meta name="viewport" content="width=device-width,initial-scale=1"/>
-			<link href="assets/css/output.css" rel="stylesheet"/>
-			<script src="assets/js/htmx.min.js"></script>
-			<title>
-				if data.PageTitle != "" {
-					{ data.PageTitle }
-				} else {
-					Go Starter
-				}
-			</title>
-			@input.Script()
-			@components.ThemeSwitcherScript()
-		</head>
+	@BaseLayout(data, "") {
+		@input.Script()
+		@components.ThemeSwitcherScript()
 		<body class="h-full">
 			<div class="device-content h-screen flex items-center justify-center">
 				<main class="w-full max-w-md">
@@ -33,8 +19,6 @@ templ AuthLayout(data types.TemplateData) {
 					</section>
 				</main>
 			</div>
-
-			<script src="assets/js/app.js"></script>
 		</body>
-	</html>
+	}
 }

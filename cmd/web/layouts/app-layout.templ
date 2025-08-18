@@ -1,0 +1,25 @@
+package layouts
+
+import "go-web-starter/cmd/web/components/ui/dropdown"
+import "go-web-starter/cmd/web/components/ui/popover"
+import "go-web-starter/cmd/web/components/ui/avatar"
+import "go-web-starter/cmd/web/components"
+import "go-web-starter/internal/types"
+
+templ AppLayout(data types.TemplateData) {
+	@BaseLayout(data, "h-screen") {
+		@dropdown.Script()
+		@popover.Script()
+		@avatar.Script()
+		@components.ThemeSwitcherScript()
+		@components.Navbar(data, true)
+
+		if data.Flash != "" {
+			@components.FlashMessage(data.Flash, components.FlashSuccess)
+		}
+
+		<main>
+			{ children... }
+		</main>
+	}
+}

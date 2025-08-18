@@ -1,14 +1,10 @@
 package layouts
 
-import "go-web-starter/cmd/web/components/ui/dropdown"
-import "go-web-starter/cmd/web/components/ui/popover"
-import "go-web-starter/cmd/web/components/ui/avatar"
-import "go-web-starter/cmd/web/components"
 import "go-web-starter/internal/types"
 
-templ BaseLayout(data types.TemplateData) {
+templ BaseLayout(data types.TemplateData, htmlClass string) {
 	<!DOCTYPE html>
-	<html lang="en" class="h-screen">
+	<html lang="en" if htmlClass != "" { class={ htmlClass } }>
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -21,20 +17,9 @@ templ BaseLayout(data types.TemplateData) {
 			</title>
 			<link href="assets/css/output.css" rel="stylesheet"/>
 			<script src="assets/js/htmx.min.js"></script>
-			@dropdown.Script()
-			@popover.Script()
-			@avatar.Script()
-			@components.ThemeSwitcherScript()
 		</head>
 		<body>
-			@components.Navbar(data,true)
-			if data.Flash != "" {
-				@components.FlashMessage(data.Flash, components.FlashSuccess)
-			}
-			<main>
-				{ children... }
-			</main>
-
+			{ children... }
 			<script src="assets/js/app.js"></script>
 		</body>
 	</html>
