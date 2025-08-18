@@ -31,7 +31,9 @@ templ Sidebar() {
 				</div>
 				<nav class="flex-1 p-4 space-y-2">
 					<div class="space-y-1">
-						<h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 sidebar-text">Main</h3>
+						<h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 sidebar-text">
+							Main
+						</h3>
 						<a
 							href="/dashboard"
 							class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group bg-primary text-primary-foreground"
@@ -39,25 +41,9 @@ templ Sidebar() {
 						>
 							<div class="flex items-center space-x-3">
 								<div class="h-4 w-4 shrink-0">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16"
-										height="16"
-										viewBox="0 0 24 24"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="2"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										class=""
-										data-lucide="icon"
-									>
-										<rect width="7" height="9" x="3" y="3" rx="1"></rect>
-										<rect width="7" height="5" x="14" y="3" rx="1"></rect>
-										<rect width="7" height="9" x="14" y="12" rx="1"></rect>
-										<rect width="7" height="5" x="3" y="16" rx="1"></rect>
-									</svg>
-								</div><span class="sidebar-text whitespace-nowrap overflow-hidden">Dashboard</span>
+									@icon.LayoutDashboard(icon.Props{Class: "size-4.5"})
+								</div>
+								<span class="sidebar-text whitespace-nowrap overflow-hidden">Dashboard</span>
 							</div>
 						</a>
 						<a
@@ -67,55 +53,13 @@ templ Sidebar() {
 						>
 							<div class="flex items-center space-x-3">
 								<div class="h-4 w-4 shrink-0">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16"
-										height="16"
-										viewBox="0 0 24 24"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="2"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										class=""
-										data-lucide="icon"
-									>
-										<path
-											d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"
-										></path>
-									</svg>
-								</div><span class="sidebar-text whitespace-nowrap overflow-hidden">Projects</span>
-							</div><span
+									@icon.Folder(icon.Props{Class: "size-4.5"})
+								</div>
+								<span class="sidebar-text whitespace-nowrap overflow-hidden">Projects</span>
+							</div>
+							<span
 	class="sidebar-text [&>svg]:size-3 justify-center py-0.5 [a&]:hover:bg-secondary/90 w-fit whitespace-nowrap text-secondary-foreground aria-invalid:border-destructive focus-visible:ring-ring/50 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-[3px] dark:aria-invalid:ring-destructive/40 bg-secondary overflow-hidden font-medium aria-invalid:ring-destructive/20 transition-[color,box-shadow] items-center gap-1 inline-flex px-2 text-xs rounded-md border shrink-0 border-transparent"
 >12</span>
-						</a>
-						<a
-							href="#"
-							class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group text-muted-foreground hover:text-foreground hover:bg-muted"
-							title="Team"
-						>
-							<div class="flex items-center space-x-3">
-								<div class="h-4 w-4 shrink-0">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16"
-										height="16"
-										viewBox="0 0 24 24"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="2"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										class=""
-										data-lucide="icon"
-									>
-										<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-										<path d="M16 3.128a4 4 0 0 1 0 7.744"></path>
-										<path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-										<circle cx="9" cy="7" r="4"></circle>
-									</svg>
-								</div><span class="sidebar-text whitespace-nowrap overflow-hidden">Team</span>
-							</div>
 						</a>
 					</div>
 					<div role="separator" aria-orientation="horizontal" class="shrink-0 w-full my-4">
@@ -126,7 +70,9 @@ templ Sidebar() {
 						</div>
 					</div>
 					<div class="space-y-1">
-						<h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 sidebar-text">Tools</h3>
+						<h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 sidebar-text">
+							Tools
+						</h3>
 						<a
 							href="#"
 							class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -134,25 +80,9 @@ templ Sidebar() {
 						>
 							<div class="flex items-center space-x-3">
 								<div class="h-4 w-4 shrink-0">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16"
-										height="16"
-										viewBox="0 0 24 24"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="2"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										class=""
-										data-lucide="icon"
-									>
-										<path d="M3 3v16a2 2 0 0 0 2 2h16"></path>
-										<path d="M7 16h8"></path>
-										<path d="M7 11h12"></path>
-										<path d="M7 6h3"></path>
-									</svg>
-								</div><span class="sidebar-text whitespace-nowrap overflow-hidden">Analytics</span>
+									@icon.ChartPie(icon.Props{Class: "size-4.5"})
+								</div>
+								<span class="sidebar-text whitespace-nowrap overflow-hidden">Analytics</span>
 							</div>
 						</a>
 					</div>
