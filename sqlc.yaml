@@ -5,7 +5,8 @@ sql:
   engine: "postgresql"
   gen:
     go: 
-      out: "internal/queries"
+      sql_package: "pgx/v5"
+      out: "internal/db"
       emit_interface: true
   rules:
     - sqlc/db-prepare

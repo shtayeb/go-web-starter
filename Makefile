@@ -17,7 +17,6 @@ confirm:
 	@echo -n 'Are you sure? [y/N] ' && read ans && [ $${ans:-N} = y ] 
 
 
-
 ##################
 ##  DEVELOPMENT ##
 ##################
@@ -32,58 +31,25 @@ templ:
 tailwind: tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --watch
 
 templ-install:
-	@if ! command -v templ > /dev/null; then \
-		read -p "Go's 'templ' is not installed on your machine. Do you want to install it? [Y/n] " choice; \
-		if [ "$$choice" != "n" ] && [ "$$choice" != "N" ]; then \
-			go install github.com/a-h/templ/cmd/templ@latest; \
-			if [ ! -x "$$(command -v templ)" ]; then \
-				echo "templ installation failed. Exiting..."; \
-				exit 1; \
-			fi; \
-		else \
-			echo "You chose not to install templ. Exiting..."; \
-			exit 1; \
-		fi; \
-	fi
+	go install github.com/a-h/templ/cmd/templ@latest
 
 sqlc-install:
-	@if ! command -v sqlc> /dev/null; then \
-		read -p "Go's 'sqlc' is not installed on your machine. Do you want to install it? [Y/n] " choice; \
-		if [ "$$choice" != "n" ] && [ "$$choice" != "N" ]; then \
-			go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest; \
-			if [ ! -x "$$(command -v templ)" ]; then \
-				echo "sqlc installation failed. Exiting..."; \
-				exit 1; \
-			fi; \
-		else \
-			echo "You chose not to install sqlc. Exiting..."; \
-			exit 1; \
-		fi; \
-	fi
+	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+
+goose-install:
+	go install github.com/pressly/goose/v3/cmd/goose@latest
+
+tailwind-install:
+	@if [ ! -f tailwindcss ]; then curl -sL https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-macos-arm64 -o tailwindcss; fi
+	@chmod +x tailwindcss
 
 .PHONY: sqlc-generate
 sqlc-generate:
 	sqlc generate
 
-goose-install:
-	@if ! command -v goose> /dev/null; then \
-		read -p "Go's 'goose' is not installed on your machine. Do you want to install it? [Y/n] " choice; \
-		if [ "$$choice" != "n" ] && [ "$$choice" != "N" ]; then \
-			go install github.com/pressly/goose/v3/cmd/goose@latest; \
-			if [ ! -x "$$(command -v templ)" ]; then \
-				echo "goose installation failed. Exiting..."; \
-				exit 1; \
-			fi; \
-		else \
-			echo "You chose not to install goose. Exiting..."; \
-			exit 1; \
-		fi; \
-	fi
-
-tailwind-install:
-	
-	@if [ ! -f tailwindcss ]; then curl -sL https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-macos-arm64 -o tailwindcss; fi
-	@chmod +x tailwindcss
+.PHONY: migrate
+migrate:
+	goose up
 
 build: tailwind-install templ-install
 	@echo "Building..."
@@ -168,10 +134,7 @@ vender:
 	go mod vender
 
 
-
-
 # TODO
-
 #############################
 #### PRODUCTION #############
 #############################
