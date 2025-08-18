@@ -18,8 +18,8 @@ require (
 	github.com/justinas/nosurf v1.2.0
 	github.com/markbates/goth v1.81.0
 	github.com/mattn/go-sqlite3 v1.14.28
+	github.com/spf13/cobra v1.9.1
 	golang.org/x/crypto v0.37.0
-	golang.org/x/time v0.12.0
 )
 
 require (
@@ -35,7 +35,6 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
-	github.com/spf13/cobra v1.9.1 // indirect
 	github.com/spf13/pflag v1.0.7 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
 	golang.org/x/oauth2 v0.17.0 // indirect

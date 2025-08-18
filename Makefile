@@ -24,12 +24,6 @@ confirm:
 # Build the application
 all: build test
 
-templ:
-    templ generate --watch --proxy="http://localhost:8090" --open-browser=false
-
-# Watch Tailwind CSS changes
-tailwind: tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --watch
-
 templ-install:
 	go install github.com/a-h/templ/cmd/templ@latest
 
@@ -43,9 +37,19 @@ tailwind-install:
 	@if [ ! -f tailwindcss ]; then curl -sL https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-macos-arm64 -o tailwindcss; fi
 	@chmod +x tailwindcss
 
+install-deps: templ-install sqlc-install goose-install tailwind-install
+	@go mod tidy
+	
+# Watch Tailwind CSS changes
+tailwind: tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --watch
+
 .PHONY: sqlc-generate
 sqlc-generate:
 	sqlc generate
+
+.PHONY: templ
+templ:
+    templ generate --watch --proxy="http://localhost:8090" --open-browser=false
 
 .PHONY: migrate
 migrate:
