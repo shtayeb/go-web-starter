@@ -11,6 +11,7 @@ type TemplateData struct {
 	PageTitle       string
 	Meta            map[string]string
 	AppName         string
+	CurrentPath     string
 }
 
 // PageData wraps template data with page-specific data

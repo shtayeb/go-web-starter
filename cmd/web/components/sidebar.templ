@@ -75,15 +75,15 @@ templ SidebarFooter() {
 }
 
 // data-collapsible="offcanvas" - when it is collapsed
-templ Sidebar() {
+templ Sidebar(currentPath string) {
 	{{
 		mainItems := []SidebarItem{
-			{Title: "Dashboard", Href: "/dashboard", Icon: icon.LayoutDashboard(icon.Props{Class: "size-4.5"}), Active: true},
-			{Title: "Projects", Href: "/projects", Icon: icon.Folder(icon.Props{Class: "size-4.5"}), Badge: "12"},
+			{Title: "Dashboard", Href: "/dashboard", Icon: icon.LayoutDashboard(icon.Props{Class: "size-4.5"}), Active: currentPath == "/dashboard"},
+			{Title: "Projects", Href: "/projects", Icon: icon.Folder(icon.Props{Class: "size-4.5"}), Badge: "12", Active: currentPath == "/projects"},
 		}
 		
 		toolsItems := []SidebarItem{
-			{Title: "Analytics", Href: "#", Icon: icon.ChartPie(icon.Props{Class: "size-4.5"})},
+			{Title: "Analytics", Href: "/analytics", Icon: icon.ChartPie(icon.Props{Class: "size-4.5"}), Active: currentPath == "/analytics"},
 		}
 	}}
 	<div

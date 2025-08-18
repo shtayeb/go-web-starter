@@ -72,6 +72,7 @@ func (h *Handlers) NewTemplateData(r *http.Request) types.TemplateData {
 		User:            h.GetUser(r),
 		CSRFToken:       nosurf.Token(r),
 		Flash:           h.SessionManager.PopString(r.Context(), "flash"),
+		CurrentPath:     r.URL.Path,
 	}
 }
 
