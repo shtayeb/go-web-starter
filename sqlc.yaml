@@ -1,6 +1,7 @@
 version: "2"
 sql:
-- schema: "./sql/migrations"
+- name: postgresql
+  schema: "./sql/migrations"
   queries: "./sql/queries"
   engine: "postgresql"
   gen:
@@ -10,3 +11,4 @@ sql:
       emit_interface: true
   rules:
     - sqlc/db-prepare
+    - postgresql-query-too-costly
