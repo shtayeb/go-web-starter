@@ -47,7 +47,7 @@ func LoadConfigFromEnv() Config {
 			Password: GetEnv("BLUEPRINT_DB_PASSWORD", "password1234"),
 			Username: GetEnv("BLUEPRINT_DB_USERNAME", "shtb"),
 			Port:     GetEnv("BLUEPRINT_DB_PORT", "5432"),
-			Host:     GetEnv("BLUEPRINT_DB_HOST", "psql_bp"),
+			Host:     GetEnv("BLUEPRINT_DB_HOST", "psql_bp_1"),
 			Schema:   GetEnv("BLUEPRINT_DB_SCHEMA", "public"),
 		},
 		Mailer: SMTP{

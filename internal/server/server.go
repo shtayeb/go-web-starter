@@ -1,13 +1,13 @@
 package server
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
-	_ "github.com/joho/godotenv/autoload"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/google"
 
@@ -30,30 +30,57 @@ type Server struct {
 	Config         config.Config
 }
 
-func NewServer() *http.Server {
-	config := config.LoadConfigFromEnv()
+func NewServer(cfg config.Config, db database.Service, q queries.Queries, logger *jsonlog.Logger, mailer mailer.Mailer, sessionManager *scs.SessionManager) *Server {
+	s := &Server{
+		Port:           cfg.Port,
+		Db:             db,
+		Queries:        q,
+		Logger:         logger,
+		Mailer:         mailer,
+		SessionManager: sessionManager,
+		Config:         cfg,
+	}
 
-	db := database.New(config.Database)
+	return s
+}
 
+func NewSessionManager(db *sql.DB) *scs.SessionManager {
 	sessionManager := scs.New()
-	sessionManager.Store = postgresstore.New(db.GetDB())
+	sessionManager.Store = postgresstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
 	// Make sure that the Secure attribute is set on our session cookies. Setting this means that the cookie will only be sent by a user's web
 	// browser when a HTTPS connection is being used (and won't be sent over an unsecure HTTP connection).
 	sessionManager.Cookie.Secure = true
 
-	s := &Server{
-		Port:           config.Port,
-		Db:             db,
-		Queries:        *queries.New(db.GetDB()),
-		Logger:         jsonlog.New(os.Stdout, jsonlog.LevelInfo),
-		Mailer:         mailer.New(config.Mailer),
-		SessionManager: sessionManager,
-		Config:         config,
-	}
+	return sessionManager
+}
+
+func NewHttpServer() *http.Server {
+	// load the .env file. by default, it will load the .env file in the root directory
+	config := config.LoadConfigFromEnv()
+
+	dbService := database.New(config.Database)
+	sqlDb := dbService.GetDB()
+
+	goth.UseProviders(
+		google.New(
+			config.SocialLogins.GoogleClientID,
+			config.SocialLogins.GoogleClientSecret,
+			fmt.Sprintf("%s/auth/google/callback", config.AppURL),
+		),
+	)
+
+	s := NewServer(
+		config,
+		dbService,
+		*queries.New(sqlDb),
+		jsonlog.New(os.Stdout, jsonlog.LevelInfo),
+		mailer.New(config.Mailer),
+		NewSessionManager(sqlDb),
+	)
 
 	// Declare Server config
-	server := &http.Server{
+	httpServer := &http.Server{
 		Addr:         fmt.Sprintf(":%d", s.Port),
 		Handler:      s.RegisterRoutes(),
 		IdleTimeout:  time.Minute,
@@ -61,13 +88,5 @@ func NewServer() *http.Server {
 		WriteTimeout: 30 * time.Second,
 	}
 
-	goth.UseProviders(
-		google.New(
-			config.SocialLogins.GoogleClientID,
-			config.SocialLogins.GoogleClientSecret,
-			fmt.Sprintf("%s/auth/google/callback", s.Config.AppURL),
-		),
-	)
-
-	return server
+	return httpServer
 }

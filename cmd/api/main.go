@@ -38,7 +38,7 @@ func main() {
 }
 
 func execServerCommand(cmd *cobra.Command, args []string) {
-	server := server.NewServer()
+	server := server.NewHttpServer()
 
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)
