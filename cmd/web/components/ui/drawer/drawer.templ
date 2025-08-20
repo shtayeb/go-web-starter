@@ -1,4 +1,4 @@
-// templui component drawer - version: v0.83.1 installed by templui v0.83.1
+// templui component drawer - version: v0.90.0 installed by templui v0.90.0
 package drawer
 
 import "go-web-starter/cmd/web/utils"
@@ -69,9 +69,9 @@ templ Trigger(props ...TriggerProps) {
 		}
 		class={ utils.TwMerge("group cursor-pointer", p.Class) }
 		if p.For != "" {
-			data-drawer-trigger={ p.For }
+			data-tui-drawer-trigger={ p.For }
 		}
-		data-open="false"
+		data-tui-drawer-open="false"
 		{ p.Attributes... }
 	>
 		{ children... }
@@ -91,11 +91,11 @@ templ Content(props ...ContentProps) {
 			id={ p.ID }
 		}
 		class="fixed inset-0 z-50 bg-background/80 backdrop-blur-xs templui-drawer-backdrop hidden"
-		data-drawer-backdrop
-		data-component="drawer"
-		data-open="false"
+		data-tui-drawer-backdrop
+		data-tui-drawer-component="drawer"
+		data-tui-drawer-open="false"
 		if p.InitialOpen {
-			data-initial-open="true"
+			data-tui-drawer-initial-open="true"
 		}
 	></div>
 	<div
@@ -110,8 +110,8 @@ templ Content(props ...ContentProps) {
 				utils.If(p.Position == PositionBottom, "inset-x-0 bottom-0 h-auto sm:h-1/2"),
 			),
 		}
-		data-drawer-content
-		data-drawer-position={ string(p.Position) }
+		data-tui-drawer-content
+		data-tui-drawer-position={ string(p.Position) }
 		{ p.Attributes... }
 	>
 		<div
@@ -124,7 +124,7 @@ templ Content(props ...ContentProps) {
 					utils.If(p.Position == PositionTop, "border-b"),
 				),
 			}
-			data-drawer-inner
+			data-tui-drawer-inner
 		>
 			{ children... }
 		</div>
@@ -214,9 +214,9 @@ templ Close(props ...CloseProps) {
 			),
 		}
 		if p.For != "" {
-			data-drawer-close={ p.For }
+			data-tui-drawer-close={ p.For }
 		} else {
-			data-drawer-close
+			data-tui-drawer-close
 		}
 		{ p.Attributes... }
 	>
@@ -225,5 +225,5 @@ templ Close(props ...CloseProps) {
 }
 
 templ Script() {
-	<script defer src="/assets/js/ui/drawer.min.js"></script>
+	<script defer nonce={ templ.GetNonce(ctx) } src="assets/js/ui/drawer.min.js"></script>
 }

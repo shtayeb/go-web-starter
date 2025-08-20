@@ -1,4 +1,4 @@
-// templui component popover - version: v0.83.1 installed by templui v0.83.1
+// templui component popover - version: v0.90.0 installed by templui v0.90.0
 package popover
 
 import (
@@ -66,10 +66,10 @@ templ Trigger(props ...TriggerProps) {
 		}
 		class={ utils.TwMerge("group cursor-pointer", p.Class) }
 		if p.For != "" {
-			data-popover-trigger={ p.For }
+			data-tui-popover-trigger={ p.For }
 		}
-		data-open="false"
-		data-popover-type={ string(p.TriggerType) }
+		data-tui-popover-open="false"
+		data-tui-popover-type={ string(p.TriggerType) }
 		{ p.Attributes... }
 	>
 		{ children... }
@@ -93,17 +93,17 @@ templ Content(props ...ContentProps) {
 	}
 	<div
 		id={ p.ID }
-		data-popover-id={ p.ID }
-		data-open="false"
-		data-popover-placement={ string(p.Placement) }
-		data-popover-offset={ strconv.Itoa(p.Offset) }
-		data-popover-disable-clickaway={ strconv.FormatBool(p.DisableClickAway) }
-		data-popover-disable-esc={ strconv.FormatBool(p.DisableESC) }
-		data-popover-show-arrow={ strconv.FormatBool(p.ShowArrow) }
-		data-popover-hover-delay={ strconv.Itoa(p.HoverDelay) }
-		data-popover-hover-out-delay={ strconv.Itoa(p.HoverOutDelay) }
+		data-tui-popover-id={ p.ID }
+		data-tui-popover-open="false"
+		data-tui-popover-placement={ string(p.Placement) }
+		data-tui-popover-offset={ strconv.Itoa(p.Offset) }
+		data-tui-popover-disable-clickaway={ strconv.FormatBool(p.DisableClickAway) }
+		data-tui-popover-disable-esc={ strconv.FormatBool(p.DisableESC) }
+		data-tui-popover-show-arrow={ strconv.FormatBool(p.ShowArrow) }
+		data-tui-popover-hover-delay={ strconv.Itoa(p.HoverDelay) }
+		data-tui-popover-hover-out-delay={ strconv.Itoa(p.HoverOutDelay) }
 		if p.MatchWidth {
-			data-popover-match-width="true"
+			data-tui-popover-match-width="true"
 		}
 		class={ utils.TwMerge(
 			"bg-popover rounded-lg border text-popover-foreground text-sm shadow-lg pointer-events-auto absolute z-[9999] hidden top-0 left-0",
@@ -115,11 +115,11 @@ templ Content(props ...ContentProps) {
 			{ children... }
 		</div>
 		if p.ShowArrow {
-			<div data-popover-arrow class="absolute h-2.5 w-2.5 rotate-45 bg-background border"></div>
+			<div data-tui-popover-arrow class="absolute h-2.5 w-2.5 rotate-45 bg-background border"></div>
 		}
 	</div>
 }
 
 templ Script() {
-	<script defer src="assets/js/ui/popover.min.js"></script>
+	<script defer nonce={ templ.GetNonce(ctx) } src="assets/js/ui/popover.min.js"></script>
 }

@@ -1,4 +1,4 @@
-// templui component label - version: v0.83.1 installed by templui v0.83.1
+// templui component label - version: v0.90.0 installed by templui v0.90.0
 package label
 
 import "go-web-starter/cmd/web/utils"
@@ -30,7 +30,7 @@ templ Label(props ...Props) {
 				p.Class,
 			),
 		}
-		data-disabled-style="opacity-50 cursor-not-allowed"
+		data-tui-label-disabled-style="opacity-50 cursor-not-allowed"
 		{ p.Attributes... }
 	>
 		{ children... }
@@ -38,5 +38,5 @@ templ Label(props ...Props) {
 }
 
 templ Script() {
-	<script defer src="assets/js/ui/label.min.js"></script>
+	<script defer nonce={ templ.GetNonce(ctx) } src="assets/js/ui/label.min.js"></script>
 }
