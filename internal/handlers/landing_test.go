@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"go-web-starter/internal/tests"
 	"log"
 	"testing"
 )
 
 func TestLandingViewHandler(t *testing.T) {
-	log.Println("Running TestLandingViewHandler")
+	server := tests.StartTestServer(t)
+
+	log.Println("Running TestLandingViewHandler", server.Config)
 }

@@ -10,7 +10,7 @@ import (
 
 func TestE2E(t *testing.T) {
 	// Start a test server
-	srv := startTestServer(t)
+	srv := StartTestServer(t)
 	if srv == nil {
 		t.Skip("Could not start test server, skipping E2E tests")
 		return
@@ -164,7 +164,7 @@ func testStaticAssets(t *testing.T, client *http.Client, baseURL string) {
 // BenchmarkE2E benchmarks the server performance
 func BenchmarkE2E(b *testing.B) {
 	// Start test server
-	srv := startTestServer(&testing.T{})
+	srv := StartTestServer(&testing.T{})
 	defer srv.Close()
 
 	baseURL := srv.URL

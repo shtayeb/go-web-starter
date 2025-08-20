@@ -15,7 +15,7 @@ import (
 )
 
 // startTestServer starts a test HTTP server for testing
-func startTestServer(t *testing.T) *httptest.Server {
+func StartTestServer(t *testing.T) *httptest.Server {
 	if err := godotenv.Load("../../.env.test"); err != nil {
 		t.Logf("Warning: Could not load .env.test file: %v", err)
 	}
