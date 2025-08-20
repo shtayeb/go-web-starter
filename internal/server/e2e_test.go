@@ -14,7 +14,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alexedwards/scs/v2"
 	"github.com/joho/godotenv"
 )
 
@@ -63,41 +62,34 @@ func TestE2E(t *testing.T) {
 
 // startTestServer starts a test HTTP server for testing
 func startTestServer(t *testing.T) *httptest.Server {
-	// Load environment variables for testing
 	if err := godotenv.Load("../../.env.test"); err != nil {
 		t.Logf("Warning: Could not load .env.test file: %v", err)
 	}
 
-	// Use the default config from env but modify for testing
 	cfg := config.LoadConfigFromEnv()
-	cfg.Debug = true
-	cfg.AppName = "Test App"
 
 	// Try to connect to database, if it fails, skip the test
-	db := database.New(cfg.Database)
-	if db == nil {
+	dbService := database.New(cfg.Database)
+	if dbService == nil {
 		return nil
 	}
 
-	// Test database connection
-	health := db.Health()
+	health := dbService.Health()
 	if health["status"] != "up" {
 		t.Logf("Database is not available: %s", health["error"])
 		return nil
 	}
 
-	// Create test session manager with default in-memory store
-	sessionManager := scs.New()
-	sessionManager.Lifetime = 12 * time.Hour
-	sessionManager.Cookie.Secure = false // Allow insecure cookies in tests
+	sqlDB := dbService.GetDB()
 
-	// Create test components
-	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
-	testMailer := mailer.New(cfg.Mailer)
-	q := *queries.New(db.GetDB())
-
-	// Create test server using the test factory
-	server := NewServer(cfg, db, q, logger, testMailer, sessionManager)
+	server := NewServer(
+		cfg,
+		dbService,
+		queries.New(sqlDB),
+		jsonlog.New(os.Stdout, jsonlog.LevelInfo),
+		mailer.New(cfg.Mailer),
+		NewSessionManager(sqlDB),
+	)
 
 	srv := httptest.NewServer(server.RegisterRoutes())
 
@@ -200,7 +192,6 @@ func testProtectedRoutes(t *testing.T, client *http.Client, baseURL string) {
 	}
 }
 
-// testStaticAssets tests static asset serving
 func testStaticAssets(t *testing.T, client *http.Client, baseURL string) {
 	// Test that assets endpoint is accessible
 	resp, err := client.Get(baseURL + "/assets/")

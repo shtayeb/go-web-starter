@@ -30,11 +30,11 @@ type Server struct {
 	Config         config.Config
 }
 
-func NewServer(cfg config.Config, db database.Service, q queries.Queries, logger *jsonlog.Logger, mailer mailer.Mailer, sessionManager *scs.SessionManager) *Server {
+func NewServer(cfg config.Config, db database.Service, q *queries.Queries, logger *jsonlog.Logger, mailer mailer.Mailer, sessionManager *scs.SessionManager) *Server {
 	s := &Server{
 		Port:           cfg.Port,
 		Db:             db,
-		Queries:        q,
+		Queries:        *q,
 		Logger:         logger,
 		Mailer:         mailer,
 		SessionManager: sessionManager,
@@ -73,7 +73,7 @@ func NewHttpServer() *http.Server {
 	s := NewServer(
 		config,
 		dbService,
-		*queries.New(sqlDb),
+		queries.New(sqlDb),
 		jsonlog.New(os.Stdout, jsonlog.LevelInfo),
 		mailer.New(config.Mailer),
 		NewSessionManager(sqlDb),
