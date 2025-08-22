@@ -1,0 +1,511 @@
+// templui component sidebar - version: v0.92.0 installed by templui v0.92.0
+package sidebar
+
+import "go-web-starter/cmd/web/utils"
+import "go-web-starter/cmd/web/components/ui/icon"
+import "go-web-starter/cmd/web/components/ui/button"
+
+type SidebarSide string
+
+const (
+	SidebarSideLeft  SidebarSide = "left" // default
+	SidebarSideRight SidebarSide = "right"
+)
+
+type SidebarProps struct {
+	ID          string
+	Class       string
+	Attributes  templ.Attributes
+	Side        SidebarSide // default: "left"
+	DefaultOpen bool        // default: true for desktop, false for mobile
+}
+
+type TriggerProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+type HeaderProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+type ContentProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+type FooterProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+type InsetProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+type GroupProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+type GroupLabelProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+type MenuProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+type MenuItemProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+type MenuButtonProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+	Href       string
+	IsActive   bool
+}
+
+type MenuBadgeProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+type MenuSubProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+type MenuSubItemProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+type MenuSubButtonProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+	Href       string
+	IsActive   bool
+}
+
+type SeparatorProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+templ Sidebar(props ...SidebarProps) {
+	{{ var p SidebarProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	if p.ID == "" {
+		{{ p.ID = utils.RandomID() }}
+	}
+	if p.Side == "" {
+		{{ p.Side = SidebarSideLeft }}
+	}
+	<!-- Backdrop for mobile -->
+	<div
+		class="absolute inset-0 z-40 lg:hidden hidden"
+		data-sidebar-backdrop
+		data-sidebar-id={ p.ID }
+	></div>
+	<!-- Sidebar -->
+	<aside
+		id={ p.ID }
+		class={ utils.TwMerge(
+			// Base styles
+			"h-full bg-sidebar text-sidebar-foreground flex-shrink-0 transition-all duration-200",
+			// Border based on side
+			utils.IfElse(p.Side == SidebarSideRight, "border-l border-sidebar-border", "border-r border-sidebar-border"),
+			// Mobile: fixed width, absolute position, transform for show/hide
+			"w-64 absolute inset-y-0 z-50",
+			// Position based on side
+			utils.IfElse(p.Side == SidebarSideRight, "right-0", "left-0"),
+			// Transform based on side
+			utils.IfElse(p.Side == SidebarSideRight,
+				"transform translate-x-full data-[sidebar-state=open]:-translate-x-0",
+				"transform -translate-x-full data-[sidebar-state=open]:translate-x-0"),
+			// Desktop: relative position, width changes
+			"lg:relative lg:z-0 lg:translate-x-0",
+			"lg:w-64 lg:data-[sidebar-state=closed]:w-0",
+			// Hide overflow and border when closed on desktop
+			"lg:data-[sidebar-state=closed]:overflow-hidden lg:data-[sidebar-state=closed]:border-0",
+			p.Class,
+		) }
+		data-sidebar="sidebar"
+		data-sidebar-side={ string(p.Side) }
+		data-sidebar-state="closed"
+		data-sidebar-default-open={ utils.IfElse(len(props) > 0 && !p.DefaultOpen, "false", "true") }
+		{ p.Attributes... }
+	>
+		<div class="flex h-full flex-col">
+			{ children... }
+		</div>
+	</aside>
+}
+
+templ Trigger(props ...TriggerProps) {
+	{{ var p TriggerProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	@button.Button(button.Props{
+		Size:    button.SizeIcon,
+		Variant: button.VariantGhost,
+		Class: utils.TwMerge(
+			"size-7",
+			p.Class,
+		),
+		Attributes: utils.MergeAttributes(
+			templ.Attributes{"data-sidebar-trigger": true},
+			p.Attributes,
+		)},
+	) {
+		@icon.PanelLeft(icon.Props{Class: "size-4"})
+		<span class="sr-only">Toggle Sidebar</span>
+	}
+}
+
+templ Header(props ...HeaderProps) {
+	{{ var p HeaderProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<div
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ utils.TwMerge("flex items-center gap-2 px-4 py-3 border-b border-sidebar-border", p.Class) }
+		data-sidebar="header"
+		{ p.Attributes... }
+	>
+		{ children... }
+	</div>
+}
+
+templ Footer(props ...FooterProps) {
+	{{ var p FooterProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<div
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ utils.TwMerge("mt-auto px-4 py-3 border-t border-sidebar-border", p.Class) }
+		data-sidebar="footer"
+		{ p.Attributes... }
+	>
+		{ children... }
+	</div>
+}
+
+templ Content(props ...ContentProps) {
+	{{ var p ContentProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<div
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ utils.TwMerge("flex-1 overflow-y-auto px-4 py-4", p.Class) }
+		data-sidebar="content"
+		{ p.Attributes... }
+	>
+		{ children... }
+	</div>
+}
+
+templ Menu(props ...MenuProps) {
+	{{ var p MenuProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<ul
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ utils.TwMerge("space-y-1", p.Class) }
+		data-sidebar="menu"
+		{ p.Attributes... }
+	>
+		{ children... }
+	</ul>
+}
+
+templ MenuItem(props ...MenuItemProps) {
+	{{ var p MenuItemProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<li
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ utils.TwMerge("", p.Class) }
+		data-sidebar="menu-item"
+		{ p.Attributes... }
+	>
+		{ children... }
+	</li>
+}
+
+templ MenuButton(props ...MenuButtonProps) {
+	{{ var p MenuButtonProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	if p.Href != "" {
+		<a
+			if p.ID != "" {
+				id={ p.ID }
+			}
+			href={ templ.SafeURL(p.Href) }
+			class={ utils.TwMerge(
+				"flex items-center gap-3 rounded-md px-3 py-2 text-sm",
+				"hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+				"transition-colors",
+				utils.If(p.IsActive, "bg-sidebar-accent text-sidebar-accent-foreground font-medium"),
+				p.Class,
+			) }
+			data-sidebar="menu-button"
+			if p.IsActive {
+				data-active="true"
+			}
+			{ p.Attributes... }
+		>
+			{ children... }
+		</a>
+	} else {
+		<button
+			if p.ID != "" {
+				id={ p.ID }
+			}
+			type="button"
+			class={ utils.TwMerge(
+				"flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-left",
+				"hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+				"transition-colors",
+				utils.If(p.IsActive, "bg-sidebar-accent text-sidebar-accent-foreground font-medium"),
+				p.Class,
+			) }
+			data-sidebar="menu-button"
+			if p.IsActive {
+				data-active="true"
+			}
+			{ p.Attributes... }
+		>
+			{ children... }
+		</button>
+	}
+}
+
+templ MenuSub(props ...MenuSubProps) {
+	{{ var p MenuSubProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<ul
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ utils.TwMerge(
+			"ml-4 space-y-1 py-1 pl-4 border-l border-sidebar-border",
+			p.Class,
+		) }
+		data-sidebar="menu-sub"
+		{ p.Attributes... }
+	>
+		{ children... }
+	</ul>
+}
+
+templ MenuSubItem(props ...MenuSubItemProps) {
+	{{ var p MenuSubItemProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<li
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ utils.TwMerge("", p.Class) }
+		data-sidebar="menu-sub-item"
+		{ p.Attributes... }
+	>
+		{ children... }
+	</li>
+}
+
+templ MenuSubButton(props ...MenuSubButtonProps) {
+	{{ var p MenuSubButtonProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	if p.Href != "" {
+		<a
+			if p.ID != "" {
+				id={ p.ID }
+			}
+			href={ templ.SafeURL(p.Href) }
+			class={ utils.TwMerge(
+				"flex items-center gap-3 rounded-md px-3 py-1.5 text-sm",
+				"hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+				"transition-colors",
+				utils.If(p.IsActive, "bg-sidebar-accent text-sidebar-accent-foreground font-medium"),
+				p.Class,
+			) }
+			data-sidebar="menu-sub-button"
+			if p.IsActive {
+				data-active="true"
+			}
+			{ p.Attributes... }
+		>
+			{ children... }
+		</a>
+	} else {
+		<button
+			if p.ID != "" {
+				id={ p.ID }
+			}
+			type="button"
+			class={ utils.TwMerge(
+				"flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-sm text-left",
+				"hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+				"transition-colors",
+				utils.If(p.IsActive, "bg-sidebar-accent text-sidebar-accent-foreground font-medium"),
+				p.Class,
+			) }
+			data-sidebar="menu-sub-button"
+			if p.IsActive {
+				data-active="true"
+			}
+			{ p.Attributes... }
+		>
+			{ children... }
+		</button>
+	}
+}
+
+templ Inset(props ...InsetProps) {
+	{{ var p InsetProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<main
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ utils.TwMerge(
+			"flex-1",
+			p.Class,
+		) }
+		data-sidebar="inset"
+		{ p.Attributes... }
+	>
+		{ children... }
+	</main>
+}
+
+templ Group(props ...GroupProps) {
+	{{ var p GroupProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<div
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ utils.TwMerge("space-y-2", p.Class) }
+		data-sidebar="group"
+		{ p.Attributes... }
+	>
+		{ children... }
+	</div>
+}
+
+templ GroupLabel(props ...GroupLabelProps) {
+	{{ var p GroupLabelProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<div
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ utils.TwMerge(
+			"px-3 py-2 text-xs font-semibold text-sidebar-foreground/70",
+			p.Class,
+		) }
+		data-sidebar="group-label"
+		{ p.Attributes... }
+	>
+		{ children... }
+	</div>
+}
+
+templ MenuBadge(props ...MenuBadgeProps) {
+	{{ var p MenuBadgeProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<span
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ utils.TwMerge(
+			"ml-auto flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium",
+			"bg-sidebar-accent text-sidebar-accent-foreground",
+			p.Class,
+		) }
+		data-sidebar="menu-badge"
+		{ p.Attributes... }
+	>
+		{ children... }
+	</span>
+}
+
+templ Separator(props ...SeparatorProps) {
+	{{ var p SeparatorProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<hr
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ utils.TwMerge(
+			"my-2 border-t border-sidebar-border",
+			p.Class,
+		) }
+		data-sidebar="separator"
+		{ p.Attributes... }
+	/>
+}
+
+templ Script() {
+	<script defer nonce={ templ.GetNonce(ctx) } src="assets/js/ui/sidebar.min.js"></script>
+}

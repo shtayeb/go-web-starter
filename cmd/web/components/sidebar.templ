@@ -1,6 +1,118 @@
 package components
 
 import "go-web-starter/cmd/web/components/ui/icon"
+import "go-web-starter/cmd/web/components/ui/sidebar"
+import "go-web-starter/cmd/web/components/ui/collapsible"
+import "go-web-starter/cmd/web/components/ui/avatar"
+
+
+templ SidebarDefault() {
+		@sidebar.Sidebar() {
+			@sidebar.Header(sidebar.HeaderProps{
+				Class: "h-13",
+			}) {
+				@icon.LayoutPanelLeft(icon.Props{Class: "size-6"})
+				<span class="font-semibold">Acme Inc</span>
+			}
+			@sidebar.Content() {
+				@sidebar.Group() {
+					@sidebar.GroupLabel() {
+						Platform
+					}
+					@sidebar.Menu() {
+						@sidebar.MenuItem() {
+							@sidebar.MenuButton(sidebar.MenuButtonProps{
+								Href: "#",
+							}) {
+								@icon.House(icon.Props{Class: "size-4"})
+								<span>Home</span>
+							}
+						}
+						@sidebar.MenuItem() {
+							@sidebar.MenuButton(sidebar.MenuButtonProps{
+								Href: "#",
+							}) {
+								@icon.Inbox(icon.Props{Class: "size-4"})
+								<span>Inbox</span>
+								@sidebar.MenuBadge() {
+									3
+								}
+							}
+						}
+						@sidebar.MenuItem() {
+							@collapsible.Collapsible(collapsible.Props{
+								DefaultOpen: true,
+								Class:       "group/collapsible w-full",
+							}) {
+								@collapsible.Trigger() {
+									@sidebar.MenuButton() {
+										@icon.FileText(icon.Props{Class: "size-4"})
+										<span>Documents</span>
+										@icon.ChevronRight(icon.Props{
+											Class: "ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-90",
+										})
+									}
+								}
+								@collapsible.Content() {
+									@sidebar.MenuSub() {
+										@sidebar.MenuSubItem() {
+											@sidebar.MenuSubButton(sidebar.MenuSubButtonProps{
+												Href: "#",
+											}) {
+												<span>Reports</span>
+											}
+										}
+										@sidebar.MenuSubItem() {
+											@sidebar.MenuSubButton(sidebar.MenuSubButtonProps{
+												Href: "#",
+											}) {
+												<span>Invoices</span>
+											}
+										}
+										@sidebar.MenuSubItem() {
+											@sidebar.MenuSubButton(sidebar.MenuSubButtonProps{
+												Href:     "#",
+												IsActive: true,
+											}) {
+												<span>Receipts</span>
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				@sidebar.Separator()
+				@sidebar.Group() {
+					@sidebar.Menu() {
+						@sidebar.MenuItem() {
+							@sidebar.MenuButton(sidebar.MenuButtonProps{
+								Href: "#",
+							}) {
+								@icon.Users(icon.Props{Class: "size-4"})
+								<span>Team</span>
+							}
+						}
+					}
+				}
+			}
+			@sidebar.Footer() {
+				<div class="flex items-center gap-3">
+					@avatar.Avatar() {
+						@avatar.Image(avatar.ImageProps{
+							Src: "https://avatars.githubusercontent.com/u/26936893?v=4",
+						})
+					}
+					<div class="flex flex-col">
+						<span class="text-sm font-medium">John Doe</span>
+						<span class="text-xs text-gray-500">john@example.com</span>
+					</div>
+				</div>
+			}
+		}
+}
+
 
 type SidebarItem struct {
 	Title  string

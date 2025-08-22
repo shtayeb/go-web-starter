@@ -1,0 +1,91 @@
+// templui component collapsible - version: v0.92.0 installed by templui v0.92.0
+package collapsible
+
+import "go-web-starter/cmd/web/utils"
+
+// Props for the root container
+type Props struct {
+	ID          string
+	Class       string
+	Attributes  templ.Attributes
+	DefaultOpen bool
+}
+
+// Collapsible - Root container for collapsible content
+templ Collapsible(props ...Props) {
+	{{ var p Props }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	if p.ID == "" {
+		{{ p.ID = utils.RandomID() }}
+	}
+	<div
+		id={ p.ID }
+		class={ utils.TwMerge("", p.Class) }
+		data-collapsible="root"
+		data-state={ utils.IfElse(p.DefaultOpen, "open", "closed") }
+		{ p.Attributes... }
+	>
+		{ children... }
+	</div>
+}
+
+// Props for the trigger button
+type TriggerProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+// Trigger - Wrapper for the button that toggles the collapsible
+templ Trigger(props ...TriggerProps) {
+	{{ var p TriggerProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<div
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ utils.TwMerge("", p.Class) }
+		data-collapsible="trigger"
+		{ p.Attributes... }
+	>
+		{ children... }
+	</div>
+}
+
+// Props for the expandable content
+type ContentProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+// Content - Content that expands/collapses
+templ Content(props ...ContentProps) {
+	{{ var p ContentProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<div
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		class={ utils.TwMerge(
+			"overflow-hidden transition-[height] duration-200 ease-out",
+			p.Class,
+		) }
+		data-collapsible="content"
+		data-state="closed"
+		style="height: 0;"
+		{ p.Attributes... }
+	>
+		{ children... }
+	</div>
+}
+
+templ Script() {
+	<script defer nonce={ templ.GetNonce(ctx) } src="assets/js/ui/collapsible.min.js"></script>
+}
