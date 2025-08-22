@@ -61,6 +61,15 @@ templ UserDropdown(data types.TemplateData) {
 				}
 				@dropdown.Separator()
 				@dropdown.Group() {
+						@dropdown.Item(dropdown.ItemProps{
+						Href: "/dashboard",
+					}) {
+						<span class="flex items-center">
+							@icon.LayoutDashboard(icon.Props{Size: 16, Class: "mr-2"})
+							Dashboard
+						</span>
+					}
+
 					@dropdown.Item(dropdown.ItemProps{
 						Href: "/profile",
 					}) {
