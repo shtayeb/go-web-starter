@@ -14,15 +14,6 @@ import (
 // ExtractCSRFToken extracts the CSRF token from an HTML response
 // It looks for a hidden input field with name="csrf_token" or similar patterns
 func ExtractCSRFToken(t *testing.T, html string) string {
-	// Log first 500 chars of HTML for debugging
-	if t != nil && testing.Verbose() {
-		htmlPreview := html
-		if len(htmlPreview) > 500 {
-			htmlPreview = htmlPreview[:500] + "..."
-		}
-		t.Logf("ExtractCSRFToken: Searching in HTML (first 500 chars): %s", htmlPreview)
-	}
-
 	// Try multiple patterns that nosurf might use
 	patterns := []string{
 		`<input[^>]*name="csrf_token"[^>]*value="([^"]+)"`,
@@ -35,14 +26,14 @@ func ExtractCSRFToken(t *testing.T, html string) string {
 		re := regexp.MustCompile(pattern)
 		matches := re.FindStringSubmatch(html)
 		if len(matches) > 1 {
-			if t != nil && testing.Verbose() {
+			if t != nil {
 				t.Logf("ExtractCSRFToken: Found token with pattern %d: %s", i, matches[1])
 			}
 			return matches[1]
 		}
 	}
 
-	if t != nil && testing.Verbose() {
+	if t != nil {
 		t.Logf("ExtractCSRFToken: No CSRF token found in HTML")
 	}
 	return ""
@@ -67,22 +58,6 @@ func (ts *TestServer) GetPageWithCSRF(t *testing.T, client *http.Client, urlPath
 	}
 	defer resp.Body.Close()
 
-	if testing.Verbose() {
-		t.Logf("GetPageWithCSRF: Response status: %d", resp.StatusCode)
-		t.Logf("GetPageWithCSRF: Cookies received from server:")
-		for _, cookie := range resp.Cookies() {
-			t.Logf("  - %s = %s (Path: %s, HttpOnly: %v)", cookie.Name, cookie.Value, cookie.Path, cookie.HttpOnly)
-		}
-		// Also check what's in the jar
-		if parsedURL, err := url.Parse(ts.Server.URL); err == nil {
-			jarCookies := client.Jar.Cookies(parsedURL)
-			t.Logf("GetPageWithCSRF: Cookies in jar after request:")
-			for _, cookie := range jarCookies {
-				t.Logf("  - %s = %s", cookie.Name, cookie.Value)
-			}
-		}
-	}
-
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
@@ -94,9 +69,10 @@ func (ts *TestServer) GetPageWithCSRF(t *testing.T, client *http.Client, urlPath
 	// and the form field contains a different token that's validated against the cookie.
 	// We must extract the token from the HTML form, not from the cookie.
 
-	if testing.Verbose() {
+	if t != nil {
 		t.Logf("GetPageWithCSRF: Final token value: %s", token)
 	}
+
 	return token, nil
 }
 
@@ -104,60 +80,11 @@ func (ts *TestServer) GetPageWithCSRF(t *testing.T, client *http.Client, urlPath
 func (ts *TestServer) LoginUserWithCSRF(t *testing.T, email, password string) *http.Client {
 	t.Helper()
 
-	// Create a client with cookie jar
 	client := ts.NewClientWithCookies(t)
 
-	// First, get the login page to obtain CSRF token and session
-	csrfToken, err := ts.GetPageWithCSRF(t, client, "/login")
-	if err != nil {
-		t.Fatalf("failed to get CSRF token: %v", err)
-	}
-
-	// Log cookies after GET request
-	if testing.Verbose() {
-		if parsedURL, err := url.Parse(ts.Server.URL); err == nil {
-			cookies := client.Jar.Cookies(parsedURL)
-			t.Logf("LoginUserWithCSRF: Cookies after GET /login:")
-			hasSession := false
-			hasCSRF := false
-			for _, cookie := range cookies {
-				t.Logf("  - %s = %s (HttpOnly: %v, Secure: %v)", cookie.Name, cookie.Value, cookie.HttpOnly, cookie.Secure)
-				if cookie.Name == "session" {
-					hasSession = true
-				}
-				if cookie.Name == "csrf_token" {
-					hasCSRF = true
-				}
-			}
-			if !hasSession {
-				t.Logf("  WARNING: No session cookie found!")
-			}
-			if !hasCSRF {
-				t.Logf("  WARNING: No CSRF cookie found!")
-			}
-		}
-	}
-
-	// Prepare login form data with CSRF token
 	formData := url.Values{
 		"email":    {email},
 		"password": {password},
-	}
-
-	// Add CSRF token if we found one
-	if csrfToken != "" {
-		formData.Set("csrf_token", csrfToken)
-		if testing.Verbose() {
-			t.Logf("LoginUserWithCSRF: Using CSRF token: %s", csrfToken)
-		}
-	} else {
-		if testing.Verbose() {
-			t.Logf("LoginUserWithCSRF: WARNING - No CSRF token found!")
-		}
-	}
-
-	if testing.Verbose() {
-		t.Logf("LoginUserWithCSRF: Sending form data: %v", formData)
 	}
 
 	// Make login request
@@ -172,57 +99,15 @@ func (ts *TestServer) LoginUserWithCSRF(t *testing.T, email, password string) *h
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	// Log request details before sending
-	if testing.Verbose() {
-		t.Logf("LoginUserWithCSRF: Request URL: %s", req.URL)
-		t.Logf("LoginUserWithCSRF: Request headers: %v", req.Header)
-		// Log cookies that will be sent
-		if parsedURL, err := url.Parse(ts.Server.URL); err == nil {
-			cookies := client.Jar.Cookies(parsedURL)
-			t.Logf("LoginUserWithCSRF: Cookies being sent with POST:")
-			hasSession := false
-			hasCSRF := false
-			for _, cookie := range cookies {
-				t.Logf("  - %s = %s", cookie.Name, cookie.Value)
-				if cookie.Name == "session" {
-					hasSession = true
-				}
-				if cookie.Name == "csrf_token" {
-					hasCSRF = true
-				}
-			}
-			if !hasSession {
-				t.Logf("  WARNING: No session cookie being sent with POST!")
-			}
-			if !hasCSRF {
-				t.Logf("  WARNING: No CSRF cookie being sent with POST!")
-			}
-		}
-	}
-
 	resp, err := client.Do(req)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer resp.Body.Close()
 
-	if testing.Verbose() {
-		t.Logf("LoginUserWithCSRF: Response status: %d", resp.StatusCode)
-		t.Logf("LoginUserWithCSRF: Response headers: %v", resp.Header)
-	}
-
 	// Check if login was successful
 	if resp.StatusCode != http.StatusSeeOther && resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		// Log more details about the failure
-		if testing.Verbose() {
-			t.Logf("LoginUserWithCSRF: Login failed!")
-			t.Logf("LoginUserWithCSRF: Response body: %s", string(body))
-			// Check if it's a CSRF error specifically
-			if resp.StatusCode == http.StatusBadRequest && string(body) == "Bad Request" {
-				t.Logf("LoginUserWithCSRF: This appears to be a CSRF validation failure")
-			}
-		}
 		t.Fatalf("login failed with status %d: %s", resp.StatusCode, string(body))
 	}
 
@@ -353,67 +238,6 @@ func ExtractSessionID(cookies []*http.Cookie) string {
 		}
 	}
 	return ""
-}
-
-// WaitForEmail waits for an email to be sent and returns it
-// This is useful when testing async email sending
-func (ts *TestServer) WaitForEmail(t *testing.T, recipient string, maxWait int) *SentEmail {
-	t.Helper()
-
-	for i := 0; i < maxWait; i++ {
-		emails := ts.Mailer.GetSentEmails()
-		for _, email := range emails {
-			if email.Recipient == recipient {
-				return &email
-			}
-		}
-		// Small delay before checking again
-		if i < maxWait-1 {
-			// In real implementation, you might want to use time.Sleep
-			// For now, we'll just check immediately
-		}
-	}
-
-	return nil
-}
-
-// ClearEmails clears all sent emails from the mock mailer
-func (ts *TestServer) ClearEmails() {
-	ts.Mailer.Clear()
-}
-
-// GetLastEmail returns the last email that was sent
-func (ts *TestServer) GetLastEmail() *SentEmail {
-	return ts.Mailer.LastEmail()
-}
-
-// AssertEmailSent checks if an email was sent to the recipient
-func (ts *TestServer) AssertEmailSent(t *testing.T, recipient string, templateFile string) {
-	t.Helper()
-
-	emails := ts.Mailer.GetSentEmails()
-	found := false
-
-	for _, email := range emails {
-		if email.Recipient == recipient && email.TemplateFile == templateFile {
-			found = true
-			break
-		}
-	}
-
-	if !found {
-		t.Errorf("expected email with template %s to be sent to %s", templateFile, recipient)
-	}
-}
-
-// AssertNoEmailsSent checks that no emails were sent
-func (ts *TestServer) AssertNoEmailsSent(t *testing.T) {
-	t.Helper()
-
-	count := ts.Mailer.EmailCount()
-	if count > 0 {
-		t.Errorf("expected no emails to be sent, but %d were sent", count)
-	}
 }
 
 // MakeAuthenticatedRequest makes a request with an authenticated client

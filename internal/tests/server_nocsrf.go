@@ -14,7 +14,6 @@ import (
 	"go-web-starter/internal/handlers"
 	"go-web-starter/internal/handlers/auth"
 	"go-web-starter/internal/jsonlog"
-	"go-web-starter/internal/mailer"
 	"go-web-starter/internal/queries"
 	"go-web-starter/internal/server"
 	"go-web-starter/internal/service"
@@ -51,13 +50,12 @@ func NewTestServerNoCSRF(t *testing.T) *TestServerNoCSRF {
 
 	// Create test mailer
 	mockMailer := NewMockMailer()
-	testMailer := mailer.New(cfg.Mailer)
 
 	// Create session manager with in-memory store
 	sessionManager := setupTestSessionManager()
 
 	// Create the server instance (we'll override the routes)
-	s := server.NewServer(cfg, dbService, q, logger, testMailer, sessionManager)
+	s := server.NewServer(cfg, dbService, q, logger, mockMailer, sessionManager)
 
 	// Create custom routes WITHOUT CSRF protection
 	r := chi.NewRouter()
@@ -92,7 +90,7 @@ func NewTestServerNoCSRF(t *testing.T) *TestServerNoCSRF {
 
 	// Register all the same routes but without CSRF middleware
 	// We'll use the handlers from the server instance
-	handlers := handlers.NewHandlers(*q, dbService, logger, testMailer, sessionManager, cfg)
+	handlers := handlers.NewHandlers(*q, dbService, logger, mockMailer, sessionManager, cfg)
 	authService := service.NewAuthService(q, dbService)
 	authHandlers := auth.NewAuthHandler(handlers, authService)
 

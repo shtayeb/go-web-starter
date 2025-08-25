@@ -13,23 +13,27 @@ import (
 //go:embed "templates"
 var templateFS embed.FS
 
-type Mailer struct {
+type Mailer interface {
+	Send(recipient, templateFile string, data interface{}) error
+}
+
+type AppMailer struct {
 	dialer *mail.Dialer
 	sender string
 }
 
-func New(smtp config.SMTP) Mailer {
+func New(smtp config.SMTP) AppMailer {
 	dialer := mail.NewDialer(smtp.Host, smtp.Port, smtp.Username, smtp.Password)
 	dialer.Timeout = 5 * time.Second
 
-	return Mailer{
+	return AppMailer{
 		dialer: dialer,
 		sender: smtp.Sender,
 	}
 
 }
 
-func (m Mailer) Send(recipient, templateFile string, data interface{}) error {
+func (m AppMailer) Send(recipient, templateFile string, data interface{}) error {
 	tmpl, err := template.New("email").ParseFS(templateFS, "templates/"+templateFile)
 	if err != nil {
 		return err

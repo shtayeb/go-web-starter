@@ -16,7 +16,6 @@ import (
 	"go-web-starter/internal/config"
 	"go-web-starter/internal/database"
 	"go-web-starter/internal/jsonlog"
-	"go-web-starter/internal/mailer"
 	"go-web-starter/internal/queries"
 	"go-web-starter/internal/server"
 
@@ -57,14 +56,13 @@ func NewTestServer(t *testing.T) *TestServer {
 	logger := jsonlog.New(io.Discard, jsonlog.LevelInfo)
 
 	// Create test mailer with test configuration
-	testMailer := mailer.New(cfg.Mailer)
 	mockMailer := NewMockMailer()
 
 	// Create session manager with in-memory store
 	sessionManager := setupTestSessionManager()
 
 	// Create the server instance
-	s := server.NewServer(cfg, dbService, q, logger, testMailer, sessionManager)
+	s := server.NewServer(cfg, dbService, q, logger, mockMailer, sessionManager)
 
 	// Create test HTTP server
 	ts := httptest.NewServer(s.RegisterRoutes())

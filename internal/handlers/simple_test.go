@@ -32,8 +32,6 @@ func TestSimpleLandingPage(t *testing.T) {
 		t.Errorf("expected status %d; got %d", http.StatusOK, status)
 	}
 
-	print(body)
-
 	if len(body) == 0 {
 		t.Error("expected non-empty response body")
 	}

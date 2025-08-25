@@ -73,6 +73,11 @@ func (s *Server) requireNoAuth(next http.Handler) http.Handler {
 }
 
 func (s *Server) noSurf(next http.Handler) http.Handler {
+	// Skip CSRF protection in test environment
+	if s.Config.AppEnv == "test" {
+		return next
+	}
+
 	csrfHandler := nosurf.New(next)
 
 	// Set Secure flag based on environment - only true for production

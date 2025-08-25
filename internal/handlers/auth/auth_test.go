@@ -102,11 +102,7 @@ func TestSignUpHandler_POST(t *testing.T) {
 			// Clear emails before each test
 			ts.Mailer.Clear()
 
-			status, headers, body := ts.PostForm(t, "/signup", tc.formData)
-
-			print("Status:", status)
-			print("Headers:", headers)
-			print("Body:", body)
+			status, headers, _ := ts.PostForm(t, "/signup", tc.formData)
 
 			if status != tc.expectedStatus {
 				t.Errorf("expected status %d; got %d", tc.expectedStatus, status)
@@ -122,7 +118,7 @@ func TestSignUpHandler_POST(t *testing.T) {
 			if tc.expectEmail {
 				emails := ts.Mailer.GetSentEmails()
 				if len(emails) == 0 {
-					t.Error("expected welcome email to be sent")
+					t.Errorf("sent emails:%v = expected welcome email to be sent", emails)
 				} else {
 					lastEmail := emails[0]
 					if lastEmail.Recipient != tc.formData["email"] {
@@ -591,7 +587,7 @@ func TestRequireNoAuthMiddleware(t *testing.T) {
 	}
 
 	// Same for signup page
-	status, headers, _ = ts.GetWithClient(t, client, "/signup")
+	status, _, _ = ts.GetWithClient(t, client, "/signup")
 
 	if status != http.StatusSeeOther {
 		t.Errorf("expected redirect status for signup; got %d", status)
