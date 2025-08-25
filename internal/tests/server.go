@@ -272,7 +272,11 @@ func (ts *TestServer) PostForm(t *testing.T, urlPath string, form map[string]str
 		formData.Set(key, value)
 	}
 
-	req, err := http.NewRequest(http.MethodPost, ts.Server.URL+urlPath, strings.NewReader(formData.Encode()))
+	req, err := http.NewRequest(
+		http.MethodPost,
+		ts.Server.URL+urlPath,
+		strings.NewReader(formData.Encode()),
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -362,7 +366,6 @@ func (ts *TestServer) CreateTestUser(t *testing.T, name, email, password string)
 func (ts *TestServer) LoginUser(t *testing.T, email, password string) *http.Client {
 	t.Helper()
 
-	// Use the CSRF-aware login helper
 	return ts.LoginUserWithCSRF(t, email, password)
 }
 

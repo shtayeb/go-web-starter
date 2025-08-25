@@ -102,7 +102,11 @@ func TestSignUpHandler_POST(t *testing.T) {
 			// Clear emails before each test
 			ts.Mailer.Clear()
 
-			status, headers, _ := ts.PostForm(t, "/signup", tc.formData)
+			status, headers, body := ts.PostForm(t, "/signup", tc.formData)
+
+			print("Status:", status)
+			print("Headers:", headers)
+			print("Body:", body)
 
 			if status != tc.expectedStatus {
 				t.Errorf("expected status %d; got %d", tc.expectedStatus, status)
