@@ -77,7 +77,10 @@ func NewTestServerNoCSRF(t *testing.T) *TestServerNoCSRF {
 			id := sessionManager.GetInt32(r.Context(), "authenticatedUserID")
 			if id != 0 {
 				user, err := q.GetUserById(r.Context(), id)
-				if err == nil {
+				if err != nil {
+					// User lookup failed - clear the session
+					sessionManager.Remove(r.Context(), "authenticatedUserID")
+				} else {
 					ctx := context.WithValue(r.Context(), config.IsAuthenticatedContextKey, true)
 					ctx = context.WithValue(ctx, config.UserContextKey, user)
 					r = r.WithContext(ctx)

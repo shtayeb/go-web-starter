@@ -253,9 +253,9 @@ func (ts *TestServer) Get(t *testing.T, urlPath string) (int, http.Header, strin
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -2,6 +2,7 @@ package handlers_test
 
 import (
 	"net/http"
+	"strings"
 	"testing"
 
 	"go-web-starter/internal/tests"
@@ -146,10 +147,9 @@ func TestProfileWithAuth(t *testing.T) {
 	if len(body) == 0 {
 		t.Error("expected non-empty response body")
 	}
-
-	// Verify user data is available
-	if user.Email != "test@example.com" {
-		t.Errorf("unexpected user email: %s", user.Email)
+	// Verify profile shows the authenticated user's email
+	if !strings.Contains(body, user.Email) {
+		t.Errorf("expected profile response to contain %q", user.Email)
 	}
 }
 
