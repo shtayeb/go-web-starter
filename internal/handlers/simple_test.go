@@ -38,7 +38,7 @@ func TestSimpleLandingPage(t *testing.T) {
 }
 
 func TestSimpleLogin(t *testing.T) {
-	ts := tests.NewTestServerNoCSRF(t)
+	ts := tests.NewTestServer(t)
 	defer ts.Close()
 
 	// Create a test user
@@ -56,7 +56,7 @@ func TestSimpleLogin(t *testing.T) {
 }
 
 func TestSimpleProtectedRoute(t *testing.T) {
-	ts := tests.NewTestServerNoCSRF(t)
+	ts := tests.NewTestServer(t)
 	defer ts.Close()
 
 	// Test without authentication
@@ -73,7 +73,7 @@ func TestSimpleProtectedRoute(t *testing.T) {
 }
 
 func TestSimpleSignup(t *testing.T) {
-	ts := tests.NewTestServerNoCSRF(t)
+	ts := tests.NewTestServer(t)
 	defer ts.Close()
 
 	formData := map[string]string{
@@ -97,7 +97,7 @@ func TestSimpleSignup(t *testing.T) {
 }
 
 func TestSimpleLogout(t *testing.T) {
-	ts := tests.NewTestServerNoCSRF(t)
+	ts := tests.NewTestServer(t)
 	defer ts.Close()
 
 	// Create and login a user
@@ -130,7 +130,7 @@ func TestSimpleLogout(t *testing.T) {
 }
 
 func TestSimpleProfile(t *testing.T) {
-	ts := tests.NewTestServerNoCSRF(t)
+	ts := tests.NewTestServer(t)
 	defer ts.Close()
 
 	// Create and login a user
@@ -154,7 +154,7 @@ func TestSimpleProfile(t *testing.T) {
 }
 
 func TestSimpleUpdateProfile(t *testing.T) {
-	ts := tests.NewTestServerNoCSRF(t)
+	ts := tests.NewTestServer(t)
 	defer ts.Close()
 
 	// Create and login a user
@@ -175,7 +175,7 @@ func TestSimpleUpdateProfile(t *testing.T) {
 }
 
 func TestSimplePasswordUpdate(t *testing.T) {
-	ts := tests.NewTestServerNoCSRF(t)
+	ts := tests.NewTestServer(t)
 	defer ts.Close()
 
 	// Create and login a user
@@ -207,7 +207,7 @@ func TestSimplePasswordUpdate(t *testing.T) {
 }
 
 func TestSimpleMultipleUsers(t *testing.T) {
-	ts := tests.NewTestServerNoCSRF(t)
+	ts := tests.NewTestServer(t)
 	defer ts.Close()
 
 	// Create multiple users

@@ -39,7 +39,6 @@ func ExtractCSRFToken(t *testing.T, html string) string {
 	return ""
 }
 
-// GetPageWithCSRF fetches a page and extracts the CSRF token
 func (ts *TestServer) GetPageWithCSRF(t *testing.T, client *http.Client, urlPath string) (string, error) {
 	t.Helper()
 
@@ -76,7 +75,6 @@ func (ts *TestServer) GetPageWithCSRF(t *testing.T, client *http.Client, urlPath
 	return token, nil
 }
 
-// LoginUserWithCSRF logs in a user with proper CSRF token handling
 func (ts *TestServer) LoginUserWithCSRF(t *testing.T, email, password string) *http.Client {
 	t.Helper()
 
@@ -114,7 +112,6 @@ func (ts *TestServer) LoginUserWithCSRF(t *testing.T, email, password string) *h
 	return client
 }
 
-// PostFormWithCSRF makes a POST request with CSRF token handling
 func (ts *TestServer) PostFormWithCSRF(t *testing.T, client *http.Client, urlPath string, formData map[string]string) (int, http.Header, string) {
 	t.Helper()
 
@@ -179,7 +176,6 @@ func (ts *TestServer) NewClientWithCookies(t *testing.T) *http.Client {
 	}
 }
 
-// CreateAndLoginUser is a convenience method that creates a user and logs them in
 func (ts *TestServer) CreateAndLoginUser(t *testing.T, name, email, password string) (*http.Client, *queries.User) {
 	t.Helper()
 
@@ -187,47 +183,6 @@ func (ts *TestServer) CreateAndLoginUser(t *testing.T, name, email, password str
 	client := ts.LoginUserWithCSRF(t, email, password)
 
 	return client, user
-}
-
-// AssertRedirect checks if a response is a redirect to the expected location
-func AssertRedirect(t *testing.T, statusCode int, headers http.Header, expectedLocation string) {
-	t.Helper()
-
-	if statusCode != http.StatusSeeOther && statusCode != http.StatusFound {
-		t.Errorf("expected redirect status (303 or 302); got %d", statusCode)
-	}
-
-	location := headers.Get("Location")
-	if location != expectedLocation {
-		t.Errorf("expected redirect to %s; got %s", expectedLocation, location)
-	}
-}
-
-// AssertContains checks if the response body contains the expected text
-func AssertContains(t *testing.T, body, expected string) {
-	t.Helper()
-
-	if !strings.Contains(body, expected) {
-		t.Errorf("expected body to contain %q", expected)
-	}
-}
-
-// AssertNotContains checks if the response body does not contain the text
-func AssertNotContains(t *testing.T, body, shouldNotContain string) {
-	t.Helper()
-
-	if strings.Contains(body, shouldNotContain) {
-		t.Errorf("expected body to NOT contain %q", shouldNotContain)
-	}
-}
-
-// AssertStatus checks if the status code matches the expected value
-func AssertStatus(t *testing.T, actual, expected int) {
-	t.Helper()
-
-	if actual != expected {
-		t.Errorf("expected status %d; got %d", expected, actual)
-	}
 }
 
 // ExtractSessionID extracts the session ID from cookies
@@ -240,7 +195,6 @@ func ExtractSessionID(cookies []*http.Cookie) string {
 	return ""
 }
 
-// MakeAuthenticatedRequest makes a request with an authenticated client
 func (ts *TestServer) MakeAuthenticatedRequest(t *testing.T, method, urlPath string, body io.Reader, email, password string) (int, http.Header, string) {
 	t.Helper()
 
@@ -279,7 +233,6 @@ type TestFormValidation struct {
 	ShouldSucceed  bool
 }
 
-// RunFormValidationTests runs a series of form validation tests
 func (ts *TestServer) RunFormValidationTests(t *testing.T, urlPath string, tests []TestFormValidation) {
 	t.Helper()
 
@@ -300,7 +253,6 @@ func (ts *TestServer) RunFormValidationTests(t *testing.T, urlPath string, tests
 	}
 }
 
-// SetupTestData creates common test data
 func (ts *TestServer) SetupTestData(t *testing.T) {
 	t.Helper()
 
@@ -310,11 +262,84 @@ func (ts *TestServer) SetupTestData(t *testing.T) {
 	ts.CreateTestUser(t, "Test User", "test@example.com", "TestPass123!")
 }
 
-// CleanupTestData cleans up test data
 func (ts *TestServer) CleanupTestData(t *testing.T) {
 	t.Helper()
 
-	// In SQLite with in-memory database, this happens automatically
-	// when the connection is closed, but you might want to
-	// explicitly clean tables for other database types
+	// cleanup db data
+}
+
+func (ts *TestServer) LoginUserSimple(t *testing.T, email, password string) *http.Client {
+	t.Helper()
+
+	// Create a client with cookie jar
+	client := ts.NewClientWithCookies(t)
+
+	// Make login request directly without CSRF
+	formData := url.Values{
+		"email":    {email},
+		"password": {password},
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		ts.Server.URL+"/login",
+		strings.NewReader(formData.Encode()),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	// Check if login was successful
+	if resp.StatusCode != http.StatusSeeOther && resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		t.Fatalf("login failed with status %d: %s", resp.StatusCode, string(body))
+	}
+
+	return client
+}
+
+func (ts *TestServer) PostFormSimple(t *testing.T, client *http.Client, urlPath string, formData map[string]string) (int, http.Header, string) {
+	t.Helper()
+
+	if client == nil {
+		client = ts.Client
+	}
+
+	// Prepare form data
+	data := make(url.Values)
+	for key, value := range formData {
+		data.Set(key, value)
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		ts.Server.URL+urlPath,
+		strings.NewReader(data.Encode()),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return resp.StatusCode, resp.Header, string(body)
 }

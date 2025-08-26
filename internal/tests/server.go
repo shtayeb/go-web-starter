@@ -5,11 +5,13 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -23,32 +25,35 @@ import (
 	"go-web-starter/internal/server"
 
 	"github.com/alexedwards/scs/v2"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/pressly/goose/v3"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	"github.com/testcontainers/testcontainers-go/wait"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// TestServer wraps all the components needed for testing
 type TestServer struct {
-	Server     *httptest.Server
-	Client     *http.Client
-	DB         *sql.DB
-	Queries    *queries.Queries
-	Session    *scs.SessionManager
-	Config     config.Config
-	HTTPServer *server.Server
-	Mailer     *MockMailer
+	Server      *httptest.Server
+	Client      *http.Client
+	DB          *sql.DB
+	Queries     *queries.Queries
+	Session     *scs.SessionManager
+	Config      config.Config
+	HTTPServer  *server.Server
+	Mailer      *MockMailer
+	PgContainer testcontainers.Container
 }
 
 // NewTestServer creates a new test server with all dependencies initialized
 func NewTestServer(t *testing.T) *TestServer {
 	t.Helper()
 
-	// Create test configuration
 	cfg := getTestConfig()
 
-	// Create in-memory SQLite database for testing
-	db := setupTestDatabase(t)
+	// Create PostgreSQL
+	db, container := setupTestDatabase(t)
 
 	// Create database service wrapper
 	var dbService database.Service = &testDatabaseService{db: db}
@@ -56,19 +61,14 @@ func NewTestServer(t *testing.T) *TestServer {
 	// Create queries instance
 	q := queries.New(db)
 
-	// Create test logger (discards output during tests)
 	logger := jsonlog.New(io.Discard, jsonlog.LevelInfo)
 
-	// Create test mailer with test configuration
 	mockMailer := NewMockMailer()
 
-	// Create session manager with in-memory store
 	sessionManager := setupTestSessionManager()
 
-	// Create the server instance
 	s := server.NewServer(cfg, dbService, q, logger, mockMailer, sessionManager)
 
-	// Create test HTTP server
 	ts := httptest.NewServer(s.RegisterRoutes())
 
 	// Create HTTP client with redirect following disabled
@@ -79,20 +79,25 @@ func NewTestServer(t *testing.T) *TestServer {
 	}
 
 	return &TestServer{
-		Server:     ts,
-		Client:     client,
-		DB:         db,
-		Queries:    q,
-		Session:    sessionManager,
-		Config:     cfg,
-		HTTPServer: s,
-		Mailer:     mockMailer,
+		Server:      ts,
+		Client:      client,
+		DB:          db,
+		Queries:     q,
+		Session:     sessionManager,
+		Config:      cfg,
+		HTTPServer:  s,
+		Mailer:      mockMailer,
+		PgContainer: container,
 	}
 }
 
 func (ts *TestServer) Close() {
 	ts.Server.Close()
 	ts.DB.Close()
+	if ts.PgContainer != nil {
+		ctx := context.Background()
+		_ = ts.PgContainer.Terminate(ctx)
+	}
 }
 
 func getTestConfig() config.Config {
@@ -116,75 +121,122 @@ func getTestConfig() config.Config {
 	return config.LoadConfigFromEnv()
 }
 
-// setupTestDatabase creates an in-memory SQLite database with test schema
-func setupTestDatabase(t *testing.T) *sql.DB {
+// setupTestDatabase creates a PostgreSQL test database using testcontainers or existing database
+func setupTestDatabase(t *testing.T) (*sql.DB, testcontainers.Container) {
 	t.Helper()
 
-	db, err := sql.Open("sqlite3", ":memory:")
+	// Check if TEST_DATABASE_URL is set (for faster local testing)
+	if testDBURL := os.Getenv("TEST_DATABASE_URL"); testDBURL != "" {
+		log.Printf("Using existing test database: %s", testDBURL)
+
+		// Connect to existing database
+		db, err := sql.Open("pgx", testDBURL)
+		if err != nil {
+			t.Fatalf("failed to connect to existing test database: %v", err)
+		}
+
+		// Verify connection
+		if err := db.Ping(); err != nil {
+			t.Fatalf("failed to ping existing test database: %v", err)
+		}
+
+		// Clean the database before running tests
+		cleanTestDatabase(t, db)
+
+		// Run migrations
+		if err := runMigrations(db); err != nil {
+			t.Fatalf("failed to run migrations on existing database: %v", err)
+		}
+
+		return db, nil // No container when using existing database
+	}
+
+	ctx := context.Background()
+
+	// Create PostgreSQL container
+	postgresContainer, err := postgres.Run(ctx,
+		"postgres:16-alpine",
+		postgres.WithDatabase("testdb"),
+		postgres.WithUsername("testuser"),
+		postgres.WithPassword("testpass"),
+		testcontainers.WithWaitStrategy(
+			wait.ForLog("database system is ready to accept connections").
+				WithOccurrence(2).
+				WithStartupTimeout(30*time.Second),
+		),
+	)
 	if err != nil {
-		t.Fatalf("failed to open test database: %v", err)
+		t.Fatalf("failed to start postgres container: %v", err)
 	}
 
-	// Create test schema matching your PostgreSQL schema
-	// Note: SQLite syntax is slightly different from PostgreSQL
-	schema := `
-	CREATE TABLE IF NOT EXISTS users (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		name TEXT NOT NULL,
-		email TEXT UNIQUE NOT NULL,
-		email_verified INTEGER DEFAULT 0,
-		image TEXT,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-	);
-
-	CREATE TABLE IF NOT EXISTS accounts (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		user_id INTEGER NOT NULL,
-		account_id TEXT NOT NULL,
-		provider_id TEXT,
-		password TEXT,
-		access_token TEXT,
-		refresh_token TEXT,
-		id_token TEXT,
-		access_token_expires_at DATETIME,
-		refresh_token_expires_at DATETIME,
-		scope TEXT,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-		UNIQUE(user_id, provider_id)
-	);
-
-	CREATE TABLE IF NOT EXISTS tokens (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		user_id INTEGER NOT NULL,
-		hash BLOB NOT NULL,
-		scope TEXT NOT NULL,
-		expiry DATETIME NOT NULL,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-	);
-
-	CREATE TABLE IF NOT EXISTS sessions (
-		token TEXT PRIMARY KEY,
-		data BLOB NOT NULL,
-		expiry REAL NOT NULL
-	);
-
-	CREATE INDEX idx_sessions_expiry ON sessions(expiry);
-	CREATE INDEX idx_tokens_user_id ON tokens(user_id);
-	CREATE INDEX idx_accounts_user_id ON accounts(user_id);
-	`
-
-	if _, err := db.Exec(schema); err != nil {
-		t.Fatalf("failed to create test schema: %v", err)
+	// Get connection string
+	connectionString, err := postgresContainer.ConnectionString(ctx, "sslmode=disable")
+	if err != nil {
+		t.Fatalf("failed to get connection string: %v", err)
 	}
 
-	return db
+	// Connect to the database
+	db, err := sql.Open("pgx", connectionString)
+	if err != nil {
+		t.Fatalf("failed to connect to test database: %v", err)
+	}
+
+	// Wait for the database to be ready
+	err = db.Ping()
+	if err != nil {
+		t.Fatalf("failed to ping test database: %v", err)
+	}
+
+	// Run migrations using goose
+	if err := runMigrations(db); err != nil {
+		t.Fatalf("failed to run migrations: %v", err)
+	}
+
+	return db, postgresContainer
 }
 
-// setupTestSessionManager creates a session manager with in-memory store
+// cleanTestDatabase removes all data from test database tables
+func cleanTestDatabase(t *testing.T, db *sql.DB) {
+	t.Helper()
+
+	// Tables to clean in reverse order of foreign key dependencies
+	tables := []string{
+		"tokens",
+		"sessions",
+		"accounts",
+		"users",
+		"authors",
+	}
+
+	for _, table := range tables {
+		_, err := db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", table))
+		if err != nil {
+			// If table doesn't exist, that's ok (migrations will create it)
+			t.Logf("Warning: could not truncate table %s: %v", table, err)
+		}
+	}
+}
+
+func runMigrations(db *sql.DB) error {
+	// Get the directory of the current source file
+	_, filename, _, _ := runtime.Caller(0)
+	currentDir := filepath.Dir(filename)
+
+	// Navigate to project root and then to migrations directory
+	projectRoot := filepath.Join(currentDir, "..", "..")
+	migrationsDir := filepath.Join(projectRoot, "sql", "migrations")
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		return fmt.Errorf("failed to set goose dialect: %w", err)
+	}
+
+	if err := goose.Up(db, migrationsDir); err != nil {
+		return fmt.Errorf("failed to run migrations: %w", err)
+	}
+
+	return nil
+}
+
 func setupTestSessionManager() *scs.SessionManager {
 	sessionManager := scs.New()
 	sessionManager.Lifetime = 12 * time.Hour
@@ -329,18 +381,18 @@ func (ts *TestServer) CreateTestUser(t *testing.T, name, email, password string)
 
 	ctx := context.Background()
 
-	// Create user
+	// Create user with proper PostgreSQL boolean type
 	user, err := ts.Queries.CreateUser(ctx, queries.CreateUserParams{
 		Name:          name,
 		Email:         email,
-		EmailVerified: true,
+		EmailVerified: true, // PostgreSQL handles boolean properly
 		Image:         sql.NullString{},
 	})
 	if err != nil {
 		t.Fatalf("failed to create test user: %v", err)
 	}
 
-	// Create account
+	// Create account with PostgreSQL-compatible parameters
 	_, err = ts.Queries.CreateAccount(ctx, queries.CreateAccountParams{
 		UserID:    user.ID,
 		AccountID: name,
