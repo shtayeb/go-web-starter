@@ -6,9 +6,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -20,6 +23,7 @@ import (
 	"go-web-starter/internal/server"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -86,41 +90,30 @@ func NewTestServer(t *testing.T) *TestServer {
 	}
 }
 
-// Close cleans up the test server and its resources
 func (ts *TestServer) Close() {
 	ts.Server.Close()
 	ts.DB.Close()
 }
 
-// getTestConfig returns a configuration suitable for testing
 func getTestConfig() config.Config {
-	return config.Config{
-		AppName: "Test App",
-		AppEnv:  "test",
-		AppURL:  "http://localhost:8080",
-		Debug:   false,
-		Port:    8080,
-		Database: config.Database{
-			DBUrl:    ":memory:",
-			Database: "test",
-			Password: "",
-			Username: "",
-			Port:     "",
-			Host:     "",
-			Schema:   "",
-		},
-		Mailer: config.SMTP{
-			Host:     "localhost",
-			Port:     1025,
-			Username: "test",
-			Password: "test",
-			Sender:   "test@example.com",
-		},
-		SocialLogins: config.SocialLogins{
-			GoogleClientID:     "test-client-id",
-			GoogleClientSecret: "test-client-secret",
-		},
+	// Get the directory of the current source file
+	_, filename, _, _ := runtime.Caller(0)
+	currentDir := filepath.Dir(filename)
+
+	// Navigate from internal/tests/ to project root (go up 2 directories)
+	projectRoot := filepath.Join(currentDir, "..", "..")
+	envTestPath := filepath.Join(projectRoot, ".env.test")
+
+	err := godotenv.Load(envTestPath)
+	if err != nil {
+		// If that fails, try current working directory as fallback
+		err = godotenv.Load(".env.test")
+		if err != nil {
+			log.Printf("Could not load .env.test file: %v. Using default values from config.LoadConfigFromEnv()", err)
+		}
 	}
+
+	return config.LoadConfigFromEnv()
 }
 
 // setupTestDatabase creates an in-memory SQLite database with test schema
