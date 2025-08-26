@@ -64,8 +64,6 @@ TEST_DATABASE_URL="postgres://testuser:testpass@localhost:5433/testdb?sslmode=di
 3. **Migration**: Goose migrations from `sql/migrations/` are automatically applied
 4. **Cleanup**: For existing databases, tables are truncated before each test run
 
-### Migration Management
-
 ### Test Helpers
 
 The package provides several test helpers:
