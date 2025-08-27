@@ -12,6 +12,7 @@ import (
 	"go-web-starter/cmd/api/commands"
 	"go-web-starter/internal/server"
 
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/spf13/cobra"
 )
 
@@ -32,6 +33,7 @@ func main() {
 		serverCmd,
 		commands.SeedCommand(),
 		commands.PingCommand(),
+		commands.MigrateCommand(),
 	)
 
 	rootCmd.Execute()

@@ -6,6 +6,7 @@ require (
 	github.com/Oudwins/tailwind-merge-go v0.2.1
 	github.com/a-h/templ v0.3.943
 	github.com/alexedwards/scs/postgresstore v0.0.0-20250417082927-ab20b3feb5e9
+	github.com/alexedwards/scs/sqlite3store v0.0.0-20250417082927-ab20b3feb5e9
 	github.com/alexedwards/scs/v2 v2.9.0
 	github.com/angelofallars/htmx-go v0.5.0
 	github.com/go-chi/chi/v5 v5.2.2
@@ -17,7 +18,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/justinas/nosurf v1.2.0
 	github.com/markbates/goth v1.81.0
-	github.com/mattn/go-sqlite3 v1.14.28
+	github.com/mattn/go-sqlite3 v1.14.32
 	github.com/pressly/goose/v3 v3.25.0
 	github.com/spf13/cobra v1.9.1
 	github.com/testcontainers/testcontainers-go v0.38.0

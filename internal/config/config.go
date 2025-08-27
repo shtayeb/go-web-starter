@@ -8,6 +8,7 @@ type Database struct {
 	Port     string
 	Host     string
 	Schema   string
+	Type     string
 }
 
 type SMTP struct {
@@ -42,12 +43,13 @@ func LoadConfigFromEnv() Config {
 		Debug:   GetEnvAsBool("DEBUG", true),
 		AppURL:  GetEnv("APP_URL", "http://localhost:8080"),
 		Database: Database{
-			DBUrl:    GetEnv("BLUEPRINT_DB_URL", "./database.db"),
+			Type:     GetEnv("DATABASE_TYPE", "sqlite"),
+			DBUrl:    GetEnv("BLUEPRINT_DB_URL", "./database.sqlite"),
+			Host:     GetEnv("BLUEPRINT_DB_HOST", "psql_bp_1"),
+			Port:     GetEnv("BLUEPRINT_DB_PORT", "5432"),
 			Database: GetEnv("BLUEPRINT_DB_DATABASE", "blueprint"),
 			Password: GetEnv("BLUEPRINT_DB_PASSWORD", "password1234"),
 			Username: GetEnv("BLUEPRINT_DB_USERNAME", "shtb"),
-			Port:     GetEnv("BLUEPRINT_DB_PORT", "5432"),
-			Host:     GetEnv("BLUEPRINT_DB_HOST", "psql_bp_1"),
 			Schema:   GetEnv("BLUEPRINT_DB_SCHEMA", "public"),
 		},
 		Mailer: SMTP{

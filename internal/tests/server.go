@@ -144,7 +144,7 @@ func setupTestDatabase(t *testing.T) (*sql.DB, testcontainers.Container) {
 		cleanTestDatabase(t, db)
 
 		// Run migrations
-		if err := runMigrations(db); err != nil {
+		if err := runMigrations(db, "postgres"); err != nil {
 			t.Fatalf("failed to run migrations on existing database: %v", err)
 		}
 
@@ -188,7 +188,7 @@ func setupTestDatabase(t *testing.T) (*sql.DB, testcontainers.Container) {
 	}
 
 	// Run migrations using goose
-	if err := runMigrations(db); err != nil {
+	if err := runMigrations(db, "postgres"); err != nil {
 		t.Fatalf("failed to run migrations: %v", err)
 	}
 
@@ -217,16 +217,30 @@ func cleanTestDatabase(t *testing.T, db *sql.DB) {
 	}
 }
 
-func runMigrations(db *sql.DB) error {
-	// Get the directory of the current source file
-	_, filename, _, _ := runtime.Caller(0)
-	currentDir := filepath.Dir(filename)
+func runMigrations(db *sql.DB, dbType string) error {
+	var migrationsDir string
+	var dialect string
 
-	// Navigate to project root and then to migrations directory
-	projectRoot := filepath.Join(currentDir, "..", "..")
-	migrationsDir := filepath.Join(projectRoot, "sql", "migrations")
+	switch dbType {
+	case "sqlite", "sqlite3":
+		dialect = "sqlite3"
+		// Get the directory of the current source file
+		_, filename, _, _ := runtime.Caller(0)
+		currentDir := filepath.Dir(filename)
+		// Navigate to project root and then to sqlite migrations
+		projectRoot := filepath.Join(currentDir, "..", "..")
+		migrationsDir = filepath.Join(projectRoot, "sql", "sqlite", "migrations")
+	case "postgres", "postgresql":
+		dialect = "postgres"
+		// Get the directory of the current source file
+		_, filename, _, _ := runtime.Caller(0)
+		currentDir := filepath.Dir(filename)
+		// Navigate to project root and then to postgres migrations
+		projectRoot := filepath.Join(currentDir, "..", "..")
+		migrationsDir = filepath.Join(projectRoot, "sql", "postgres", "migrations")
+	}
 
-	if err := goose.SetDialect("postgres"); err != nil {
+	if err := goose.SetDialect(dialect); err != nil {
 		return fmt.Errorf("failed to set goose dialect: %w", err)
 	}
 

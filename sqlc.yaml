@@ -1,14 +1,23 @@
 version: "2"
 sql:
 - name: postgresql
-  schema: "./sql/migrations"
-  queries: "./sql/queries"
+  schema: "./sql/postgres/migrations"
+  queries: "./sql/postgres/queries"
   engine: "postgresql"
   gen:
-    go: 
+    go:
       sql_package: "pgx/v5"
-      out: "internal/db"
+      out: "internal/pg_db"
       emit_interface: true
   rules:
     - sqlc/db-prepare
     - postgresql-query-too-costly
+- name: sqlite
+  schema: "./sql/sqlite/migrations"
+  queries: "./sql/sqlite/queries"
+  engine: "sqlite"
+  gen:
+    go:
+      sql_package: "database/sql"
+      out: "internal/db_sqlite"
+      emit_interface: true

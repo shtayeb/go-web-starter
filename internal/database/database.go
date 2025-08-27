@@ -56,12 +56,22 @@ func New(dbConfig config.Database) Service {
 		return dbInstance
 	}
 
-	connStr := dbConfig.DBUrl
-	if connStr == "" {
-		connStr = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", dbConfig.Username, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.Database, dbConfig.Schema)
+	var connStr string
+	var driverName string
+
+	switch dbConfig.Type {
+
+	case "sqlite", "sqlite3":
+		driverName = "sqlite3"
+		connStr = dbConfig.DBUrl
+	case "postgres", "postgresql":
+		driverName = "pgx"
+		connStr = dbConfig.DBUrl
+	default:
+		log.Fatal("Unsupported database type")
 	}
 
-	db, err := sql.Open("pgx", connStr)
+	db, err := sql.Open(driverName, connStr)
 	if err != nil {
 		log.Fatal(err)
 	}

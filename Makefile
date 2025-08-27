@@ -53,7 +53,7 @@ templ:
 
 .PHONY: migrate
 migrate:
-	goose up
+	go run cmd/api/main.go migrate
 
 build: tailwind-install templ-install
 	@echo "Building..."
