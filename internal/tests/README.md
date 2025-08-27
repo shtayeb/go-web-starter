@@ -1,20 +1,36 @@
 # Test Infrastructure
 
-This package provides test helpers and utilities for running integration tests with a real PostgreSQL database.
+This package provides test helpers and utilities for running integration tests with a real database (PostgreSQL or SQLite).
 
 ## Overview
 
-The test infrastructure supports two modes of operation:
-1. **Testcontainers Mode** (default): Automatically spins up a PostgreSQL container for each test suite
-2. **Existing Database Mode**: Uses an existing PostgreSQL database for faster test execution
+The test infrastructure supports database testing for both PostgreSQL and SQLite based on the `DATABASE_TYPE` environment variable.
+
+### Database Types
+
+- **PostgreSQL**: Uses testcontainers or existing database
+- **SQLite**: Uses temporary file-based database
+
+### Modes of Operation
+
+1. **Testcontainers Mode** (PostgreSQL only): Automatically spins up a PostgreSQL container for each test suite
+2. **Existing Database Mode** (PostgreSQL only): Uses an existing PostgreSQL database for faster test execution
+3. **SQLite Mode**: Uses a temporary SQLite database file for each test
 
 ## Test Database Setup
 
-### Using Testcontainers (Default)
+The test database type is determined by the `DATABASE_TYPE` environment variable.
 
-By default, tests will automatically create a PostgreSQL container using testcontainers. This ensures complete isolation between test runs but takes longer (~20 seconds per test suite).
+### PostgreSQL Testing
+
+#### Using Testcontainers (Default for PostgreSQL)
+
+When `DATABASE_TYPE=postgres`, tests will automatically create a PostgreSQL container using testcontainers. This ensures complete isolation between test runs but takes longer (~20 seconds per test suite).
 
 ```bash
+# Set database type to PostgreSQL
+export DATABASE_TYPE=postgres
+
 # Run tests with testcontainers
 go test ./...
 
@@ -32,9 +48,9 @@ make test-container
 - Slower test execution
 - Requires Docker to be running
 
-### Using Existing Database (Fast Mode)
+#### Using Existing Database (Fast Mode for PostgreSQL)
 
-For faster local development, you can use an existing PostgreSQL database:
+For faster local development with PostgreSQL:
 
 ```bash
 # Start a local test database
@@ -53,16 +69,43 @@ You can also manually specify a database URL:
 TEST_DATABASE_URL="postgres://testuser:testpass@localhost:5433/testdb?sslmode=disable" go test ./...
 ```
 
+### SQLite Testing
+
+When `DATABASE_TYPE=sqlite`, tests will use a temporary SQLite database file that is created and destroyed for each test.
+
+```bash
+# Set database type to SQLite
+export DATABASE_TYPE=sqlite
+
+# Run tests with SQLite
+go test ./...
+```
+
+**Pros:**
+- Very fast test execution
+- No external dependencies
+- Automatic cleanup
+- Works anywhere
+
+**Cons:**
+- Less realistic than PostgreSQL testing
+- Some PostgreSQL-specific features may not be tested
+
 
 
 ## How It Works
 
 ### Database Initialization
 
-1. **Container Creation**: When using testcontainers, a PostgreSQL 16 Alpine container is created
-2. **Connection**: The test helper establishes a connection to the database
-3. **Migration**: Goose migrations from `sql/migrations/` are automatically applied
-4. **Cleanup**: For existing databases, tables are truncated before each test run
+1. **Database Type Detection**: The test reads `DATABASE_TYPE` from environment configuration
+2. **Database Setup**:
+   - **PostgreSQL**: Container creation (testcontainers) or connection to existing database
+   - **SQLite**: Temporary database file creation
+3. **Connection**: The test helper establishes a connection to the database
+4. **Migration**: Goose migrations are automatically applied based on database type:
+   - PostgreSQL: Uses `sql/postgres/migrations/`
+   - SQLite: Uses `sql/sqlite/migrations/`
+5. **Cleanup**: Tables are cleaned before each test run (TRUNCATE for PostgreSQL, DELETE for SQLite)
 
 ### Test Helpers
 
@@ -112,14 +155,20 @@ The test setup uses configuration from `.env.test` if available, falling back to
 
 Key configuration values for testing:
 - `APP_ENV=test`
+- `DATABASE_TYPE=postgres` (or `sqlite`)
 
 ## Troubleshooting
 
 ### Docker Not Running
-If you see errors about Docker not being available, make sure Docker Desktop or Docker Engine is running.
+If you see errors about Docker not being available when using PostgreSQL, make sure Docker Desktop or Docker Engine is running.
+
+### SQLite Driver Issues
+If you encounter SQLite driver issues, ensure the `github.com/mattn/go-sqlite3` package is properly installed and the CGO is enabled.
 
 ## Best Practices
 
-1. **Use testcontainers for CI/CD** to ensure consistent, isolated test environments
-2. **Use existing database for local development** for faster feedback loops
-3. **Clean up test data** properly in test teardown functions
+1. **Use testcontainers for CI/CD** (PostgreSQL) to ensure consistent, isolated test environments
+2. **Use SQLite for local development** for fastest feedback loops
+3. **Use existing PostgreSQL database** for comprehensive testing with realistic data
+4. **Clean up test data** properly in test teardown functions
+5. **Test with both database types** to ensure compatibility

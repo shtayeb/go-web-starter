@@ -27,6 +27,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/pressly/goose/v3"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
@@ -43,7 +44,7 @@ type TestServer struct {
 	Config      config.Config
 	HTTPServer  *server.Server
 	Mailer      *MockMailer
-	PgContainer testcontainers.Container
+	PgContainer testcontainers.Container // nil for SQLite
 }
 
 // NewTestServer creates a new test server with all dependencies initialized
@@ -52,8 +53,8 @@ func NewTestServer(t *testing.T) *TestServer {
 
 	cfg := getTestConfig()
 
-	// Create PostgreSQL
-	db, container := setupTestDatabase(t)
+	// Create test database (PostgreSQL or SQLite)
+	db, container := setupTestDatabase(t, cfg)
 
 	// Create database service wrapper
 	var dbService database.Service = &testDatabaseService{db: db}
@@ -121,8 +122,57 @@ func getTestConfig() config.Config {
 	return config.LoadConfigFromEnv()
 }
 
-// setupTestDatabase creates a PostgreSQL test database using testcontainers or existing database
-func setupTestDatabase(t *testing.T) (*sql.DB, testcontainers.Container) {
+// setupTestDatabase creates a test database (PostgreSQL or SQLite) using testcontainers or existing database
+func setupTestDatabase(t *testing.T, cfg config.Config) (*sql.DB, testcontainers.Container) {
+	t.Helper()
+
+	dbType := cfg.Database.Type
+
+	switch dbType {
+	case "sqlite", "sqlite3":
+		return setupSQLiteTestDatabase(t, cfg)
+	case "postgres", "postgresql":
+		fallthrough
+	default:
+		return setupPostgresTestDatabase(t, cfg)
+	}
+}
+
+// setupSQLiteTestDatabase creates a SQLite test database
+func setupSQLiteTestDatabase(t *testing.T, cfg config.Config) (*sql.DB, testcontainers.Container) {
+	t.Helper()
+
+	// Use configured database URL or create a temporary file
+	dbPath := cfg.Database.DBUrl
+	if dbPath == "" || dbPath == ":memory:" {
+		// Create a temporary SQLite database file
+		tempDir := t.TempDir()
+		dbPath = filepath.Join(tempDir, "test.db")
+	}
+
+	log.Printf("Using SQLite test database: %s", dbPath)
+
+	// Connect to SQLite database
+	db, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		t.Fatalf("failed to connect to SQLite test database: %v", err)
+	}
+
+	// Verify connection
+	if err := db.Ping(); err != nil {
+		t.Fatalf("failed to ping SQLite test database: %v", err)
+	}
+
+	// Run migrations
+	if err := runMigrations(db, "sqlite"); err != nil {
+		t.Fatalf("failed to run migrations on SQLite test database: %v", err)
+	}
+
+	return db, nil // No container for SQLite
+}
+
+// setupPostgresTestDatabase creates a PostgreSQL test database using testcontainers or existing database
+func setupPostgresTestDatabase(t *testing.T, cfg config.Config) (*sql.DB, testcontainers.Container) {
 	t.Helper()
 
 	// Check if TEST_DATABASE_URL is set (for faster local testing)
@@ -208,11 +258,26 @@ func cleanTestDatabase(t *testing.T, db *sql.DB) {
 		"authors",
 	}
 
+	// Detect database type by trying a SQLite-specific query
+	var isSQLite bool
+	var result string
+	err := db.QueryRow("SELECT sqlite_version()").Scan(&result)
+	isSQLite = err == nil
+
 	for _, table := range tables {
-		_, err := db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", table))
+		var query string
+		if isSQLite {
+			// SQLite uses DELETE FROM (no TRUNCATE support)
+			query = fmt.Sprintf("DELETE FROM %s", table)
+		} else {
+			// PostgreSQL uses TRUNCATE with CASCADE
+			query = fmt.Sprintf("TRUNCATE TABLE %s CASCADE", table)
+		}
+
+		_, err := db.Exec(query)
 		if err != nil {
 			// If table doesn't exist, that's ok (migrations will create it)
-			t.Logf("Warning: could not truncate table %s: %v", table, err)
+			t.Logf("Warning: could not clean table %s: %v", table, err)
 		}
 	}
 }
