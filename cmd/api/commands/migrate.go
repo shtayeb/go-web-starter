@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"go-web-starter/internal/config"
 	"go-web-starter/internal/database"
-	"log"
 	"path/filepath"
 	"runtime"
 
@@ -15,13 +14,15 @@ import (
 
 func MigrateCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:   "migrate",
-		Short: "Run database migrations",
-		Run:   execMigrate,
+		Use:           "migrate",
+		Short:         "Run database migrations",
+		Args:          cobra.NoArgs,
+		SilenceUsage:  true,
+		SilenceErrors: true,
+		RunE:          execMigrate,
 	}
 }
-
-func execMigrate(cmd *cobra.Command, args []string) {
+func execMigrate(cmd *cobra.Command, args []string) error {
 	cfg := config.LoadConfigFromEnv()
 	db := database.New(cfg.Database)
 	defer db.Close(cfg.Database)
@@ -29,10 +30,10 @@ func execMigrate(cmd *cobra.Command, args []string) {
 	sqlDB := db.GetDB()
 
 	if err := runMigrations(sqlDB, cfg.Database.Type); err != nil {
-		log.Fatalf("Migration failed: %v", err)
+		return fmt.Errorf("migration failed: %w", err)
 	}
-
-	fmt.Println("Migrations completed successfully!")
+	cmd.Println("Migrations completed successfully!")
+	return nil
 }
 
 func runMigrations(db *sql.DB, dbType string) error {
@@ -45,6 +46,7 @@ func runMigrations(db *sql.DB, dbType string) error {
 	case "sqlite", "sqlite3":
 		dialect = "sqlite3"
 		// Get the directory of the current source file
+		// TODO: brittle find new way
 		_, filename, _, _ := runtime.Caller(0)
 		currentDir := filepath.Dir(filename)
 		// Navigate to project root and then to sqlite migrations

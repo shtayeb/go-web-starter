@@ -43,7 +43,7 @@ func LoadConfigFromEnv() Config {
 		Debug:   GetEnvAsBool("DEBUG", true),
 		AppURL:  GetEnv("APP_URL", "http://localhost:8080"),
 		Database: Database{
-			Type:     GetEnv("DATABASE_TYPE", "sqlite"),
+			Type:     GetEnv("BLUEPRINT_DB_TYPE", GetEnv("DATABASE_TYPE", "sqlite")),
 			DBUrl:    GetEnv("BLUEPRINT_DB_URL", "./database.sqlite"),
 			Host:     GetEnv("BLUEPRINT_DB_HOST", "psql_bp_1"),
 			Port:     GetEnv("BLUEPRINT_DB_PORT", "5432"),

@@ -56,6 +56,8 @@ func NewSessionManager(db *sql.DB, dbType string) *scs.SessionManager {
 		sessionManager.Store = postgresstore.New(db)
 	}
 
+	// default store is memory
+
 	sessionManager.Lifetime = 12 * time.Hour
 	// Make sure that the Secure attribute is set on our session cookies. Setting this means that the cookie will only be sent by a user's web
 	// browser when a HTTPS connection is being used (and won't be sent over an unsecure HTTP connection).

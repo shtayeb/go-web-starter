@@ -16,12 +16,12 @@ type Account struct {
 	AccessToken           pgtype.Text
 	RefreshToken          pgtype.Text
 	IDToken               pgtype.Text
-	AccessTokenExpiresAt  pgtype.Timestamp
-	RefreshTokenExpiresAt pgtype.Timestamp
+	AccessTokenExpiresAt  pgtype.Timestamptz
+	RefreshTokenExpiresAt pgtype.Timestamptz
 	Scope                 pgtype.Text
 	Password              pgtype.Text
-	CreatedAt             pgtype.Timestamp
-	UpdatedAt             pgtype.Timestamp
+	CreatedAt             pgtype.Timestamptz
+	UpdatedAt             pgtype.Timestamptz
 }
 
 type Author struct {
@@ -49,6 +49,6 @@ type User struct {
 	Email         string
 	EmailVerified bool
 	Image         pgtype.Text
-	CreatedAt     pgtype.Timestamp
-	UpdatedAt     pgtype.Timestamp
+	CreatedAt     pgtype.Timestamptz
+	UpdatedAt     pgtype.Timestamptz
 }

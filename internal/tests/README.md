@@ -4,7 +4,7 @@ This package provides test helpers and utilities for running integration tests w
 
 ## Overview
 
-The test infrastructure supports database testing for both PostgreSQL and SQLite based on the `DATABASE_TYPE` environment variable.
+The test infrastructure supports database testing for both PostgreSQL and SQLite based on the `BLUEPRINT_DB_TYPE` environment variable (falling back to `DATABASE_TYPE` for backward compatibility).
 
 ### Database Types
 
@@ -19,17 +19,17 @@ The test infrastructure supports database testing for both PostgreSQL and SQLite
 
 ## Test Database Setup
 
-The test database type is determined by the `DATABASE_TYPE` environment variable.
+The test database type is determined by the `BLUEPRINT_DB_TYPE` environment variable (or `DATABASE_TYPE` if not set).
 
 ### PostgreSQL Testing
 
 #### Using Testcontainers (Default for PostgreSQL)
 
-When `DATABASE_TYPE=postgres`, tests will automatically create a PostgreSQL container using testcontainers. This ensures complete isolation between test runs but takes longer (~20 seconds per test suite).
+When `BLUEPRINT_DB_TYPE=postgres` (or `DATABASE_TYPE=postgres`), tests will automatically create a PostgreSQL container using testcontainers. This ensures complete isolation between test runs but takes longer (~20 seconds per test suite).
 
 ```bash
 # Set database type to PostgreSQL
-export DATABASE_TYPE=postgres
+export BLUEPRINT_DB_TYPE=postgres
 
 # Run tests with testcontainers
 go test ./...
@@ -71,11 +71,11 @@ TEST_DATABASE_URL="postgres://testuser:testpass@localhost:5433/testdb?sslmode=di
 
 ### SQLite Testing
 
-When `DATABASE_TYPE=sqlite`, tests will use a temporary SQLite database file that is created and destroyed for each test.
+When `BLUEPRINT_DB_TYPE=sqlite` (or `DATABASE_TYPE=sqlite`), tests will use a temporary SQLite database file that is created and destroyed for each test.
 
 ```bash
 # Set database type to SQLite
-export DATABASE_TYPE=sqlite
+export BLUEPRINT_DB_TYPE=sqlite
 
 # Run tests with SQLite
 go test ./...
@@ -155,7 +155,7 @@ The test setup uses configuration from `.env.test` if available, falling back to
 
 Key configuration values for testing:
 - `APP_ENV=test`
-- `DATABASE_TYPE=postgres` (or `sqlite`)
+- `BLUEPRINT_DB_TYPE=postgres` (or `sqlite`; legacy: `DATABASE_TYPE`)
 
 ## Troubleshooting
 

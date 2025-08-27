@@ -2,31 +2,33 @@
 // versions:
 //   sqlc v1.29.0
 
-package db
+package db_sqlite
 
 import (
 	"context"
 )
 
 type Querier interface {
-	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
+	// (Removed; use UpdateAccountPassword)
+	CreateAccount(ctx context.Context, arg CreateAccountParams) (CreateAccountRow, error)
 	CreateAuthor(ctx context.Context, arg CreateAuthorParams) (Author, error)
 	CreateToken(ctx context.Context, arg CreateTokenParams) (Token, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
-	DeleteAccountsByUserId(ctx context.Context, userID int32) error
+	DeleteAccountsByUserId(ctx context.Context, userID int64) error
 	DeleteAllForUser(ctx context.Context, arg DeleteAllForUserParams) error
-	DeleteAuthor(ctx context.Context, id int32) error
+	DeleteAuthor(ctx context.Context, id int64) error
 	DeleteToken(ctx context.Context, hash []byte) error
 	DeleteTokensByUserId(ctx context.Context, userID int64) error
-	DeleteUser(ctx context.Context, id int32) error
-	GetAccountById(ctx context.Context, id int32) (Account, error)
-	GetAccountByUserId(ctx context.Context, userID int32) (Account, error)
-	GetAccountByUserIdAndProvider(ctx context.Context, arg GetAccountByUserIdAndProviderParams) (Account, error)
-	GetAuthor(ctx context.Context, id int32) (Author, error)
+	DeleteUser(ctx context.Context, id int64) error
+	GetAccountById(ctx context.Context, id int64) (Account, error)
+	// Return multiple accounts for a user and only known columns
+	GetAccountByUserId(ctx context.Context, userID int64) ([]GetAccountByUserIdRow, error)
+	GetAccountByUserIdAndProvider(ctx context.Context, arg GetAccountByUserIdAndProviderParams) (GetAccountByUserIdAndProviderRow, error)
+	GetAuthor(ctx context.Context, id int64) (Author, error)
 	GetSessionByToken(ctx context.Context, token string) (Session, error)
-	GetTokensForUser(ctx context.Context, userID int64) (Token, error)
+	GetTokensForUser(ctx context.Context, userID int64) ([]Token, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
-	GetUserById(ctx context.Context, id int32) (User, error)
+	GetUserById(ctx context.Context, id int64) (User, error)
 	GetUserByToken(ctx context.Context, arg GetUserByTokenParams) (GetUserByTokenRow, error)
 	ListAuthors(ctx context.Context) ([]Author, error)
 	UpdateAccountOAuthTokens(ctx context.Context, arg UpdateAccountOAuthTokensParams) error

@@ -15,17 +15,17 @@
 
 ## Database Configuration
 
-This application supports both PostgreSQL and SQLite databases. You can choose your database by setting the `DATABASE_TYPE` environment variable.
+This application supports both PostgreSQL and SQLite databases. Preferred configuration uses the `BLUEPRINT_DB_*` environment variables. For database type detection, the application reads `BLUEPRINT_DB_TYPE` first, falling back to `DATABASE_TYPE` for backward compatibility.
 
 ### PostgreSQL (Default)
-Set `DATABASE_TYPE=postgres` in your `.env` file and configure the PostgreSQL connection settings.
+Set `BLUEPRINT_DB_TYPE=postgres` (or legacy `DATABASE_TYPE=postgres`) in your `.env` file and configure the PostgreSQL connection settings.
 
 ### SQLite
-Set `DATABASE_TYPE=sqlite` in your `.env` file. SQLite uses a local file database and requires minimal configuration.
+Set `BLUEPRINT_DB_TYPE=sqlite` (or legacy `DATABASE_TYPE=sqlite`). SQLite uses a local file database and requires minimal configuration.
 
 Example SQLite configuration:
 ```bash
-DATABASE_TYPE=sqlite
+BLUEPRINT_DB_TYPE=sqlite
 BLUEPRINT_DB_URL=./database.sqlite
 ```
 

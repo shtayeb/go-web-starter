@@ -3,21 +3,18 @@
 //   sqlc v1.29.0
 // source: session.sql
 
-package db
+package db_sqlite
 
 import (
 	"context"
 )
 
 const getSessionByToken = `-- name: GetSessionByToken :one
-SELECT token, data, expiry FROM sessions
-WHERE token = $1
-  AND revoked_at IS NULL
-  AND expires_at > NOW()
+SELECT token, data, expiry FROM sessions WHERE token = ?
 `
 
 func (q *Queries) GetSessionByToken(ctx context.Context, token string) (Session, error) {
-	row := q.db.QueryRow(ctx, getSessionByToken, token)
+	row := q.db.QueryRowContext(ctx, getSessionByToken, token)
 	var i Session
 	err := row.Scan(&i.Token, &i.Data, &i.Expiry)
 	return i, err

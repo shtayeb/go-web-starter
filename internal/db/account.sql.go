@@ -11,20 +11,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const changeAccountPassword = `-- name: ChangeAccountPassword :exec
-UPDATE accounts SET password = $1 WHERE id = $2
-`
-
-type ChangeAccountPasswordParams struct {
-	Password pgtype.Text
-	ID       int32
-}
-
-func (q *Queries) ChangeAccountPassword(ctx context.Context, arg ChangeAccountPasswordParams) error {
-	_, err := q.db.Exec(ctx, changeAccountPassword, arg.Password, arg.ID)
-	return err
-}
-
 const createAccount = `-- name: CreateAccount :one
 INSERT INTO accounts (account_id, user_id, password, provider_id)
 VALUES ( $1, $2, $3, $4)
@@ -165,7 +151,7 @@ WHERE user_id = $4 AND provider_id = $5
 type UpdateAccountOAuthTokensParams struct {
 	AccessToken          pgtype.Text
 	RefreshToken         pgtype.Text
-	AccessTokenExpiresAt pgtype.Timestamp
+	AccessTokenExpiresAt pgtype.Timestamptz
 	UserID               int32
 	ProviderID           pgtype.Text
 }
