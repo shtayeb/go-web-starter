@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/joho/godotenv"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/google"
 
@@ -18,6 +19,7 @@ import (
 	"go-web-starter/internal/queries"
 
 	"github.com/alexedwards/scs/postgresstore"
+	"github.com/alexedwards/scs/sqlite3store"
 )
 
 type Server struct {
@@ -44,9 +46,16 @@ func NewServer(cfg config.Config, db database.Service, q *queries.Queries, logge
 	return s
 }
 
-func NewSessionManager(db *sql.DB) *scs.SessionManager {
+func NewSessionManager(db *sql.DB, dbType string) *scs.SessionManager {
 	sessionManager := scs.New()
-	sessionManager.Store = postgresstore.New(db)
+
+	switch dbType {
+	case "sqlite", "sqlite3":
+		sessionManager.Store = sqlite3store.New(db)
+	case "postgres", "postgresql":
+		sessionManager.Store = postgresstore.New(db)
+	}
+
 	sessionManager.Lifetime = 12 * time.Hour
 	// Make sure that the Secure attribute is set on our session cookies. Setting this means that the cookie will only be sent by a user's web
 	// browser when a HTTPS connection is being used (and won't be sent over an unsecure HTTP connection).
@@ -56,7 +65,14 @@ func NewSessionManager(db *sql.DB) *scs.SessionManager {
 }
 
 func NewHttpServer() *http.Server {
+	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
+
 	// load the .env file. by default, it will load the .env file in the root directory
+	err := godotenv.Load()
+	if err != nil {
+		logger.Info(fmt.Sprintf("Error loading .env file - using default values now: %v", err))
+	}
+
 	config := config.LoadConfigFromEnv()
 
 	dbService := database.New(config.Database)
@@ -74,9 +90,9 @@ func NewHttpServer() *http.Server {
 		config,
 		dbService,
 		queries.New(sqlDb),
-		jsonlog.New(os.Stdout, jsonlog.LevelInfo),
+		logger,
 		mailer.New(config.Mailer),
-		NewSessionManager(sqlDb),
+		NewSessionManager(sqlDb, config.Database.Type),
 	)
 
 	// Declare Server config
