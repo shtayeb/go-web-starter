@@ -68,6 +68,7 @@ func (h *Handlers) GetUser(r *http.Request) *queries.User {
 func (h *Handlers) NewTemplateData(r *http.Request) types.TemplateData {
 	return types.TemplateData{
 		AppName:         h.Config.AppName,
+		AppEnv:          h.Config.AppEnv,
 		IsAuthenticated: h.isAuthenticated(r),
 		User:            h.GetUser(r),
 		CSRFToken:       nosurf.Token(r),
