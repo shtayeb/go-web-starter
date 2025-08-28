@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-web-starter/internal/config"
 	"go-web-starter/internal/database"
+	"go-web-starter/sql/postgres/migrations"
 	"path/filepath"
 	"runtime"
 
@@ -24,12 +25,14 @@ func MigrateCommand() *cobra.Command {
 }
 func execMigrate(cmd *cobra.Command, args []string) error {
 	cfg := config.LoadConfigFromEnv()
+	cmd.Println("Starting database migrations...")
 	db := database.New(cfg.Database)
 	defer db.Close(cfg.Database)
 
 	sqlDB := db.GetDB()
 
 	if err := runMigrations(sqlDB); err != nil {
+		cmd.Println("Migration error:", err)
 		return fmt.Errorf("migration failed: %w", err)
 	}
 	cmd.Println("Migrations completed successfully!")
@@ -37,26 +40,26 @@ func execMigrate(cmd *cobra.Command, args []string) error {
 }
 
 func runMigrations(db *sql.DB) error {
-	var migrationsDir string
-	var dialect string
-
-	fmt.Println(dialect)
-
-	dialect = "postgres"
+	dialect := "postgres"
 	// Get the directory of the current source file
 	_, filename, _, _ := runtime.Caller(0)
 	currentDir := filepath.Dir(filename)
 	// Navigate to project root and then to postgres migrations
 	projectRoot := filepath.Join(currentDir, "..", "..", "..")
-	migrationsDir = filepath.Join(projectRoot, "sql", "postgres", "migrations")
+	migrationsDir := filepath.Join(projectRoot, "sql", "postgres", "migrations")
+
+	fmt.Printf("Running goose migrations (dialect=%s, dir=%s)\n", dialect, migrationsDir)
 
 	if err := goose.SetDialect(dialect); err != nil {
 		return fmt.Errorf("failed to set goose dialect: %w", err)
 	}
 
-	if err := goose.Up(db, migrationsDir); err != nil {
+	goose.SetBaseFS(migrations.FS)
+	if err := goose.Up(db, "."); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
+
+	fmt.Println("Goose migrations applied successfully")
 
 	return nil
 }
