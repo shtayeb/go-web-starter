@@ -68,6 +68,22 @@ func New(dbConfig config.Database) Service {
 	return dbInstance
 }
 
+// NewWithDB creates a new database service with an existing database connection.
+// This is useful for testing where you want to provide a pre-configured connection.
+func NewWithDB(db *sql.DB) Service {
+	return &service{
+		db: db,
+	}
+}
+
+// Reset clears the singleton instance. This is useful for testing.
+func Reset() {
+	if dbInstance != nil {
+		dbInstance.db.Close()
+		dbInstance = nil
+	}
+}
+
 // Health checks the health of the database connection by pinging the database.
 // It returns a map with keys indicating various health statistics.
 func (s *service) Health() map[string]string {

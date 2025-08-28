@@ -1,20 +1,16 @@
 package tests
 
 import (
-	"bytes"
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"testing"
 	"time"
 
@@ -32,13 +28,13 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type TestServer struct {
 	Server      *httptest.Server
 	Client      *http.Client
 	DB          *sql.DB
+	DBService   database.Service
 	Queries     *queries.Queries
 	Session     *scs.SessionManager
 	Config      config.Config
@@ -51,13 +47,15 @@ type TestServer struct {
 func NewTestServer(t *testing.T) *TestServer {
 	t.Helper()
 
+	// Reset database singleton before each test suite
+	database.Reset()
+
 	cfg := getTestConfig()
 
-	// Create test database (PostgreSQL or SQLite)
-	db, container := setupTestDatabase(t, cfg)
+	db, container := setupTestDatabase(t)
 
-	// Create database service wrapper
-	var dbService database.Service = &testDatabaseService{db: db}
+	// Create database service with existing connection
+	dbService := database.NewWithDB(db)
 
 	// Create queries instance
 	q := queries.New(db)
@@ -83,6 +81,7 @@ func NewTestServer(t *testing.T) *TestServer {
 		Server:      ts,
 		Client:      client,
 		DB:          db,
+		DBService:   dbService,
 		Queries:     q,
 		Session:     sessionManager,
 		Config:      cfg,
@@ -123,56 +122,14 @@ func getTestConfig() config.Config {
 }
 
 // setupTestDatabase creates a test database (PostgreSQL or SQLite) using testcontainers or existing database
-func setupTestDatabase(t *testing.T, cfg config.Config) (*sql.DB, testcontainers.Container) {
+func setupTestDatabase(t *testing.T) (*sql.DB, testcontainers.Container) {
 	t.Helper()
 
-	dbType := "postgres"
-
-	switch dbType {
-	case "sqlite", "sqlite3":
-		return setupSQLiteTestDatabase(t, cfg)
-	case "postgres", "postgresql":
-		fallthrough
-	default:
-		return setupPostgresTestDatabase(t, cfg)
-	}
-}
-
-// setupSQLiteTestDatabase creates a SQLite test database
-func setupSQLiteTestDatabase(t *testing.T, cfg config.Config) (*sql.DB, testcontainers.Container) {
-	t.Helper()
-
-	// Use configured database URL or create a temporary file
-	dbPath := cfg.Database.DBUrl
-	if dbPath == "" || dbPath == ":memory:" {
-		// Create a temporary SQLite database file
-		tempDir := t.TempDir()
-		dbPath = filepath.Join(tempDir, "test.db")
-	}
-
-	log.Printf("Using SQLite test database: %s", dbPath)
-
-	// Connect to SQLite database
-	db, err := sql.Open("sqlite3", dbPath)
-	if err != nil {
-		t.Fatalf("failed to connect to SQLite test database: %v", err)
-	}
-
-	// Verify connection
-	if err := db.Ping(); err != nil {
-		t.Fatalf("failed to ping SQLite test database: %v", err)
-	}
-
-	// Run migrations
-	if err := runMigrations(db, "sqlite"); err != nil {
-		t.Fatalf("failed to run migrations on SQLite test database: %v", err)
-	}
-
-	return db, nil // No container for SQLite
+	return setupPostgresTestDatabase(t)
 }
 
 // setupPostgresTestDatabase creates a PostgreSQL test database using testcontainers or existing database
-func setupPostgresTestDatabase(t *testing.T, cfg config.Config) (*sql.DB, testcontainers.Container) {
+func setupPostgresTestDatabase(t *testing.T) (*sql.DB, testcontainers.Container) {
 	t.Helper()
 
 	// Check if TEST_DATABASE_URL is set (for faster local testing)
@@ -190,11 +147,16 @@ func setupPostgresTestDatabase(t *testing.T, cfg config.Config) (*sql.DB, testco
 			t.Fatalf("failed to ping existing test database: %v", err)
 		}
 
+		// Configure connection pool for tests
+		db.SetMaxOpenConns(10)
+		db.SetMaxIdleConns(5)
+		db.SetConnMaxLifetime(5 * time.Minute)
+
 		// Clean the database before running tests
 		cleanTestDatabase(t, db)
 
 		// Run migrations
-		if err := runMigrations(db, "postgres"); err != nil {
+		if err := runMigrations(db); err != nil {
 			t.Fatalf("failed to run migrations on existing database: %v", err)
 		}
 
@@ -231,6 +193,11 @@ func setupPostgresTestDatabase(t *testing.T, cfg config.Config) (*sql.DB, testco
 		t.Fatalf("failed to connect to test database: %v", err)
 	}
 
+	// Configure connection pool for tests
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(5 * time.Minute)
+
 	// Wait for the database to be ready
 	err = db.Ping()
 	if err != nil {
@@ -238,14 +205,13 @@ func setupPostgresTestDatabase(t *testing.T, cfg config.Config) (*sql.DB, testco
 	}
 
 	// Run migrations using goose
-	if err := runMigrations(db, "postgres"); err != nil {
+	if err := runMigrations(db); err != nil {
 		t.Fatalf("failed to run migrations: %v", err)
 	}
 
 	return db, postgresContainer
 }
 
-// cleanTestDatabase removes all data from test database tables
 func cleanTestDatabase(t *testing.T, db *sql.DB) {
 	t.Helper()
 
@@ -282,28 +248,14 @@ func cleanTestDatabase(t *testing.T, db *sql.DB) {
 	}
 }
 
-func runMigrations(db *sql.DB, dbType string) error {
-	var migrationsDir string
-	var dialect string
-
-	switch dbType {
-	case "sqlite", "sqlite3":
-		dialect = "sqlite3"
-		// Get the directory of the current source file
-		_, filename, _, _ := runtime.Caller(0)
-		currentDir := filepath.Dir(filename)
-		// Navigate to project root and then to sqlite migrations
-		projectRoot := filepath.Join(currentDir, "..", "..")
-		migrationsDir = filepath.Join(projectRoot, "sql", "sqlite", "migrations")
-	case "postgres", "postgresql":
-		dialect = "postgres"
-		// Get the directory of the current source file
-		_, filename, _, _ := runtime.Caller(0)
-		currentDir := filepath.Dir(filename)
-		// Navigate to project root and then to postgres migrations
-		projectRoot := filepath.Join(currentDir, "..", "..")
-		migrationsDir = filepath.Join(projectRoot, "sql", "postgres", "migrations")
-	}
+func runMigrations(db *sql.DB) error {
+	dialect := "postgres"
+	// Get the directory of the current source file
+	_, filename, _, _ := runtime.Caller(0)
+	currentDir := filepath.Dir(filename)
+	// Navigate to project root and then to postgres migrations
+	projectRoot := filepath.Join(currentDir, "..", "..")
+	migrationsDir := filepath.Join(projectRoot, "sql", "postgres", "migrations")
 
 	if err := goose.SetDialect(dialect); err != nil {
 		return fmt.Errorf("failed to set goose dialect: %w", err)
@@ -324,222 +276,4 @@ func setupTestSessionManager() *scs.SessionManager {
 	sessionManager.Cookie.SameSite = http.SameSiteLaxMode
 
 	return sessionManager
-}
-
-// testDatabaseService implements the database.Service interface for testing
-type testDatabaseService struct {
-	db *sql.DB
-}
-
-func (s *testDatabaseService) Health() map[string]string {
-	return map[string]string{
-		"status":  "up",
-		"message": "test database",
-	}
-}
-
-func (s *testDatabaseService) Close(cfg config.Database) error {
-	return s.db.Close()
-}
-
-func (s *testDatabaseService) GetDB() *sql.DB {
-	return s.db
-}
-
-func (s *testDatabaseService) WithTransaction(ctx context.Context, fn func(tx *sql.Tx) error) error {
-	tx, err := s.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := fn(tx); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
-// Helper methods for making requests
-
-// Get makes a GET request to the test server
-func (ts *TestServer) Get(t *testing.T, urlPath string) (int, http.Header, string) {
-	t.Helper()
-
-	req, err := http.NewRequest(http.MethodGet, ts.Server.URL+urlPath, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	resp, err := ts.Client.Do(req)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return resp.StatusCode, resp.Header, string(body)
-}
-
-// PostForm makes a POST request with form data to the test server
-func (ts *TestServer) PostForm(t *testing.T, urlPath string, form map[string]string) (int, http.Header, string) {
-	t.Helper()
-
-	formData := make(url.Values)
-	for key, value := range form {
-		formData.Set(key, value)
-	}
-
-	req, err := http.NewRequest(
-		http.MethodPost,
-		ts.Server.URL+urlPath,
-		strings.NewReader(formData.Encode()),
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := ts.Client.Do(req)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return resp.StatusCode, resp.Header, string(body)
-}
-
-// PostJSON makes a POST request with JSON data to the test server
-func (ts *TestServer) PostJSON(t *testing.T, urlPath string, jsonData interface{}) (int, http.Header, string) {
-	t.Helper()
-
-	jsonBytes, err := json.Marshal(jsonData)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	req, err := http.NewRequest(http.MethodPost, ts.Server.URL+urlPath, bytes.NewReader(jsonBytes))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := ts.Client.Do(req)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return resp.StatusCode, resp.Header, string(body)
-}
-
-// CreateTestUser creates a test user in the database
-func (ts *TestServer) CreateTestUser(t *testing.T, name, email, password string) *queries.User {
-	t.Helper()
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		t.Fatalf("failed to hash password: %v", err)
-	}
-
-	ctx := context.Background()
-
-	// Create user with proper PostgreSQL boolean type
-	user, err := ts.Queries.CreateUser(ctx, queries.CreateUserParams{
-		Name:          name,
-		Email:         email,
-		EmailVerified: true, // PostgreSQL handles boolean properly
-		Image:         sql.NullString{},
-	})
-	if err != nil {
-		t.Fatalf("failed to create test user: %v", err)
-	}
-
-	// Create account with PostgreSQL-compatible parameters
-	_, err = ts.Queries.CreateAccount(ctx, queries.CreateAccountParams{
-		UserID:    user.ID,
-		AccountID: name,
-		Password:  sql.NullString{String: string(hashedPassword), Valid: true},
-	})
-	if err != nil {
-		t.Fatalf("failed to create test account: %v", err)
-	}
-
-	return &user
-}
-
-// LoginUser logs in a user and returns a client with session cookies
-func (ts *TestServer) LoginUser(t *testing.T, email, password string) *http.Client {
-	t.Helper()
-
-	return ts.LoginUserWithCSRF(t, email, password)
-}
-
-// GetWithClient makes a GET request with a specific client (for authenticated requests)
-func (ts *TestServer) GetWithClient(t *testing.T, client *http.Client, urlPath string) (int, http.Header, string) {
-	t.Helper()
-
-	req, err := http.NewRequest(http.MethodGet, ts.Server.URL+urlPath, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return resp.StatusCode, resp.Header, string(body)
-}
-
-// PostFormWithClient makes a POST request with a specific client (for authenticated requests)
-func (ts *TestServer) PostFormWithClient(t *testing.T, client *http.Client, urlPath string, form map[string]string) (int, http.Header, string) {
-	t.Helper()
-
-	formData := make(url.Values)
-	for key, value := range form {
-		formData.Set(key, value)
-	}
-
-	req, err := http.NewRequest(http.MethodPost, ts.Server.URL+urlPath, strings.NewReader(formData.Encode()))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return resp.StatusCode, resp.Header, string(body)
 }
