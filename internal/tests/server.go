@@ -52,6 +52,8 @@ func NewTestServer(t *testing.T) *TestServer {
 
 	cfg := getTestConfig()
 
+	cfg.AppEnv = "test"
+
 	db, container := setupTestDatabase(t)
 
 	// Create database service with existing connection
