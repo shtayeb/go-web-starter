@@ -1,6 +1,5 @@
 # Go Web Starter
 
-
 ## Getting Started
 
 ### Included
@@ -12,22 +11,6 @@
 - Docker
 - Sqlc
 - Goose
-
-## Database Configuration
-
-This application supports both PostgreSQL and SQLite databases. Preferred configuration uses the `BLUEPRINT_DB_*` environment variables. For database type detection, the application reads `BLUEPRINT_DB_TYPE` first, falling back to `DATABASE_TYPE` for backward compatibility.
-
-### PostgreSQL (Default)
-Set `BLUEPRINT_DB_TYPE=postgres` (or legacy `DATABASE_TYPE=postgres`) in your `.env` file and configure the PostgreSQL connection settings.
-
-### SQLite
-Set `BLUEPRINT_DB_TYPE=sqlite` (or legacy `DATABASE_TYPE=sqlite`). SQLite uses a local file database and requires minimal configuration.
-
-Example SQLite configuration:
-```bash
-BLUEPRINT_DB_TYPE=sqlite
-BLUEPRINT_DB_URL=./database.sqlite
-```
 
 ## MakeFile
 
