@@ -7,3 +7,8 @@ CREATE TABLE IF NOT EXISTS tokens (
 	scope text NOT NULL
 );
 -- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+DROP TABLE IF EXISTS tokens;
+-- +goose StatementEnd

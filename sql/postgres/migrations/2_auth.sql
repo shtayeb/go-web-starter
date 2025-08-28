@@ -35,32 +35,12 @@ CREATE TABLE IF NOT EXISTS accounts (
 );
 
 CREATE UNIQUE INDEX idx_accounts_provider_lookup ON accounts(user_id, provider_id);
--- Ensure updated_at is automatically set on updates
-CREATE OR REPLACE FUNCTION auth_set_updated_at()
-RETURNS trigger AS $$
-BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER set_updated_at_users
-BEFORE UPDATE ON users
-FOR EACH ROW
-EXECUTE FUNCTION auth_set_updated_at();
-
-CREATE TRIGGER set_updated_at_accounts
-BEFORE UPDATE ON accounts
-FOR EACH ROW
-EXECUTE FUNCTION auth_set_updated_at();
 -- +goose StatementEnd
+
 -- +goose Down
 -- +goose StatementBegin
-DROP TRIGGER IF EXISTS set_updated_at_accounts ON accounts;
-DROP TRIGGER IF EXISTS set_updated_at_users ON users;
-DROP FUNCTION IF EXISTS auth_set_updated_at();
-DROP INDEX IF EXISTS idx_accounts_provider_lookup;
 DROP INDEX IF EXISTS sessions_expiry_idx;
+DROP INDEX IF EXISTS idx_accounts_provider_lookup;
 DROP TABLE IF EXISTS accounts;
 DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS users;
