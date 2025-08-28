@@ -10,20 +10,6 @@ import (
 	"database/sql"
 )
 
-const changeAccountPassword = `-- name: ChangeAccountPassword :exec
-UPDATE accounts SET password = $1 WHERE id = $2
-`
-
-type ChangeAccountPasswordParams struct {
-	Password sql.NullString
-	ID       int32
-}
-
-func (q *Queries) ChangeAccountPassword(ctx context.Context, arg ChangeAccountPasswordParams) error {
-	_, err := q.db.ExecContext(ctx, changeAccountPassword, arg.Password, arg.ID)
-	return err
-}
-
 const createAccount = `-- name: CreateAccount :one
 INSERT INTO accounts (account_id, user_id, password, provider_id)
 VALUES ( $1, $2, $3, $4)

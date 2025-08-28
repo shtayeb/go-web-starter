@@ -6,18 +6,8 @@ sql:
   engine: "postgresql"
   gen:
     go:
-      sql_package: "pgx/v5"
-      out: "internal/db"
+      out: "internal/queries"
       emit_interface: true
   rules:
     - sqlc/db-prepare
     - postgresql-query-too-costly
-- name: sqlite
-  schema: "./sql/sqlite/migrations"
-  queries: "./sql/sqlite/queries"
-  engine: "sqlite"
-  gen:
-    go:
-      sql_package: "database/sql"
-      out: "internal/db_sqlite"
-      emit_interface: true
