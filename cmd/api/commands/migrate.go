@@ -29,40 +29,26 @@ func execMigrate(cmd *cobra.Command, args []string) error {
 
 	sqlDB := db.GetDB()
 
-	if err := runMigrations(sqlDB, cfg.Database.Type); err != nil {
+	if err := runMigrations(sqlDB); err != nil {
 		return fmt.Errorf("migration failed: %w", err)
 	}
 	cmd.Println("Migrations completed successfully!")
 	return nil
 }
 
-func runMigrations(db *sql.DB, dbType string) error {
+func runMigrations(db *sql.DB) error {
 	var migrationsDir string
 	var dialect string
 
-	fmt.Println(dbType)
+	fmt.Println(dialect)
 
-	switch dbType {
-	case "sqlite", "sqlite3":
-		dialect = "sqlite3"
-		// Get the directory of the current source file
-		// TODO: brittle find new way
-		_, filename, _, _ := runtime.Caller(0)
-		currentDir := filepath.Dir(filename)
-		// Navigate to project root and then to sqlite migrations
-		projectRoot := filepath.Join(currentDir, "..", "..", "..")
-		migrationsDir = filepath.Join(projectRoot, "sql", "sqlite", "migrations")
-	case "postgres", "postgresql":
-		fallthrough
-	default:
-		dialect = "postgres"
-		// Get the directory of the current source file
-		_, filename, _, _ := runtime.Caller(0)
-		currentDir := filepath.Dir(filename)
-		// Navigate to project root and then to postgres migrations
-		projectRoot := filepath.Join(currentDir, "..", "..", "..")
-		migrationsDir = filepath.Join(projectRoot, "sql", "postgres", "migrations")
-	}
+	dialect = "postgres"
+	// Get the directory of the current source file
+	_, filename, _, _ := runtime.Caller(0)
+	currentDir := filepath.Dir(filename)
+	// Navigate to project root and then to postgres migrations
+	projectRoot := filepath.Join(currentDir, "..", "..", "..")
+	migrationsDir = filepath.Join(projectRoot, "sql", "postgres", "migrations")
 
 	if err := goose.SetDialect(dialect); err != nil {
 		return fmt.Errorf("failed to set goose dialect: %w", err)

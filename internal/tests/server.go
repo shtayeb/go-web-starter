@@ -126,7 +126,7 @@ func getTestConfig() config.Config {
 func setupTestDatabase(t *testing.T, cfg config.Config) (*sql.DB, testcontainers.Container) {
 	t.Helper()
 
-	dbType := cfg.Database.Type
+	dbType := "postgres"
 
 	switch dbType {
 	case "sqlite", "sqlite3":

@@ -56,28 +56,15 @@ func New(dbConfig config.Database) Service {
 		return dbInstance
 	}
 
-	var connStr string
-	var driverName string
-
-	switch dbConfig.Type {
-
-	case "sqlite", "sqlite3":
-		driverName = "sqlite3"
-		connStr = dbConfig.DBUrl
-	case "postgres", "postgresql":
-		driverName = "pgx"
-		connStr = dbConfig.DBUrl
-	default:
-		log.Fatal("Unsupported database type")
-	}
-
-	db, err := sql.Open(driverName, connStr)
+	db, err := sql.Open("pgx", dbConfig.DBUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	dbInstance = &service{
 		db: db,
 	}
+
 	return dbInstance
 }
 

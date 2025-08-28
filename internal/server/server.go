@@ -19,7 +19,6 @@ import (
 	"go-web-starter/internal/queries"
 
 	"github.com/alexedwards/scs/postgresstore"
-	"github.com/alexedwards/scs/sqlite3store"
 )
 
 type Server struct {
@@ -46,18 +45,11 @@ func NewServer(cfg config.Config, db database.Service, q *queries.Queries, logge
 	return s
 }
 
-func NewSessionManager(db *sql.DB, dbType string) *scs.SessionManager {
+func NewSessionManager(db *sql.DB) *scs.SessionManager {
 	sessionManager := scs.New()
 
-	switch dbType {
-	case "sqlite", "sqlite3":
-		sessionManager.Store = sqlite3store.New(db)
-	case "postgres", "postgresql":
-		sessionManager.Store = postgresstore.New(db)
-	}
-
 	// default store is memory
-
+	sessionManager.Store = postgresstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
 	// Make sure that the Secure attribute is set on our session cookies. Setting this means that the cookie will only be sent by a user's web
 	// browser when a HTTPS connection is being used (and won't be sent over an unsecure HTTP connection).
@@ -94,7 +86,7 @@ func NewHttpServer() *http.Server {
 		queries.New(sqlDb),
 		logger,
 		mailer.New(config.Mailer),
-		NewSessionManager(sqlDb, config.Database.Type),
+		NewSessionManager(sqlDb),
 	)
 
 	// Declare Server config
