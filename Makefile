@@ -9,12 +9,12 @@ include .env
 .PHONY: help
 help:
 	@echo "Usage:"
-	 @sed -n 's/^##//p' ${MAKEFILE_LIST} | column -t -s ':' |  sed -e 's/^/ /' 
+	 @sed -n 's/^##//p' ${MAKEFILE_LIST} | column -t -s ':' |  sed -e 's/^/ /'
 
 
 .PHONY: confirm
 confirm:
-	@echo -n 'Are you sure? [y/N] ' && read ans && [ $${ans:-N} = y ] 
+	@echo -n 'Are you sure? [y/N] ' && read ans && [ $${ans:-N} = y ]
 
 
 ##################
@@ -39,7 +39,7 @@ tailwind-install:
 
 install-deps: templ-install sqlc-install goose-install tailwind-install
 	@go mod tidy
-	
+
 # Watch Tailwind CSS changes
 tailwind: tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --watch
 
@@ -53,7 +53,7 @@ templ:
 
 .PHONY: migrate
 migrate:
-	goose up
+	go run cmd/api/main.go migrate
 
 build: tailwind-install templ-install
 	@echo "Building..."
@@ -69,6 +69,42 @@ run:
 test:
 	@echo "Testing..."
 	@go test ./... -v
+
+# Run tests with testcontainers (slower but isolated)
+test-container:
+	@echo "Testing with testcontainers..."
+	@go test ./... -v -count=1
+
+# Start a local test database for faster testing
+test-db-start:
+	@echo "Starting test PostgreSQL database..."
+	@docker run -d \
+		--name test-postgres \
+		-e POSTGRES_USER=testuser \
+		-e POSTGRES_PASSWORD=testpass \
+		-e POSTGRES_DB=testdb \
+		-p 5433:5432 \
+		postgres:16-alpine
+	@echo "Waiting for database to be ready..."
+	@sleep 3
+	@echo "Test database started on port 5433"
+	@echo "Run tests with: make test-fast"
+
+# Stop the test database
+test-db-stop:
+	@echo "Stopping test database..."
+	@docker stop test-postgres || true
+	@docker rm test-postgres || true
+
+# Run tests with existing test database (faster)
+test-fast:
+	@echo "Testing with existing database (fast mode)..."
+	@TEST_DATABASE_URL="postgres://testuser:testpass@localhost:5433/testdb?sslmode=disable" go test ./... -v -count=1
+
+# Run specific test
+test-one:
+	@echo "Running specific test..."
+	@TEST_DATABASE_URL="postgres://testuser:testpass@localhost:5433/testdb?sslmode=disable" go test -v ./... -run $(TEST_NAME) -count=1
 
 # Clean the binary
 clean:
@@ -92,7 +128,7 @@ watch:
             fi; \
         fi
 
-.PHONY: all build run test clean watch tailwind-install templ-install
+.PHONY: all build run test clean watch tailwind-install templ-install test-container test-db-start test-db-stop test-fast test-one
 
 # Create DB container
 docker-run:

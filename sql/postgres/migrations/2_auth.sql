@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
   email TEXT NOT NULL UNIQUE,
   email_verified BOOLEAN NOT NULL DEFAULT FALSE,
   image TEXT,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE sessions (
@@ -26,13 +26,22 @@ CREATE TABLE IF NOT EXISTS accounts (
   access_token TEXT,
   refresh_token TEXT,
   id_token TEXT,
-  access_token_expires_at TIMESTAMP,
-  refresh_token_expires_at TIMESTAMP,
+  access_token_expires_at timestamptz,
+  refresh_token_expires_at timestamptz,
   scope TEXT,
   password TEXT,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE UNIQUE INDEX idx_accounts_provider_lookup ON accounts(user_id, provider_id);
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+DROP INDEX IF EXISTS sessions_expiry_idx;
+DROP INDEX IF EXISTS idx_accounts_provider_lookup;
+DROP TABLE IF EXISTS accounts;
+DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS users;
 -- +goose StatementEnd

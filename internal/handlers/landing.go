@@ -8,7 +8,7 @@ import (
 
 func (h *Handlers) LandingViewHandler(w http.ResponseWriter, r *http.Request) {
 	data := h.NewTemplateData(r)
-	data.PageTitle = "Welcome"
+	data.PageTitle = "Go Web Starter Template – Templ, HTMX, TailwindCSS, SQLC, Goose"
 
 	views.LandingView(data).Render(r.Context(), w)
 }

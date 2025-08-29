@@ -1,13 +1,12 @@
 version: "2"
 sql:
 - name: postgresql
-  schema: "./sql/migrations"
-  queries: "./sql/queries"
+  schema: "./sql/postgres/migrations"
+  queries: "./sql/postgres/queries"
   engine: "postgresql"
   gen:
-    go: 
-      sql_package: "pgx/v5"
-      out: "internal/db"
+    go:
+      out: "internal/queries"
       emit_interface: true
   rules:
     - sqlc/db-prepare

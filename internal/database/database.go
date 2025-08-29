@@ -10,7 +10,6 @@ import (
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
-	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -57,19 +56,32 @@ func New(dbConfig config.Database) Service {
 		return dbInstance
 	}
 
-	connStr := dbConfig.DBUrl
-	if connStr == "" {
-		connStr = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", dbConfig.Username, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.Database, dbConfig.Schema)
-	}
-
-	db, err := sql.Open("pgx", connStr)
+	db, err := sql.Open("pgx", dbConfig.DBUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	dbInstance = &service{
 		db: db,
 	}
+
 	return dbInstance
+}
+
+// NewWithDB creates a new database service with an existing database connection.
+// This is useful for testing where you want to provide a pre-configured connection.
+func NewWithDB(db *sql.DB) Service {
+	return &service{
+		db: db,
+	}
+}
+
+// Reset clears the singleton instance. This is useful for testing.
+func Reset() {
+	if dbInstance != nil {
+		dbInstance.db.Close()
+		dbInstance = nil
+	}
 }
 
 // Health checks the health of the database connection by pinging the database.

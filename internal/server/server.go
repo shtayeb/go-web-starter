@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/joho/godotenv"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/google"
 
@@ -46,6 +47,8 @@ func NewServer(cfg config.Config, db database.Service, q *queries.Queries, logge
 
 func NewSessionManager(db *sql.DB) *scs.SessionManager {
 	sessionManager := scs.New()
+
+	// default store is memory
 	sessionManager.Store = postgresstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
 	// Make sure that the Secure attribute is set on our session cookies. Setting this means that the cookie will only be sent by a user's web
@@ -56,7 +59,14 @@ func NewSessionManager(db *sql.DB) *scs.SessionManager {
 }
 
 func NewHttpServer() *http.Server {
+	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
+
 	// load the .env file. by default, it will load the .env file in the root directory
+	err := godotenv.Load()
+	if err != nil {
+		logger.Info(fmt.Sprintf("Error loading .env file - using default values now: %v", err))
+	}
+
 	config := config.LoadConfigFromEnv()
 
 	dbService := database.New(config.Database)
@@ -74,7 +84,7 @@ func NewHttpServer() *http.Server {
 		config,
 		dbService,
 		queries.New(sqlDb),
-		jsonlog.New(os.Stdout, jsonlog.LevelInfo),
+		logger,
 		mailer.New(config.Mailer),
 		NewSessionManager(sqlDb),
 	)

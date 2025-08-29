@@ -12,26 +12,30 @@ templ LandingView(data types.TemplateData) {
 				<div class="px-4 md:px-6 relative">
 					<div class="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-black bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1f1f1f_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
 					<div class="text-center max-w-3xl mx-auto mb-12 py-20 md:py-32 lg:py-40">
-						<div class="mb-4 rounded-full px-4 py-1.5 text-sm font-medium bg-secondary text-secondary-foreground inline-block">
-							Launching Soon
+						<div class="mb-4 rounded-full px-4 py-1.5 text-sm font-medium bg-secondary text-secondary-foreground inline-flex items-center gap-2">
+							<span>Starter Template</span>
+							<span class="opacity-50">•</span>
+							<a href="https://github.com/shtayeb/go-web-starter" class="inline-flex items-center gap-1 hover:underline" target="_blank" rel="noopener noreferrer">
+								@icon.Github(icon.Props{Class: "size-4"})
+								<span>GitHub</span>
+							</a>
 						</div>
 						<h1 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
-							Elevate Your Workflow with Go Web Starter
+							Go Web Starter Template
 						</h1>
 						<p class="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-							The all-in-one platform that helps teams collaborate, automate,
-							and deliver exceptional results. Streamline your processes and
-							focus on what matters most.
+							Production-ready starter using Go, Templ, HTMX, TailwindCSS, SQLC, Goose, and
+							PostgreSQL or SQLite. Clone, customize, and ship faster.
 						</p>
 						<div class="flex flex-col sm:flex-row gap-4 justify-center">
-							<a href="/signup" class="inline-flex items-center justify-center rounded-full h-12 px-8 text-base bg-primary text-primary-foreground hover:bg-primary/90 font-medium transition-colors">
-								Start Free Trial
+							<a href="https://github.com/shtayeb/go-web-starter" class="inline-flex items-center justify-center rounded-full h-12 px-8 text-base bg-primary text-primary-foreground hover:bg-primary/90 font-medium transition-colors" target="_blank" rel="noopener noreferrer">
+								Use this Template
 								<svg class="ml-2 size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7-7l7 7-7 7"></path>
 								</svg>
 							</a>
-							<a href="/#" class="inline-flex items-center justify-center rounded-full h-12 px-8 text-base border border-input bg-background hover:bg-accent hover:text-accent-foreground font-medium transition-colors">
-								Book a Demo
+							<a href="https://github.com/shtayeb/go-web-starter" class="inline-flex items-center justify-center rounded-full h-12 px-8 text-base border border-input bg-background hover:bg-accent hover:text-accent-foreground font-medium transition-colors" target="_blank" rel="noopener noreferrer">
+								View on GitHub
 							</a>
 						</div>
 						<div class="flex items-center justify-center gap-4 mt-6 text-sm text-muted-foreground">
@@ -39,19 +43,19 @@ templ LandingView(data types.TemplateData) {
 								<svg class="size-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 								</svg>
-								<span>No credit card</span>
+								<span>Single binary</span>
 							</div>
 							<div class="flex items-center gap-1">
 								<svg class="size-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 								</svg>
-								<span>14-day trial</span>
+								<span>Super Fast</span>
 							</div>
 							<div class="flex items-center gap-1">
 								<svg class="size-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 								</svg>
-								<span>Cancel anytime</span>
+								<span>Free and opensource</span>
 							</div>
 						</div>
 					</div>

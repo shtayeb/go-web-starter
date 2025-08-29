@@ -9,7 +9,6 @@ import (
 )
 
 type Querier interface {
-	ChangeAccountPassword(ctx context.Context, arg ChangeAccountPasswordParams) error
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
 	CreateAuthor(ctx context.Context, arg CreateAuthorParams) (Author, error)
 	CreateToken(ctx context.Context, arg CreateTokenParams) (Token, error)

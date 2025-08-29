@@ -10,7 +10,10 @@ import (
 )
 
 const getSessionByToken = `-- name: GetSessionByToken :one
-SELECT token, data, expiry FROM sessions WHERE token = $1
+SELECT token, data, expiry FROM sessions
+WHERE token = $1
+  AND revoked_at IS NULL
+  AND expires_at > NOW()
 `
 
 func (q *Queries) GetSessionByToken(ctx context.Context, token string) (Session, error) {

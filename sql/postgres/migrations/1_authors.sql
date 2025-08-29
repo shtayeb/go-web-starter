@@ -6,3 +6,8 @@ CREATE TABLE IF NOT EXISTS authors (
   bio  text
 );
 -- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+DROP TABLE IF EXISTS authors;
+-- +goose StatementEnd

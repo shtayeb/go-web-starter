@@ -8,11 +8,24 @@ templ BaseLayout(data types.TemplateData, htmlClass string) {
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width,initial-scale=1"/>
+			<meta name="description" content="Go web starter template using Templ, HTMX, TailwindCSS, SQLC and Goose. Production-ready starter for Go web apps."/>
+			<meta name="keywords" content="Go web starter, Go template, HTMX, Templ, SQLC, TailwindCSS, Goose, PostgreSQL, SQLite, Chi, SCS, Goth"/>
+			<meta name="generator" content="Go, Templ, HTMX, SQLC"/>
+			<meta name="robots" content="index, follow"/>
+			<meta property="og:type" content="website"/>
+			<meta property="og:title" content="Go Web Starter"/>
+			<meta property="og:description" content="Production-ready Go starter with Templ, HTMX, TailwindCSS, SQLC, Goose."/>
+			<meta property="og:image" content="/assets/images/dashboard-preview.png"/>
+			<meta name="twitter:card" content="summary_large_image"/>
+			<meta name="twitter:title" content="Go Web Starter"/>
+			<meta name="twitter:description" content="Production-ready Go starter using Templ, HTMX, TailwindCSS, SQLC, Goose."/>
+			<meta name="twitter:image" content="/assets/images/dashboard-preview.png"/>
+			<link rel="canonical" href="/"/>
 			<title>
 				if data.PageTitle != "" {
 					{ data.PageTitle }
 				} else {
-					Go Starter
+					Go Web Starter
 				}
 			</title>
 			<link href="assets/css/output.css" rel="stylesheet"/>

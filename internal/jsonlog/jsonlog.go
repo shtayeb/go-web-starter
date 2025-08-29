@@ -49,6 +49,10 @@ func New(out io.Writer, minLevel Level) *Logger {
 	}
 }
 
+func (l *Logger) Info(message string) {
+	l.print(LevelInfo, message, nil)
+}
+
 func (l *Logger) PrintInfo(message string, properties map[string]string) {
 	l.print(LevelInfo, message, properties)
 }

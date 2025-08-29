@@ -137,5 +137,10 @@ func (ah *AuthHandler) DeleteAccountHandler(w http.ResponseWriter, r *http.Reque
 	// Clear session and redirect to home
 	ah.handler.SessionManager.Destroy(r.Context())
 
-	htmx.NewResponse().Redirect("/").Write(w)
+	if htmx.IsHTMX(r) {
+		htmx.NewResponse().Redirect("/").Write(w)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

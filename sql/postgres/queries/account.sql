@@ -1,6 +1,3 @@
--- name: ChangeAccountPassword :exec
-UPDATE accounts SET password = $1 WHERE id = $2;
-
 -- name: CreateAccount :one
 INSERT INTO accounts (account_id, user_id, password, provider_id)
 VALUES ( $1, $2, $3, $4)
