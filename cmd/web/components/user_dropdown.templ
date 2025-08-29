@@ -5,6 +5,7 @@ import "go-web-starter/cmd/web/components/ui/dropdown"
 import "go-web-starter/cmd/web/components/ui/avatar"
 import "go-web-starter/cmd/web/components/ui/button"
 import "go-web-starter/internal/types"
+import "strings"
 
 templ LogoutForm(csrfToken string) {
 	<form method="post" action="/logout">
@@ -18,6 +19,20 @@ templ LogoutForm(csrfToken string) {
 			Logout
 		}
 	</form>
+}
+
+func Initials(name string) string {
+	parts := strings.Fields(name)
+	initials := ""
+	for i, part := range parts {
+		if i > 1 {
+			break
+		}
+		if len(part) > 0 {
+			initials += string([]rune(part)[0])
+		}
+	}
+	return strings.ToUpper(initials)
 }
 
 templ UserDropdown(data types.TemplateData) {
@@ -47,7 +62,7 @@ templ UserDropdown(data types.TemplateData) {
 						})
 					} else {
 						@avatar.Fallback() {
-							{ avatar.Initials(data.User.Name) }
+							{ Initials(data.User.Name) }
 						}
 					}
 				}

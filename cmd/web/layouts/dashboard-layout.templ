@@ -2,11 +2,11 @@ package layouts
 
 import (
 	"go-web-starter/cmd/web/components"
+	"go-web-starter/cmd/web/components/ui/collapsible"
 	"go-web-starter/cmd/web/components/ui/dropdown"
 	"go-web-starter/cmd/web/components/ui/popover"
 	"go-web-starter/cmd/web/components/ui/sidebar"
 	"go-web-starter/internal/types"
-	"go-web-starter/cmd/web/components/ui/collapsible"
 )
 
 templ DashboardLayout(data types.TemplateData) {
@@ -24,19 +24,17 @@ templ DashboardLayout(data types.TemplateData) {
 		@collapsible.Script()
 		@sidebar.Script()
 		<body class="font-sans antialiased">
-			<div class="flex w-full min-h-svh">
-				<div class="relative flex w-full overflow-hidden rounded-lg border">
-					@components.SidebarDefault()
-					@sidebar.Inset(sidebar.InsetProps{
-						Class: "",
-					}) {
+			@sidebar.Layout() {
+				@components.SidebarDefault()
+				@sidebar.Inset() {
+					<div class="flex h-full flex-col">
 						@components.Navbar(data, false)
 						<section class="flex h-full flex-1 flex-col gap-4 px-6 py-4 overflow-x-auto container mx-auto">
 							{ children... }
 						</section>
-					}
-				</div>
-			</div>
+					</div>
+				}
+			}
 		</body>
 	}
 }
