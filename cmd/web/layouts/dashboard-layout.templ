@@ -5,27 +5,23 @@ import (
 	"go-web-starter/cmd/web/components/ui/collapsible"
 	"go-web-starter/cmd/web/components/ui/dropdown"
 	"go-web-starter/cmd/web/components/ui/popover"
+	"go-web-starter/cmd/web/components/ui/sheet"
 	"go-web-starter/cmd/web/components/ui/sidebar"
 	"go-web-starter/internal/types"
 )
 
 templ DashboardLayout(data types.TemplateData) {
 	@BaseLayout(data, "h-screen") {
-		<script>
-			// Apply saved sidebar state immediately to prevent flicker
-			if (localStorage.getItem("sidebarState") === "collapsed") {
-				document.documentElement.classList.add("sidebar-init-collapsed");
-			}
-		</script>
-		// @drawer.Script()
 		@components.ThemeSwitcherScript()
 		@dropdown.Script()
 		@popover.Script()
 		@collapsible.Script()
 		@sidebar.Script()
+		@sheet.Script()
+
 		<body class="font-sans antialiased">
 			@sidebar.Layout() {
-				@components.SidebarDefault()
+				@components.SidebarDefault(data.CurrentPath)
 				@sidebar.Inset() {
 					<div class="flex h-full flex-col">
 						@components.Navbar(data, false)

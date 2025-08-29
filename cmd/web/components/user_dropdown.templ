@@ -1,11 +1,14 @@
 package components
 
-import "go-web-starter/cmd/web/components/ui/icon"
-import "go-web-starter/cmd/web/components/ui/dropdown"
-import "go-web-starter/cmd/web/components/ui/avatar"
-import "go-web-starter/cmd/web/components/ui/button"
-import "go-web-starter/internal/types"
-import "strings"
+import (
+	"go-web-starter/cmd/web/components/ui/avatar"
+	"go-web-starter/cmd/web/components/ui/button"
+	"go-web-starter/cmd/web/components/ui/dropdown"
+	"go-web-starter/cmd/web/components/ui/icon"
+	"go-web-starter/cmd/web/components/ui/sidebar"
+	"go-web-starter/internal/types"
+	"strings"
+)
 
 templ LogoutForm(csrfToken string) {
 	<form method="post" action="/logout">
@@ -53,40 +56,53 @@ templ UserDropdown(data types.TemplateData) {
 		// When user is logged in
 		@dropdown.Dropdown() {
 			@dropdown.Trigger() {
-				@avatar.Avatar(avatar.Props{
-					Size: avatar.SizeSm,
+				@sidebar.MenuButton(sidebar.MenuButtonProps{
+					Size: sidebar.MenuButtonSizeDefault,
 				}) {
-					if data.User.Image.Valid {
-						@avatar.Image(avatar.ImageProps{
-							Src: data.User.Image.String,
-						})
-					} else {
-						@avatar.Fallback() {
-							{ Initials(data.User.Name) }
+					@avatar.Avatar(avatar.Props{
+						Size: avatar.SizeSm,
+					}) {
+						if data.User.Image.Valid {
+							@avatar.Image(avatar.ImageProps{
+								Src: data.User.Image.String,
+							})
+						} else {
+							@avatar.Fallback() {
+								{ Initials(data.User.Name) }
+							}
 						}
 					}
+					@icon.ChevronsUpDown(icon.Props{Class: "ml-auto size-4"})
 				}
 			}
 			@dropdown.Content(dropdown.ContentProps{
-				Width: "w-56",
+				Width:     "w-56",
+				Placement: dropdown.PlacementTopStart,
 			}) {
 				@dropdown.Label() {
-					<p class="font-medium">{ data.User.Name }</p>
-					<p class="text-sm text-muted-foreground">{ data.User.Email }</p>
+					{ data.User.Name }
 				}
 				@dropdown.Separator()
-				@dropdown.Group() {
-					@dropdown.Item(dropdown.ItemProps{
-						Href: "/profile",
-					}) {
-						<span class="flex items-center">
-							@icon.User(icon.Props{Size: 16, Class: "mr-2"})
-							My Account
-						</span>
-					}
+				@dropdown.Item(dropdown.ItemProps{
+					Href: "/profile",
+				}) {
+					<span class="flex items-center">
+						@icon.User(icon.Props{Size: 16, Class: "mr-2"})
+						Profile
+					</span>
+				}
+				@dropdown.Item(dropdown.ItemProps{
+					Href: "/dashboard",
+				}) {
+					<span class="flex items-center">
+						@icon.Settings(icon.Props{Size: 16, Class: "mr-2"})
+						Dashboard
+					</span>
 				}
 				@dropdown.Separator()
-				@LogoutForm(data.CSRFToken)
+				@dropdown.Item() {
+					@LogoutForm(data.CSRFToken)
+				}
 			}
 		}
 	}

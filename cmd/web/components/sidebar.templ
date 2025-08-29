@@ -1,13 +1,16 @@
 package components
 
-import "go-web-starter/cmd/web/components/ui/icon"
-import "go-web-starter/cmd/web/components/ui/sidebar"
-import "go-web-starter/cmd/web/components/ui/collapsible"
-import "go-web-starter/cmd/web/components/ui/avatar"
+import (
+	"go-web-starter/cmd/web/components/ui/avatar"
+	"go-web-starter/cmd/web/components/ui/collapsible"
+	"go-web-starter/cmd/web/components/ui/dropdown"
+	"go-web-starter/cmd/web/components/ui/icon"
+	"go-web-starter/cmd/web/components/ui/sidebar"
+)
 
-templ SidebarDefault() {
+templ SidebarDefault(currentPath string) {
 	@sidebar.Sidebar(sidebar.Props{
-		Collapsible: sidebar.CollapsibleOffcanvas,
+		Collapsible: sidebar.CollapsibleIcon,
 		Variant:     sidebar.VariantFloating,
 	}) {
 		@sidebar.Header(sidebar.HeaderProps{
@@ -16,7 +19,7 @@ templ SidebarDefault() {
 			@sidebar.Menu() {
 				@sidebar.MenuItem() {
 					@sidebar.MenuButton(sidebar.MenuButtonProps{
-						Href: "#",
+						Href: "/",
 					}) {
 						@icon.Blend(icon.Props{Class: "size-4"})
 						<span class="font-semibold">Go Web Starter</span>
@@ -32,18 +35,20 @@ templ SidebarDefault() {
 				@sidebar.Menu() {
 					@sidebar.MenuItem() {
 						@sidebar.MenuButton(sidebar.MenuButtonProps{
-							Href: "#",
+							Href: "/dashboard",
+							IsActive: currentPath == "/dashboard",
 						}) {
 							@icon.House(icon.Props{Class: "size-4"})
-							<span>Home</span>
+							<span>Dashboard</span>
 						}
 					}
 					@sidebar.MenuItem() {
 						@sidebar.MenuButton(sidebar.MenuButtonProps{
-							Href: "#",
+							Href: "/projects",
+							IsActive: currentPath == "/projects",
 						}) {
 							@icon.Inbox(icon.Props{Class: "size-4"})
-							<span>Inbox</span>
+							<span>Projects</span>
 							@sidebar.MenuBadge() {
 								3
 							}
@@ -51,8 +56,8 @@ templ SidebarDefault() {
 					}
 					@sidebar.MenuItem() {
 						@collapsible.Collapsible(collapsible.Props{
-							Open: true,
-							Class:       "group/collapsible w-full",
+							Open:  true,
+							Class: "group/collapsible w-full",
 						}) {
 							@collapsible.Trigger() {
 								@sidebar.MenuButton() {
@@ -98,29 +103,68 @@ templ SidebarDefault() {
 				@sidebar.Menu() {
 					@sidebar.MenuItem() {
 						@sidebar.MenuButton(sidebar.MenuButtonProps{
-							Href: "#",
+							Href: "/profile",
+							IsActive: currentPath == "/profile",
 						}) {
 							@icon.Users(icon.Props{Class: "size-4"})
-							<span>Team</span>
+							<span>Profile</span>
 						}
 					}
 				}
 			}
 		}
 		@sidebar.Footer() {
-			<div class="flex items-center gap-3">
-				@avatar.Avatar() {
-					@avatar.Image(avatar.ImageProps{
-						Src: "https://avatars.githubusercontent.com/u/26936893?v=4",
-					})
+			@sidebar.Menu() {
+				@sidebar.MenuItem() {
+					@dropdown.Dropdown() {
+						@dropdown.Trigger() {
+							@sidebar.MenuButton(sidebar.MenuButtonProps{
+								Size: sidebar.MenuButtonSizeLg,
+							}) {
+								@avatar.Avatar(avatar.Props{Class: "size-8 rounded-lg"}) {
+									@avatar.Fallback(){
+										JD
+									}
+								}
+								<div class="grid flex-1 text-left text-sm leading-tight">
+									<span class="truncate font-medium">John Doe</span>
+									<span class="truncate text-xs">john@example.com</span>
+								</div>
+								@icon.ChevronsUpDown(icon.Props{Class: "ml-auto size-4"})
+							}
+						}
+						@dropdown.Content(dropdown.ContentProps{
+							Width:     "w-56",
+							Placement: dropdown.PlacementTopStart,
+						}) {
+							@dropdown.Label() {
+								John Doe
+							}
+							@dropdown.Separator()
+							@dropdown.Item() {
+								<span class="flex items-center">
+									@icon.User(icon.Props{Size: 16, Class: "mr-2"})
+									Profile
+								</span>
+							}
+							@dropdown.Item() {
+								<span class="flex items-center">
+									@icon.Settings(icon.Props{Size: 16, Class: "mr-2"})
+									Settings
+								</span>
+							}
+							@dropdown.Separator()
+							@dropdown.Item() {
+								<span class="flex items-center">
+									@icon.LogOut(icon.Props{Size: 16, Class: "mr-2"})
+									Log out
+								</span>
+							}
+						}
+					}
 				}
-				<div class="flex flex-col">
-					<span class="text-sm font-medium">John Doe</span>
-					<span class="text-xs text-gray-500">john@example.com</span>
-				</div>
-			</div>
+			}
 		}
-		// inset
 	}
 }
 
