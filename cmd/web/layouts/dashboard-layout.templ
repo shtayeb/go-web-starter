@@ -2,61 +2,35 @@ package layouts
 
 import (
 	"go-web-starter/cmd/web/components"
-	"go-web-starter/cmd/web/components/ui/drawer"
+	"go-web-starter/cmd/web/components/ui/collapsible"
 	"go-web-starter/cmd/web/components/ui/dropdown"
 	"go-web-starter/cmd/web/components/ui/popover"
+	"go-web-starter/cmd/web/components/ui/sheet"
+	"go-web-starter/cmd/web/components/ui/sidebar"
 	"go-web-starter/internal/types"
 )
 
 templ DashboardLayout(data types.TemplateData) {
 	@BaseLayout(data, "h-screen") {
-		<style>
-			/* Apply collapsed state immediately to prevent flicker */
-			html.sidebar-init-collapsed #sidebar[data-collapsible="none"] aside {
-				left: calc(var(--sidebar-width) * -1) !important;
-			}
-			html.sidebar-init-collapsed #sidebar[data-collapsible="none"] [data-slot="sidebar-gap"] {
-				width: 0 !important;
-			}
-		</style>
-		<script>
-			// Apply saved sidebar state immediately to prevent flicker
-			if (localStorage.getItem("sidebarState") === "collapsed") {
-				document.documentElement.classList.add("sidebar-init-collapsed");
-			}
-		</script>
-		@drawer.Script()
 		@components.ThemeSwitcherScript()
 		@dropdown.Script()
 		@popover.Script()
-		<script>
-			// Restore sidebar state from localStorage
-			document.addEventListener("DOMContentLoaded", function() {
-				const savedState = localStorage.getItem("sidebarState");
-				const sidebar = document.querySelector("#sidebar");
-				if (sidebar) {
-					if (savedState === "collapsed") {
-						sidebar.dataset.collapsible = "offcanvas";
-						sidebar.dataset.state = "collapsed";
-					} else {
-						sidebar.dataset.collapsible = "none";
-						sidebar.dataset.state = "expanded";
-					}
-					// Remove the temporary CSS class
-					document.documentElement.classList.remove("sidebar-init-collapsed");
-				}
-			});
-		</script>
+		@collapsible.Script()
+		@sidebar.Script()
+		@sheet.Script()
+
 		<body class="font-sans antialiased">
-			<div class="flex w-full min-h-svh">
-				@components.Sidebar(data.CurrentPath)
-				<main class="relative flex flex-1 bg-background flex-col min-h-svh">
-					@components.Navbar(data, false)
-					<section class="flex h-full flex-1 flex-col gap-4 px-6 py-4 overflow-x-auto container mx-auto">
-						{ children... }
-					</section>
-				</main>
-			</div>
+			@sidebar.Layout() {
+				@components.SidebarDefault(data.CurrentPath)
+				@sidebar.Inset() {
+					<div class="flex h-full flex-col">
+						@components.Navbar(data, false)
+						<section class="flex h-full flex-1 flex-col gap-4 px-6 py-4 overflow-x-auto container mx-auto">
+							{ children... }
+						</section>
+					</div>
+				}
+			}
 		</body>
 	}
 }

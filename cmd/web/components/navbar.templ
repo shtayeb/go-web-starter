@@ -1,12 +1,11 @@
 package components
 
 import "go-web-starter/cmd/web/components/ui/icon"
-
 import "go-web-starter/internal/types"
-import "go-web-starter/cmd/web/components/ui/button"
+import "go-web-starter/cmd/web/components/ui/sidebar"
 
 templ Navbar(data types.TemplateData, showLogo bool) {
-	<header class="flex items-center gap-2 h-16 shrink-0 border-b">
+	<header class="flex items-center gap-2 h-13 shrink-0 border-b">
 		<div class="container mx-auto px-4">
 			<div class="flex justify-between items-center relative">
 				// Left
@@ -19,30 +18,7 @@ templ Navbar(data types.TemplateData, showLogo bool) {
 						</a>
 					} else {
 						<div class="flex items-center gap-2">
-							@button.Button(button.Props{
-								Size:    button.SizeIcon,
-								Variant: button.VariantGhost,
-								ID:      "sidebar-toggle",
-							}) {
-								@icon.PanelLeftClose(icon.Props{Class: "w-4 h-4"})
-							}
-							<script>
-								document.querySelector("#sidebar-toggle").addEventListener("click", function() {
-									// todo: to toggle in small screens also handle the classes 'hidden md:flex' in sidebar and sidebar-gap
-								const sidebar = document.querySelector("#sidebar")
-								;
-								if (sidebar.dataset.collapsible === "none") {
-									sidebar.dataset.collapsible = "offcanvas";
-									sidebar.dataset.state = "collapsed";
-									localStorage.setItem("sidebarState", "collapsed");
-								} else {
-									sidebar.dataset.collapsible = "none"; 
-									sidebar.dataset.state = "expanded";
-									localStorage.setItem("sidebarState", "expanded");
-								}
-
-								});
-							</script>
+							@sidebar.Trigger()
 							<span class="text-xl font-medium tracking-wider">{ data.PageTitle }</span>
 						</div>
 					}

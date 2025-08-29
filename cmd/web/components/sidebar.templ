@@ -1,6 +1,172 @@
 package components
 
-import "go-web-starter/cmd/web/components/ui/icon"
+import (
+	"go-web-starter/cmd/web/components/ui/avatar"
+	"go-web-starter/cmd/web/components/ui/collapsible"
+	"go-web-starter/cmd/web/components/ui/dropdown"
+	"go-web-starter/cmd/web/components/ui/icon"
+	"go-web-starter/cmd/web/components/ui/sidebar"
+)
+
+templ SidebarDefault(currentPath string) {
+	@sidebar.Sidebar(sidebar.Props{
+		Collapsible: sidebar.CollapsibleIcon,
+		Variant:     sidebar.VariantFloating,
+	}) {
+		@sidebar.Header(sidebar.HeaderProps{
+			Class: "h-13",
+		}) {
+			@sidebar.Menu() {
+				@sidebar.MenuItem() {
+					@sidebar.MenuButton(sidebar.MenuButtonProps{
+						Href: "/",
+					}) {
+						@icon.Blend(icon.Props{Class: "size-4"})
+						<span class="font-semibold">Go Web Starter</span>
+					}
+				}
+			}
+		}
+		@sidebar.Content() {
+			@sidebar.Group() {
+				@sidebar.GroupLabel() {
+					Platform
+				}
+				@sidebar.Menu() {
+					@sidebar.MenuItem() {
+						@sidebar.MenuButton(sidebar.MenuButtonProps{
+							Href: "/dashboard",
+							IsActive: currentPath == "/dashboard",
+						}) {
+							@icon.House(icon.Props{Class: "size-4"})
+							<span>Dashboard</span>
+						}
+					}
+					@sidebar.MenuItem() {
+						@sidebar.MenuButton(sidebar.MenuButtonProps{
+							Href: "/projects",
+							IsActive: currentPath == "/projects",
+						}) {
+							@icon.Inbox(icon.Props{Class: "size-4"})
+							<span>Projects</span>
+							@sidebar.MenuBadge() {
+								3
+							}
+						}
+					}
+					@sidebar.MenuItem() {
+						@collapsible.Collapsible(collapsible.Props{
+							Open:  true,
+							Class: "group/collapsible w-full",
+						}) {
+							@collapsible.Trigger() {
+								@sidebar.MenuButton() {
+									@icon.FileText(icon.Props{Class: "size-4"})
+									<span>Documents</span>
+									@icon.ChevronRight(icon.Props{
+										Class: "ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-90",
+									})
+								}
+							}
+							@collapsible.Content() {
+								@sidebar.MenuSub() {
+									@sidebar.MenuSubItem() {
+										@sidebar.MenuSubButton(sidebar.MenuSubButtonProps{
+											Href: "#",
+										}) {
+											<span>Reports</span>
+										}
+									}
+									@sidebar.MenuSubItem() {
+										@sidebar.MenuSubButton(sidebar.MenuSubButtonProps{
+											Href: "#",
+										}) {
+											<span>Invoices</span>
+										}
+									}
+									@sidebar.MenuSubItem() {
+										@sidebar.MenuSubButton(sidebar.MenuSubButtonProps{
+											Href:     "#",
+											IsActive: true,
+										}) {
+											<span>Receipts</span>
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			@sidebar.Separator()
+			@sidebar.Group() {
+				@sidebar.Menu() {
+					@sidebar.MenuItem() {
+						@sidebar.MenuButton(sidebar.MenuButtonProps{
+							Href: "/profile",
+							IsActive: currentPath == "/profile",
+						}) {
+							@icon.Users(icon.Props{Class: "size-4"})
+							<span>Profile</span>
+						}
+					}
+				}
+			}
+		}
+		@sidebar.Footer() {
+			@sidebar.Menu() {
+				@sidebar.MenuItem() {
+					@dropdown.Dropdown() {
+						@dropdown.Trigger() {
+							@sidebar.MenuButton(sidebar.MenuButtonProps{
+								Size: sidebar.MenuButtonSizeLg,
+							}) {
+								@avatar.Avatar(avatar.Props{Class: "size-8 rounded-lg"}) {
+									@avatar.Fallback(){
+										JD
+									}
+								}
+								<div class="grid flex-1 text-left text-sm leading-tight">
+									<span class="truncate font-medium">John Doe</span>
+									<span class="truncate text-xs">john@example.com</span>
+								</div>
+								@icon.ChevronsUpDown(icon.Props{Class: "ml-auto size-4"})
+							}
+						}
+						@dropdown.Content(dropdown.ContentProps{
+							Width:     "w-56",
+							Placement: dropdown.PlacementTopStart,
+						}) {
+							@dropdown.Label() {
+								John Doe
+							}
+							@dropdown.Separator()
+							@dropdown.Item() {
+								<span class="flex items-center">
+									@icon.User(icon.Props{Size: 16, Class: "mr-2"})
+									Profile
+								</span>
+							}
+							@dropdown.Item() {
+								<span class="flex items-center">
+									@icon.Settings(icon.Props{Size: 16, Class: "mr-2"})
+									Settings
+								</span>
+							}
+							@dropdown.Separator()
+							@dropdown.Item() {
+								<span class="flex items-center">
+									@icon.LogOut(icon.Props{Size: 16, Class: "mr-2"})
+									Log out
+								</span>
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
 
 type SidebarItem struct {
 	Title  string
@@ -81,7 +247,7 @@ templ Sidebar(currentPath string) {
 			{Title: "Dashboard", Href: "/dashboard", Icon: icon.LayoutDashboard(icon.Props{Class: "size-4.5"}), Active: currentPath == "/dashboard"},
 			{Title: "Projects", Href: "/projects", Icon: icon.Folder(icon.Props{Class: "size-4.5"}), Badge: "12", Active: currentPath == "/projects"},
 		}
-		
+
 		toolsItems := []SidebarItem{
 			{Title: "Analytics", Href: "#", Icon: icon.ChartPie(icon.Props{Class: "size-4.5"}), Active: currentPath == "/analytics"},
 		}
@@ -127,9 +293,9 @@ templ Sidebar(currentPath string) {
 							<p class="text-sm font-medium mb-1">Upgrade to Pro</p>
 							<p class="text-xs text-muted-foreground mb-3">Unlock advanced features and analytics.</p>
 							<button
-	class="shadow-xs hover:bg-primary/90 gap-2 outline-none focus-visible:ring-[3px] cursor-pointer disabled:pointer-events-none whitespace-nowrap focus-visible:border-ring items-center font-medium shrink-0 h-9 disabled:opacity-50 aria-invalid:border-destructive w-full aria-invalid:ring-destructive/20 has-[>svg]:px-3 inline-flex transition-all dark:aria-invalid:ring-destructive/40 py-2 rounded-md text-sm [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 focus-visible:ring-ring/50 text-primary-foreground px-4 justify-center bg-primary"
-	type="button"
->Upgrade</button>
+								class="shadow-xs hover:bg-primary/90 gap-2 outline-none focus-visible:ring-[3px] cursor-pointer disabled:pointer-events-none whitespace-nowrap focus-visible:border-ring items-center font-medium shrink-0 h-9 disabled:opacity-50 aria-invalid:border-destructive w-full aria-invalid:ring-destructive/20 has-[>svg]:px-3 inline-flex transition-all dark:aria-invalid:ring-destructive/40 py-2 rounded-md text-sm [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 focus-visible:ring-ring/50 text-primary-foreground px-4 justify-center bg-primary"
+								type="button"
+							>Upgrade</button>
 						</div>
 					</div>
 				}
