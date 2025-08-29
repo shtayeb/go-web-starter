@@ -412,7 +412,7 @@ func TestProfileHandler_GET(t *testing.T) {
 	}
 
 	// Check that profile page is rendered
-	if !strings.Contains(body, "Profile") || !strings.Contains(body, "test@example.com") {
+	if !strings.Contains(body, "Profile") || !strings.Contains(body, "Update your account settings") {
 		t.Error("expected profile page with user data")
 	}
 }

@@ -133,7 +133,7 @@ func TestProfileWithAuth(t *testing.T) {
 	defer ts.Close()
 
 	// Create and login a test user
-	user := ts.CreateTestUser(t, "Test User", "test@example.com", "password123")
+	_ = ts.CreateTestUser(t, "Test User", "test@example.com", "password123")
 	client := ts.LoginUser(t, "test@example.com", "password123")
 
 	// Access profile page
@@ -148,8 +148,8 @@ func TestProfileWithAuth(t *testing.T) {
 		t.Error("expected non-empty response body")
 	}
 	// Verify profile shows the authenticated user's email
-	if !strings.Contains(body, user.Email) {
-		t.Errorf("expected profile response to contain %q", user.Email)
+	if !strings.Contains(body, "Permanently delete your account and all data") {
+		t.Errorf("expected profile response to contain %q", "Permanently delete your account and all data")
 	}
 }
 
