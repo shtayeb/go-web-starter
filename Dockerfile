@@ -25,6 +25,7 @@ FROM alpine:3.20.1 AS prod
 WORKDIR /app
 COPY --from=build /app/main /app/main
 COPY --from=build /app/remote/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 EXPOSE ${PORT}
 CMD ["./entrypoint.sh"]
 
