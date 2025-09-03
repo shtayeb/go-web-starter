@@ -4,10 +4,16 @@ import "go-web-starter/internal/types"
 
 templ BaseLayout(data types.TemplateData, htmlClass string) {
 	<!DOCTYPE html>
-	<html lang="en" if htmlClass != "" { class={ htmlClass } }>
+	<html
+		lang="en"
+		if htmlClass != "" {
+			class={ htmlClass }
+		}
+	>
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width,initial-scale=1"/>
+			<link rel="icon" type="image/svg+xml" href="/assets/images/logo.svg"/>
 			<meta name="description" content="Go web starter template using Templ, HTMX, TailwindCSS, SQLC and Goose. Production-ready starter for Go web apps."/>
 			<meta name="keywords" content="Go web starter, Go template, HTMX, Templ, SQLC, TailwindCSS, Goose, PostgreSQL, SQLite, Chi, SCS, Goth"/>
 			<meta name="generator" content="Go, Templ, HTMX, SQLC"/>
