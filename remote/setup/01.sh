@@ -8,11 +8,11 @@ set -eu
 TIMEZONE=America/New_York 
  
 # Set the name of the new user to create. 
-USERNAME=greenlight 
+USERNAME=blueprint 
  
-# Prompt to enter a password for the PostgreSQL greenlight user (rather than hard-coding 
+# Prompt to enter a password for the PostgreSQL blueprint user (rather than hard-coding 
 # a password in this script). 
-read -p "Enter password for greenlight DB user: " DB_PASSWORD 
+read -p "Enter password for blueprint DB user: " DB_PASSWORD 
  
 # Force all output to be presented in en_US for the duration of this script. This avoids   
 # any "setting locale failed" errors while this script is running, before we have  
@@ -61,14 +61,14 @@ mv migrate.linux-amd64 /usr/local/bin/migrate
 # Install PostgreSQL. 
 apt --yes install postgresql 
  
-# Set up the greenlight DB and create a user account with the password entered earlier. 
-sudo -i -u postgres psql -c "CREATE DATABASE greenlight" 
-sudo -i -u postgres psql -d greenlight -c "CREATE EXTENSION IF NOT EXISTS citext" 
-sudo -i -u postgres psql -d greenlight -c "CREATE ROLE greenlight WITH LOGIN PASSWORD '${DB_PASSWORD}'" 
+# Set up the blueprint DB and create a user account with the password entered earlier. 
+sudo -i -u postgres psql -c "CREATE DATABASE blueprint" 
+sudo -i -u postgres psql -d blueprint -c "CREATE EXTENSION IF NOT EXISTS citext" 
+sudo -i -u postgres psql -d blueprint -c "CREATE ROLE blueprint WITH LOGIN PASSWORD '${DB_PASSWORD}'" 
  
-# Add a DSN for connecting to the greenlight database to the system-wide environment  
+# Add a DSN for connecting to the blueprint database to the system-wide environment  
 # variables in the /etc/environment file. 
-echo "GREENLIGHT_DB_DSN='postgres://greenlight:${DB_PASSWORD}@localhost/greenlight '" >> /etc/environment 
+echo "BLUEPRINT_DB_DSN='postgres://blueprint:${DB_PASSWORD}@localhost/blueprint '" >> /etc/environment 
  
 # Install Caddy (see https://caddyserver.com/docs/install#debian-ubuntu raspbian). 
 apt --yes install -y debian-keyring debian-archive-keyring apt-transport-https 
