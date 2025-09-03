@@ -1,4 +1,4 @@
-// templui component sheet - version: v0.94.0 installed by templui v0.94.0
+// templui component sheet - version: v0.95.0 installed by templui v0.95.0
 package sheet
 
 import (
@@ -163,41 +163,11 @@ templ Content(props ...ContentProps) {
 				"fixed z-50 bg-background shadow-lg",
 				"transition-all duration-300 ease-in-out",
 		
-				// Side: right
-				"data-[tui-sheet-side=right]:inset-y-0",
-				"data-[tui-sheet-side=right]:right-0",
-				"data-[tui-sheet-side=right]:h-full",
-				"data-[tui-sheet-side=right]:w-3/4",
-				"data-[tui-sheet-side=right]:sm:max-w-sm",
-				"data-[tui-sheet-side=right]:border-l",
+				// Position and size based on side
+				sideClasses(side),
 		
-				// Side: left
-				"data-[tui-sheet-side=left]:inset-y-0",
-				"data-[tui-sheet-side=left]:left-0",
-				"data-[tui-sheet-side=left]:h-full",
-				"data-[tui-sheet-side=left]:w-3/4",
-				"data-[tui-sheet-side=left]:sm:max-w-sm",
-				"data-[tui-sheet-side=left]:border-r",
-		
-				// Side: top
-				"data-[tui-sheet-side=top]:inset-x-0",
-				"data-[tui-sheet-side=top]:top-0",
-				"data-[tui-sheet-side=top]:h-auto",
-				"data-[tui-sheet-side=top]:border-b",
-		
-				// Side: bottom
-				"data-[tui-sheet-side=bottom]:inset-x-0",
-				"data-[tui-sheet-side=bottom]:bottom-0",
-				"data-[tui-sheet-side=bottom]:h-auto",
-				"data-[tui-sheet-side=bottom]:border-t",
-		
-				// Transform animations based on side and open state
-				"data-[tui-sheet-side=right]:data-[tui-sheet-open=false]:translate-x-full",
-				"data-[tui-sheet-side=left]:data-[tui-sheet-open=false]:-translate-x-full",
-				"data-[tui-sheet-side=top]:data-[tui-sheet-open=false]:-translate-y-full",
-				"data-[tui-sheet-side=bottom]:data-[tui-sheet-open=false]:translate-y-full",
-				"data-[tui-sheet-open=true]:translate-x-0",
-				"data-[tui-sheet-open=true]:translate-y-0",
+				// Transform animations
+				transformClasses(side),
 		
 				// Opacity and pointer events
 				"data-[tui-sheet-open=false]:opacity-0",
@@ -223,8 +193,7 @@ templ Content(props ...ContentProps) {
 		</div>
 		if !p.HideCloseButton {
 			<button
-				class={
-					utils.TwMerge(
+				class={ utils.TwMerge(
 						// Positioning
 						"absolute top-4 right-4 z-10",
 						// Style
@@ -237,8 +206,7 @@ templ Content(props ...ContentProps) {
 						"ring-offset-background",
 						// Disabled state
 						"disabled:pointer-events-none",
-					)
-				}
+					) }
 				data-tui-sheet-close
 				aria-label="Close"
 			>
@@ -328,6 +296,36 @@ templ Close(props ...CloseProps) {
 	>
 		{ children... }
 	</span>
+}
+
+func sideClasses(side Side) string {
+	switch side {
+	case SideRight:
+		return "inset-y-0 right-0 h-full w-3/4 sm:max-w-sm border-l"
+	case SideLeft:
+		return "inset-y-0 left-0 h-full w-3/4 sm:max-w-sm border-r"
+	case SideTop:
+		return "inset-x-0 top-0 w-full border-b"
+	case SideBottom:
+		return "inset-x-0 bottom-0 w-full border-t"
+	default:
+		return "inset-y-0 right-0 h-full w-3/4 sm:max-w-sm border-l"
+	}
+}
+
+func transformClasses(side Side) string {
+	switch side {
+	case SideRight:
+		return "data-[tui-sheet-open=false]:translate-x-full data-[tui-sheet-open=true]:translate-x-0"
+	case SideLeft:
+		return "data-[tui-sheet-open=false]:-translate-x-full data-[tui-sheet-open=true]:translate-x-0"
+	case SideTop:
+		return "data-[tui-sheet-open=false]:-translate-y-full data-[tui-sheet-open=true]:translate-y-0"
+	case SideBottom:
+		return "data-[tui-sheet-open=false]:translate-y-full data-[tui-sheet-open=true]:translate-y-0"
+	default:
+		return "data-[tui-sheet-open=false]:translate-x-full data-[tui-sheet-open=true]:translate-x-0"
+	}
 }
 
 templ Script() {

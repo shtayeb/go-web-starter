@@ -10,8 +10,9 @@ import (
 
 templ SidebarDefault(currentPath string) {
 	@sidebar.Sidebar(sidebar.Props{
-		Collapsible: sidebar.CollapsibleIcon,
-		Variant:     sidebar.VariantFloating,
+		Collapsible: sidebar.CollapsibleOffcanvas,
+		Variant:     sidebar.VariantSidebar,
+		Collapsed:   false,
 	}) {
 		@sidebar.Header(sidebar.HeaderProps{
 			Class: "h-13",
