@@ -1,5 +1,4 @@
 # This docker-compose.yml is configured for PostgreSQL.
-# For SQLite, you can run the app directly without docker-compose.
 services:
   app:
     build:

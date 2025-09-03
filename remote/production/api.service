@@ -19,7 +19,7 @@ User=blueprint
 Group=blueprint
 EnvironmentFile=/etc/environment
 WorkingDirectory=/home/blueprint
-ExecStart=/home/blueprint/api -port=4000 -db-dsn=${BLUEPRINT_DB_DSN} -env=production
+ExecStart=/home/blueprint/main
 
 # Automatically restart the service after a 5-second wait if it exists with a non-zero exit code. 
 Restart=on-failure
