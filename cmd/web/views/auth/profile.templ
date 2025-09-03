@@ -8,9 +8,11 @@ import "go-web-starter/cmd/web/components/ui/input"
 import "go-web-starter/cmd/web/components/ui/form"
 import "go-web-starter/internal/types"
 import "go-web-starter/cmd/web/components"
+import "go-web-starter/cmd/web/components/ui/modal"
 
 templ ProfileView(data types.TemplateData, updateUserForm forms.UpdateUserNameAndImageForm, updatePasswordform forms.UpdateAccountPasswordForm, deleteAccountForm forms.DeleteAccountForm) {
 	@layouts.DashboardLayout(data) {
+		@modal.Script()
 		<div class="space-y-4">
 			@input.Script()
 			@AccountTab(data, updateUserForm)
@@ -53,6 +55,24 @@ templ PasswordTab(data types.TemplateData, updatePasswordform forms.UpdateAccoun
 }
 
 templ DangerZoneTab(data types.TemplateData, deleteAccountForm forms.DeleteAccountForm) {
+	// modal
+	@modal.Modal(modal.Props{
+		ID:    "default-modal",
+		Class: "max-w-md",
+	}) {
+		@modal.Header(modal.HeaderProps{
+			Class: "p-4",
+		}) {
+			Are you absolutely sure?
+		}
+		@modal.Body(modal.BodyProps{
+			Class: "!pt-2",
+		}) {
+			<p class="text-sm text-gray-500 dark:text-gray-400 pb-4">This action cannot be undone. This will permanently delete your account and remove all your data from our servers.</p>
+			@DeleteAccountForm(data, deleteAccountForm)
+		}
+	}
+
 	<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 		<div class="col-span-1">
 			<h2 class="text-lg font-medium text-red-600 dark:text-red-400">Danger Zone</h2>
@@ -68,7 +88,15 @@ templ DangerZoneTab(data types.TemplateData, deleteAccountForm forms.DeleteAccou
 						<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
 							This action cannot be undone. This will permanently delete your account and remove all your data from our servers.
 						</p>
-						@DeleteAccountForm(data, deleteAccountForm)
+						@modal.Trigger(modal.TriggerProps{
+							For: "default-modal",
+						}) {
+							@button.Button(button.Props{
+								Variant: button.VariantDestructive,
+							}) {
+								Delete Account
+							}
+						}
 					</div>
 				}
 			}
@@ -85,7 +113,6 @@ templ DeleteAccountForm(data types.TemplateData, deleteAccountForm forms.DeleteA
 		hx-target="this"
 		hx-swap="outerHTML"
 		hx-indicator="#delete-spinner"
-		hx-confirm="Are you absolutely sure? This action cannot be undone and will permanently delete your account and all associated data."
 	>
 		if deleteAccountForm.HasMessage() {
 			@components.AutoDismissFormMessage(deleteAccountForm.Message, 3000)
@@ -112,7 +139,14 @@ templ DeleteAccountForm(data types.TemplateData, deleteAccountForm forms.DeleteA
 				{ deleteAccountForm.FieldErrors["password"] }
 			}
 		}
-		<div class="flex justify-end">
+		<div class="flex justify-end gap-4">
+			@modal.Close(modal.CloseProps{
+				For: "default-modal",
+			}) {
+				@button.Button() {
+					Cancel
+				}
+			}
 			@button.Button(button.Props{
 				Type:    button.TypeSubmit,
 				Variant: button.VariantDestructive,
@@ -213,7 +247,7 @@ templ ChangePasswordForm(data types.TemplateData, updatePasswordform forms.Updat
 		hx-swap="outerHTML"
 		hx-indicator="#password-spinner"
 	>
-		if updatePasswordform.HasMessage(){
+		if updatePasswordform.HasMessage() {
 			@components.AutoDismissFormMessage(updatePasswordform.Message, 3000)
 		}
 		@components.CSRFInput(data.CSRFToken)
