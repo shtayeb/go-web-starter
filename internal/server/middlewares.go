@@ -24,8 +24,17 @@ func (s *Server) authenticate(next http.Handler) http.Handler {
 			return
 		}
 
+		// this middleware is always run so sidebar state is taken here
+		cookie, err := r.Cookie("sidebar_state")
+		isCollapsedSidebar := false
+		if err == nil {
+			isCollapsedSidebar = cookie.Value == "false"
+		}
+
 		ctx := context.WithValue(r.Context(), config.IsAuthenticatedContextKey, true)
 		ctx = context.WithValue(ctx, config.UserContextKey, user)
+		ctx = context.WithValue(ctx, config.SidebarStateContextKey, isCollapsedSidebar)
+
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)

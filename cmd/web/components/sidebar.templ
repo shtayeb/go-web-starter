@@ -1,18 +1,28 @@
 package components
 
 import (
+	"context"
 	"go-web-starter/cmd/web/components/ui/avatar"
 	"go-web-starter/cmd/web/components/ui/collapsible"
 	"go-web-starter/cmd/web/components/ui/dropdown"
 	"go-web-starter/cmd/web/components/ui/icon"
 	"go-web-starter/cmd/web/components/ui/sidebar"
+	"go-web-starter/internal/config"
 )
+
+func GetSidebarState(ctx context.Context) bool {
+	if sidebarState, ok := ctx.Value(config.SidebarStateContextKey).(bool); ok {
+		return sidebarState
+	}
+
+	return false
+}
 
 templ SidebarDefault(currentPath string) {
 	@sidebar.Sidebar(sidebar.Props{
 		Collapsible: sidebar.CollapsibleOffcanvas,
 		Variant:     sidebar.VariantSidebar,
-		Collapsed:   false,
+		Collapsed:   GetSidebarState(ctx),
 	}) {
 		@sidebar.Header(sidebar.HeaderProps{
 			Class: "h-13",
@@ -36,7 +46,7 @@ templ SidebarDefault(currentPath string) {
 				@sidebar.Menu() {
 					@sidebar.MenuItem() {
 						@sidebar.MenuButton(sidebar.MenuButtonProps{
-							Href: "/dashboard",
+							Href:     "/dashboard",
 							IsActive: currentPath == "/dashboard",
 						}) {
 							@icon.House(icon.Props{Class: "size-4"})
@@ -45,7 +55,7 @@ templ SidebarDefault(currentPath string) {
 					}
 					@sidebar.MenuItem() {
 						@sidebar.MenuButton(sidebar.MenuButtonProps{
-							Href: "/projects",
+							Href:     "/projects",
 							IsActive: currentPath == "/projects",
 						}) {
 							@icon.Inbox(icon.Props{Class: "size-4"})
@@ -104,7 +114,7 @@ templ SidebarDefault(currentPath string) {
 				@sidebar.Menu() {
 					@sidebar.MenuItem() {
 						@sidebar.MenuButton(sidebar.MenuButtonProps{
-							Href: "/profile",
+							Href:     "/profile",
 							IsActive: currentPath == "/profile",
 						}) {
 							@icon.Users(icon.Props{Class: "size-4"})
@@ -123,7 +133,7 @@ templ SidebarDefault(currentPath string) {
 								Size: sidebar.MenuButtonSizeLg,
 							}) {
 								@avatar.Avatar(avatar.Props{Class: "size-8 rounded-lg"}) {
-									@avatar.Fallback(){
+									@avatar.Fallback() {
 										JD
 									}
 								}

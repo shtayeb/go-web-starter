@@ -6,4 +6,5 @@ const (
 	IsAuthenticatedContextKey = contextKey("isAuthenticated")
 	AuthenticatedUserID       = contextKey("authenticatedUserID")
 	UserContextKey            = contextKey("user")
+	SidebarStateContextKey    = contextKey("sidebarState")
 )
