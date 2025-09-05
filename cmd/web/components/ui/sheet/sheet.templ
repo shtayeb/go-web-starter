@@ -1,10 +1,16 @@
-// templui component sheet - version: v0.95.0 installed by templui v0.95.0
+// templui component sheet - version: v0.96.0 installed by templui v0.96.0
 package sheet
 
 import (
 	"context"
+	"go-web-starter/cmd/web/components/ui/dialog"
 	"go-web-starter/cmd/web/utils"
-	"go-web-starter/cmd/web/components/ui/icon"
+)
+
+type contextKey string
+
+const (
+	sideKey contextKey = "sheetSide"
 )
 
 type Side string
@@ -14,14 +20,6 @@ const (
 	SideRight  Side = "right"
 	SideBottom Side = "bottom"
 	SideLeft   Side = "left"
-)
-
-type contextKey string
-
-const (
-	instanceKey contextKey = "sheetInstance"
-	sideKey     contextKey = "sheetSide"
-	openKey     contextKey = "sheetOpen"
 )
 
 type Props struct {
@@ -38,12 +36,16 @@ type TriggerProps struct {
 	ID         string
 	Class      string
 	Attributes templ.Attributes
+	For        string // Reference to a specific sheet ID (for external triggers)
 }
 
 type ContentProps struct {
+	ID              string
 	Class           string
 	Attributes      templ.Attributes
 	HideCloseButton bool
+	Side            Side //
+	Open            bool // Initial open state for standalone usage
 }
 
 type HeaderProps struct {
@@ -74,6 +76,7 @@ type CloseProps struct {
 	ID         string
 	Class      string
 	Attributes templ.Attributes
+	For        string
 }
 
 templ Sheet(props ...Props) {
@@ -84,30 +87,25 @@ templ Sheet(props ...Props) {
 	if p.Side == "" {
 		{{ p.Side = SideRight }}
 	}
-	{{ instanceID := p.ID }}
-	if instanceID == "" {
-		{{ instanceID = utils.RandomID() }}
-	}
-	{{ ctx = context.WithValue(ctx, instanceKey, instanceID) }}
+	// Pass the Side through context to child components
 	{{ ctx = context.WithValue(ctx, sideKey, p.Side) }}
-	{{ ctx = context.WithValue(ctx, openKey, p.Open) }}
-	<div
-		if p.ID != "" {
-			id={ p.ID }
-		}
-		class={ utils.TwMerge("", p.Class) }
-		data-tui-sheet
-		data-sheet-instance={ instanceID }
-		if p.DisableClickAway {
-			data-tui-sheet-disable-clickaway="true"
-		}
-		if p.DisableESC {
-			data-tui-sheet-disable-esc="true"
-		}
-		{ p.Attributes... }
-	>
+	// Sheet uses Dialog internally with sheet-specific attributes
+	@dialog.Dialog(dialog.Props{
+		ID:               p.ID,
+		Open:             p.Open,
+		DisableClickAway: p.DisableClickAway,
+		DisableESC:       p.DisableESC,
+		Class:            p.Class,
+		Attributes: utils.MergeAttributes(
+			templ.Attributes{
+				"data-tui-sheet":      "true",
+				"data-tui-sheet-side": string(p.Side),
+			},
+			p.Attributes,
+		),
+	}) {
 		{ children... }
-	</div>
+	}
 }
 
 templ Trigger(props ...TriggerProps) {
@@ -115,18 +113,15 @@ templ Trigger(props ...TriggerProps) {
 	if len(props) > 0 {
 		{{ p = props[0] }}
 	}
-	{{ instanceID := ctx.Value(instanceKey).(string) }}
-	<div
-		if p.ID != "" {
-			id={ p.ID }
-		}
-		class={ utils.TwMerge("group cursor-pointer", p.Class) }
-		data-tui-sheet-trigger
-		data-sheet-instance={ instanceID }
-		{ p.Attributes... }
-	>
+	// Sheet trigger is just a Dialog trigger
+	@dialog.Trigger(dialog.TriggerProps{
+		ID:         p.ID,
+		For:        p.For,
+		Class:      p.Class,
+		Attributes: p.Attributes,
+	}) {
 		{ children... }
-	</div>
+	}
 }
 
 templ Content(props ...ContentProps) {
@@ -134,87 +129,43 @@ templ Content(props ...ContentProps) {
 	if len(props) > 0 {
 		{{ p = props[0] }}
 	}
-	{{ instanceID := ctx.Value(instanceKey).(string) }}
-	{{ side := ctx.Value(sideKey).(Side) }}
-	{{ open := ctx.Value(openKey).(bool) }}
-	<!-- Overlay -->
-	<div
-		class={ utils.TwMerge(
-				"fixed inset-0 z-50 bg-black/50",
-				"transition-opacity duration-300",
-				"data-[tui-sheet-open=false]:opacity-0",
-				"data-[tui-sheet-open=true]:opacity-100",
-				"data-[tui-sheet-open=false]:pointer-events-none",
-				"data-[tui-sheet-open=true]:pointer-events-auto",
-			) }
-		data-tui-sheet-backdrop
-		data-sheet-instance={ instanceID }
-		if open {
-			data-tui-sheet-open="true"
+	// Get Side from context if not explicitly provided
+	if p.Side == "" {
+		if val := ctx.Value(sideKey); val != nil {
+			{{ p.Side = val.(Side) }}
 		} else {
-			data-tui-sheet-open="false"
+			{{ p.Side = SideRight }}
 		}
-	></div>
-	<!-- Content -->
-	<div
-		class={
-			utils.TwMerge(
-				// Base styles
-				"fixed z-50 bg-background shadow-lg",
-				"transition-all duration-300 ease-in-out",
-		
-				// Position and size based on side
-				sideClasses(side),
-		
-				// Transform animations
-				transformClasses(side),
-		
-				// Opacity and pointer events
-				"data-[tui-sheet-open=false]:opacity-0",
-				"data-[tui-sheet-open=true]:opacity-100",
-				"data-[tui-sheet-open=false]:pointer-events-none",
-				"data-[tui-sheet-open=true]:pointer-events-auto",
-		
-				p.Class,
-			),
-		}
-		data-tui-sheet-content
-		data-tui-sheet-side={ string(side) }
-		data-sheet-instance={ instanceID }
-		if open {
-			data-tui-sheet-open="true"
-		} else {
-			data-tui-sheet-open="false"
-		}
-		{ p.Attributes... }
-	>
-		<div class="flex flex-col gap-4 h-full overflow-y-auto">
-			{ children... }
-		</div>
-		if !p.HideCloseButton {
-			<button
-				class={ utils.TwMerge(
-						// Positioning
-						"absolute top-4 right-4 z-10",
-						// Style
-						"rounded-sm opacity-70",
-						// Interactions
-						"transition-opacity hover:opacity-100",
-						// Focus states
-						"focus:outline-none focus:ring-2",
-						"focus:ring-ring focus:ring-offset-2",
-						"ring-offset-background",
-						// Disabled state
-						"disabled:pointer-events-none",
-					) }
-				data-tui-sheet-close
-				aria-label="Close"
-			>
-				@icon.X(icon.Props{Class: "h-4 w-4"})
-				<span class="sr-only">Close</span>
-			</button>
-		}
-	</div>
+	}
+	// Sheet content uses Dialog content with sheet-specific styles
+	@dialog.Content(dialog.ContentProps{
+		ID:              p.ID,
+		Open:            p.Open,
+		HideCloseButton: p.HideCloseButton,
+		Class: utils.TwMerge(
+			// First apply side-specific positioning and animations
+			getSideClasses(p.Side),
+			// Default gap matching shadcn (no padding in content)
+			"gap-4 !p-0", // Remove Dialog's p-6 padding
+			// Override Dialog styles
+			"!scale-100",    // Reset Dialog's scale animation
+			"!rounded-none", // Remove dialog rounded corners
+			"!opacity-100",  // Keep fully opaque - no fade, only slide
+			// Remove pointer-events control during animation
+			"!pointer-events-auto data-[tui-dialog-hidden=true]:!pointer-events-none",
+			// User-provided classes last
+			p.Class,
+		),
+		Attributes: utils.MergeAttributes(
+			templ.Attributes{
+				"data-tui-sheet-content": "true",
+				"data-tui-sheet-side":    string(p.Side),
+			},
+			p.Attributes,
+		),
+	}) {
+		{ children... }
+	}
 }
 
 templ Header(props ...HeaderProps) {
@@ -222,15 +173,14 @@ templ Header(props ...HeaderProps) {
 	if len(props) > 0 {
 		{{ p = props[0] }}
 	}
-	<div
-		if p.ID != "" {
-			id={ p.ID }
-		}
-		class={ utils.TwMerge("flex flex-col gap-1.5 p-4", p.Class) }
-		{ p.Attributes... }
-	>
+	// Sheet header uses Dialog header but overrides styles
+	@dialog.Header(dialog.HeaderProps{
+		ID:         p.ID,
+		Class:      utils.TwMerge("!gap-1.5 !p-4 !text-left", p.Class),
+		Attributes: p.Attributes,
+	}) {
 		{ children... }
-	</div>
+	}
 }
 
 templ Title(props ...TitleProps) {
@@ -238,15 +188,14 @@ templ Title(props ...TitleProps) {
 	if len(props) > 0 {
 		{{ p = props[0] }}
 	}
-	<h2
-		if p.ID != "" {
-			id={ p.ID }
-		}
-		class={ utils.TwMerge("text-foreground font-semibold", p.Class) }
-		{ p.Attributes... }
-	>
+	// Sheet title uses Dialog title but overrides styles
+	@dialog.Title(dialog.TitleProps{
+		ID:         p.ID,
+		Class:      utils.TwMerge("!text-base !leading-normal", p.Class),
+		Attributes: p.Attributes,
+	}) {
 		{ children... }
-	</h2>
+	}
 }
 
 templ Description(props ...DescriptionProps) {
@@ -254,15 +203,14 @@ templ Description(props ...DescriptionProps) {
 	if len(props) > 0 {
 		{{ p = props[0] }}
 	}
-	<p
-		if p.ID != "" {
-			id={ p.ID }
-		}
-		class={ utils.TwMerge("text-muted-foreground text-sm", p.Class) }
-		{ p.Attributes... }
-	>
+	// Sheet description uses Dialog description
+	@dialog.Description(dialog.DescriptionProps{
+		ID:         p.ID,
+		Class:      p.Class,
+		Attributes: p.Attributes,
+	}) {
 		{ children... }
-	</p>
+	}
 }
 
 templ Footer(props ...FooterProps) {
@@ -270,15 +218,14 @@ templ Footer(props ...FooterProps) {
 	if len(props) > 0 {
 		{{ p = props[0] }}
 	}
-	<div
-		if p.ID != "" {
-			id={ p.ID }
-		}
-		class={ utils.TwMerge("mt-auto flex flex-col gap-2 p-4", p.Class) }
-		{ p.Attributes... }
-	>
+	// Sheet footer uses Dialog footer but overrides styles
+	@dialog.Footer(dialog.FooterProps{
+		ID:         p.ID,
+		Class:      utils.TwMerge("!mt-auto !flex !flex-col !gap-2 !p-4", p.Class),
+		Attributes: p.Attributes,
+	}) {
 		{ children... }
-	</div>
+	}
 }
 
 templ Close(props ...CloseProps) {
@@ -286,48 +233,85 @@ templ Close(props ...CloseProps) {
 	if len(props) > 0 {
 		{{ p = props[0] }}
 	}
-	<span
-		if p.ID != "" {
-			id={ p.ID }
-		}
-		class={ utils.TwMerge("contents", p.Class) }
-		data-tui-sheet-close
-		{ p.Attributes... }
-	>
+	// Sheet close uses Dialog close
+	@dialog.Close(dialog.CloseProps{
+		ID:         p.ID,
+		For:        p.For,
+		Class:      p.Class,
+		Attributes: p.Attributes,
+	}) {
 		{ children... }
-	</span>
-}
-
-func sideClasses(side Side) string {
-	switch side {
-	case SideRight:
-		return "inset-y-0 right-0 h-full w-3/4 sm:max-w-sm border-l"
-	case SideLeft:
-		return "inset-y-0 left-0 h-full w-3/4 sm:max-w-sm border-r"
-	case SideTop:
-		return "inset-x-0 top-0 w-full border-b"
-	case SideBottom:
-		return "inset-x-0 bottom-0 w-full border-t"
-	default:
-		return "inset-y-0 right-0 h-full w-3/4 sm:max-w-sm border-l"
 	}
 }
 
-func transformClasses(side Side) string {
+func getSideClasses(side Side) string {
+	// Base classes for all sheets - matching shadcn
+	// Duration varies: 300ms when closing, 500ms when opening
+	// Use !transition-transform to override Dialog's transition-all
+	baseClasses := "fixed z-50 flex flex-col bg-background shadow-lg !transition-transform ease-in-out " +
+		"data-[tui-dialog-open=false]:duration-300 data-[tui-dialog-open=true]:duration-500 "
+
 	switch side {
 	case SideRight:
-		return "data-[tui-sheet-open=false]:translate-x-full data-[tui-sheet-open=true]:translate-x-0"
+		return baseClasses +
+			// Positioning
+			"!inset-y-0 !right-0 !left-auto !top-auto " +
+			// Size
+			"!h-full !w-3/4 sm:!max-w-sm " +
+			// Border
+			"!border-l !border-t-0 !border-r-0 !border-b-0 " +
+			// Reset Dialog transforms
+			"!translate-y-0 " +
+			// Slide animation
+			"data-[tui-dialog-open=false]:!translate-x-full " +
+			"data-[tui-dialog-open=true]:!translate-x-0"
 	case SideLeft:
-		return "data-[tui-sheet-open=false]:-translate-x-full data-[tui-sheet-open=true]:translate-x-0"
+		return baseClasses +
+			// Positioning
+			"!inset-y-0 !left-0 !right-auto !top-auto " +
+			// Size
+			"!h-full !w-3/4 sm:!max-w-sm " +
+			// Border
+			"!border-r !border-t-0 !border-l-0 !border-b-0 " +
+			// Reset Dialog transforms
+			"!translate-y-0 " +
+			// Slide animation
+			"data-[tui-dialog-open=false]:!-translate-x-full " +
+			"data-[tui-dialog-open=true]:!translate-x-0"
 	case SideTop:
-		return "data-[tui-sheet-open=false]:-translate-y-full data-[tui-sheet-open=true]:translate-y-0"
+		return baseClasses +
+			// Positioning - full width at top
+			"!inset-x-0 !top-0 !bottom-auto !left-0 !right-0 " +
+			// Size - full width, auto height
+			"!w-full !max-w-full !h-auto " +
+			// Border
+			"!border-b !border-t-0 !border-l-0 !border-r-0 " +
+			// Reset Dialog transforms - IMPORTANT: reset the centering from Dialog
+			"!translate-x-0 !translate-y-0 " +
+			// Slide animation - top slides up when closing
+			"data-[tui-dialog-open=false]:!-translate-y-full " +
+			"data-[tui-dialog-open=true]:!translate-y-0"
 	case SideBottom:
-		return "data-[tui-sheet-open=false]:translate-y-full data-[tui-sheet-open=true]:translate-y-0"
+		return baseClasses +
+			// Positioning - full width at bottom
+			"!inset-x-0 !bottom-0 !top-auto !left-0 !right-0 " +
+			// Size - full width, auto height
+			"!w-full !max-w-full !h-auto " +
+			// Border
+			"!border-t !border-b-0 !border-l-0 !border-r-0 " +
+			// Reset Dialog transforms - IMPORTANT: reset the centering from Dialog
+			"!translate-x-0 !translate-y-0 " +
+			// Slide animation
+			"data-[tui-dialog-open=false]:!translate-y-full " +
+			"data-[tui-dialog-open=true]:!translate-y-0"
 	default:
-		return "data-[tui-sheet-open=false]:translate-x-full data-[tui-sheet-open=true]:translate-x-0"
+		return baseClasses +
+			// Default to right side
+			"!inset-y-0 !right-0 !left-auto !top-auto " +
+			"!h-full !w-3/4 sm:!max-w-sm " +
+			"!border-l !border-t-0 !border-r-0 !border-b-0 " +
+			"!translate-y-0 " +
+			"data-[tui-dialog-open=false]:!translate-x-full " +
+			"data-[tui-dialog-open=true]:!translate-x-0"
 	}
-}
-
-templ Script() {
-	<script defer nonce={ templ.GetNonce(ctx) } src="assets/js/ui/sheet.min.js"></script>
 }

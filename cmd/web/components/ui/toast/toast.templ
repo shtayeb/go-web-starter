@@ -1,4 +1,4 @@
-// templui component toast - version: v0.94.0 installed by templui v0.94.0
+// templui component toast - version: v0.96.0 installed by templui v0.96.0
 package toast
 
 import (
@@ -107,14 +107,14 @@ templ Toast(props ...Props) {
 			// Icon
 			if p.Icon {
 				switch p.Variant {
-				case VariantSuccess:
-					@icon.CircleCheck(icon.Props{Size: 22, Class: "text-green-500 mr-3 flex-shrink-0"})
-				case VariantError:
-					@icon.CircleX(icon.Props{Size: 22, Class: "text-red-500 mr-3 flex-shrink-0"})
-				case VariantWarning:
-					@icon.TriangleAlert(icon.Props{Size: 22, Class: "text-yellow-500 mr-3 flex-shrink-0"})
-				case VariantInfo:
-					@icon.Info(icon.Props{Size: 22, Class: "text-blue-500 mr-3 flex-shrink-0"})
+					case VariantSuccess:
+						@icon.CircleCheck(icon.Props{Size: 22, Class: "text-green-500 mr-3 flex-shrink-0"})
+					case VariantError:
+						@icon.CircleX(icon.Props{Size: 22, Class: "text-red-500 mr-3 flex-shrink-0"})
+					case VariantWarning:
+						@icon.TriangleAlert(icon.Props{Size: 22, Class: "text-yellow-500 mr-3 flex-shrink-0"})
+					case VariantInfo:
+						@icon.Info(icon.Props{Size: 22, Class: "text-blue-500 mr-3 flex-shrink-0"})
 				}
 			}
 			// Content

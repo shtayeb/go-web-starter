@@ -1,4 +1,4 @@
-// templui component selectbox - version: v0.94.0 installed by templui v0.94.0
+// templui component selectbox - version: v0.96.0 installed by templui v0.96.0
 package selectbox
 
 import (
@@ -181,9 +181,9 @@ templ Value(props ...ValueProps) {
 			id={ p.ID }
 		}
 		class={ utils.TwMerge("block truncate select-value text-muted-foreground", p.Class) }
-        if p.Placeholder != "" {
-            data-tui-selectbox-placeholder={ p.Placeholder }
-        }
+		if p.Placeholder != "" {
+			data-tui-selectbox-placeholder={ p.Placeholder }
+		}
 		{ p.Attributes... }
 	>
 		if p.Placeholder != "" {

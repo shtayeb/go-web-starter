@@ -1,18 +1,20 @@
 package auth
 
-import "go-web-starter/cmd/web/layouts"
-import "go-web-starter/cmd/web/components/ui/card"
-import "go-web-starter/internal/forms"
-import "go-web-starter/cmd/web/components/ui/button"
-import "go-web-starter/cmd/web/components/ui/input"
-import "go-web-starter/cmd/web/components/ui/form"
-import "go-web-starter/internal/types"
-import "go-web-starter/cmd/web/components"
-import "go-web-starter/cmd/web/components/ui/modal"
+import (
+	"go-web-starter/cmd/web/components"
+	"go-web-starter/cmd/web/components/ui/button"
+	"go-web-starter/cmd/web/components/ui/card"
+	"go-web-starter/cmd/web/components/ui/dialog"
+	"go-web-starter/cmd/web/components/ui/form"
+	"go-web-starter/cmd/web/components/ui/input"
+	"go-web-starter/cmd/web/layouts"
+	"go-web-starter/internal/forms"
+	"go-web-starter/internal/types"
+)
 
 templ ProfileView(data types.TemplateData, updateUserForm forms.UpdateUserNameAndImageForm, updatePasswordform forms.UpdateAccountPasswordForm, deleteAccountForm forms.DeleteAccountForm) {
 	@layouts.DashboardLayout(data) {
-		@modal.Script()
+		@dialog.Script()
 		<div class="space-y-4">
 			@input.Script()
 			@AccountTab(data, updateUserForm)
@@ -55,19 +57,17 @@ templ PasswordTab(data types.TemplateData, updatePasswordform forms.UpdateAccoun
 }
 
 templ DangerZoneTab(data types.TemplateData, deleteAccountForm forms.DeleteAccountForm) {
-	// modal
-	@modal.Modal(modal.Props{
-		ID:    "default-modal",
+	// dialog
+	@dialog.Dialog(dialog.Props{
+		ID:    "default-dialog",
 		Class: "max-w-md",
 	}) {
-		@modal.Header(modal.HeaderProps{
-			Class: "p-4",
-		}) {
-			Are you absolutely sure?
-		}
-		@modal.Body(modal.BodyProps{
+		@dialog.Content(dialog.ContentProps{
 			Class: "!pt-2",
 		}) {
+			@dialog.Header() {
+				Are you absolutely sure?
+			}
 			<p class="text-sm text-gray-500 dark:text-gray-400 pb-4">This action cannot be undone. This will permanently delete your account and remove all your data from our servers.</p>
 			@DeleteAccountForm(data, deleteAccountForm)
 		}
@@ -87,8 +87,8 @@ templ DangerZoneTab(data types.TemplateData, deleteAccountForm forms.DeleteAccou
 						<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
 							This action cannot be undone. This will permanently delete your account and remove all your data from our servers.
 						</p>
-						@modal.Trigger(modal.TriggerProps{
-							For: "default-modal",
+						@dialog.Trigger(dialog.TriggerProps{
+							For: "default-dialog",
 						}) {
 							@button.Button(button.Props{
 								Variant: button.VariantDestructive,
@@ -139,8 +139,8 @@ templ DeleteAccountForm(data types.TemplateData, deleteAccountForm forms.DeleteA
 			}
 		}
 		<div class="flex justify-end gap-4">
-			@modal.Close(modal.CloseProps{
-				For: "default-modal",
+			@dialog.Close(dialog.CloseProps{
+				For: "default-dialog",
 			}) {
 				@button.Button() {
 					Cancel
