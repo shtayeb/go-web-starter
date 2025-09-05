@@ -63,12 +63,16 @@ templ DangerZoneTab(data types.TemplateData, deleteAccountForm forms.DeleteAccou
 		Class: "max-w-md",
 	}) {
 		@dialog.Content(dialog.ContentProps{
-			Class: "!pt-2",
+			Class: "",
 		}) {
 			@dialog.Header() {
-				Are you absolutely sure?
+				@dialog.Title() {
+					Are you absolutely sure?
+				}
+				@dialog.Description() {
+					This action cannot be undone. This will permanently delete your account and remove all your data from our servers.
+				}
 			}
-			<p class="text-sm text-gray-500 dark:text-gray-400 pb-4">This action cannot be undone. This will permanently delete your account and remove all your data from our servers.</p>
 			@DeleteAccountForm(data, deleteAccountForm)
 		}
 	}
