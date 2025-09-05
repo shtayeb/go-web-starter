@@ -4,7 +4,7 @@
 #
 
 app = 'go-web-starter'
-primary_region = 'nrt'
+primary_region = 'waw'
 
 [env]
   APP_NAME="GO Web Starter"
