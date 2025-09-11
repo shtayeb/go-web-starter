@@ -23,9 +23,8 @@ Every task you execute must follow this procedure without exception:
 ### 3. Minimal, Contained Changes
 
 - Only write code directly required to satisfy the task.
-- Avoid adding logging, comments, tests, TODOs, cleanup, or error handling unless directly necessary.
+- Avoid adding logging, tests, TODOs, or cleanup unless directly necessary.
 - No speculative changes or "while we're here" edits.
-- All logic should be isolated to not break existing flows.
 
 ### 4. Double Check Everything
 
@@ -43,7 +42,7 @@ Every task you execute must follow this procedure without exception:
 ### Core Stack
 
 - **Backend**: Go, Chi router, PostgreSQL
-- **Frontend**: HTMX, Templ, Tailwind CSS
+- **Frontend**: HTMX, Templ, Templui, Tailwind CSS
 - **Database**: sqlc for queries in `internal/queries/`, transactions via `db.WithTransaction()`
 
 ### Code Style Guidelines
@@ -52,56 +51,42 @@ Every task you execute must follow this procedure without exception:
 - **Error handling**: Return errors up the call stack, handle at handler level with `h.ServerError()`
 - **Templates**: Use Templ for components in `cmd/web/`, return HTML fragments for HTMX
 - **Testing**: use TestServer helpers from `internal/tests/`
+- **Forms**: use the existing form hanlding patterns. check login_hanlder for example
 
 ## Development Commands
 
 ```bash
-make build            # Build the application (generates templ, tailwind, compiles Go)
+go build -o main cmd/api/main.go # build the application
 make test-one TEST_NAME=TestFunctionName  # Run specific test
-make audit           # Format, vet, staticcheck, and test code
 go vet ./...         # Run Go vet
 staticcheck ./...    # Run static analysis
-make templ           # Generate templ templates with watch mode
 ```
 
 ## UI Components
 
 - Use UI components in the `cmd/web/components/ui` directory.
-- Available components: accordion, alert, aspectratio, avatar, badge, breadcrumb, button, calendar, card, carousel, chart, checkbox, code, collapsible, datepicker, dialog, dropdown, form, icon, input, inputotp, label, pagination, popover, progress, radio, rating, selectbox, separator, sheet, sidebar, skeleton, slider, switch, table, tabs, tagsinput, textarea, timepicker, toast, tooltip
-
-## HTMX Development Guidelines
-
-### Core Principles
-
-- Use html/template for server-side rendering
-- Implement http.HandlerFunc for handling HTMX requests
-- Write concise, clear, and technical responses with precise HTMX examples
-- Utilize HTMX's capabilities to enhance the interactivity of web applications without heavy JavaScript
-- Prioritize maintainability and readability; adhere to clean coding practices throughout your HTML and backend code
-- Use descriptive attribute names in HTMX for better understanding and collaboration among developers
-- Implement proper CSRF protection
-- Utilize HTMX extensions when needed
+- Available components are: accordion, alert, aspectratio, avatar, badge, breadcrumb, button, calendar, card, carousel, chart, checkbox, code, collapsible, datepicker, dialog, dropdown, form, icon, input, inputotp, label, pagination, popover, progress, radio, rating, selectbox, separator, sheet, sidebar, skeleton, slider, switch, table, tabs, tagsinput, textarea, timepicker, toast, tooltip
 
 ### HTMX Usage Patterns
 
+- Implement proper CSRF protection with htmx
+- Write concise, clear, and technical responses with precise HTMX examples
+- Utilize HTMX's capabilities to enhance the interactivity of web applications without heavy JavaScript
 - Use hx-get, hx-post, and other HTMX attributes to define server requests directly in HTML for cleaner separation of concerns
 - Structure your responses from the server to return only the necessary HTML snippets for updates, improving efficiency and performance
+- use the package https://github.com/angelofallars/htmx-go to work with htmx in GO files
 - Favor declarative attributes over JavaScript event handlers to streamline interactivity and reduce the complexity of your code
 - Leverage hx-trigger to customize event handling and control when requests are sent based on user interactions
 - Utilize hx-target to specify where the response content should be injected in the DOM, promoting flexibility and reusability
-
-### HTMX-Specific Guidelines
-
+- Utilize HTMX extensions when needed
 - Utilize HTMX's hx-confirm to prompt users for confirmation before performing critical actions (e.g., deletions)
-- Combine HTMX with other frontend libraries or frameworks (like Bootstrap or Tailwind CSS) for enhanced UI components without conflicting scripts
-- Use hx-push-url to update the browser's URL without a full page refresh, preserving user context and improving navigation
+- Combine HTMX with other frontend libraries or frameworks (Tailwind CSS) for enhanced UI components without conflicting scripts
 - Organize your templates to serve HTMX fragments efficiently, ensuring they are reusable and easily modifiable
 
 ### Error Handling and Validation
 
-- Implement server-side validation to ensure data integrity before processing requests from HTMX
-- Return appropriate HTTP status codes (e.g., 4xx for client errors, 5xx for server errors) and display user-friendly error messages using HTMX
-- Use the hx-swap attribute to customize how responses are inserted into the DOM (e.g., innerHTML, outerHTML, etc.) for error messages or validation feedback
+- Implement server-side validation to ensure data integrity before processing requests
+- Return appropriate HTTP status codes (e.g., 4xx for client errors, 5xx for server errors) and display user-friendly error messages
 
 ### Performance Optimization
 
